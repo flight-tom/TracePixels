@@ -13,34 +13,32 @@ public enum Renderer {
     /// 原圖加上所有標註（依 zIndex 由下而上）。模糊與馬賽克會遮蔽它們下方的一切，包含較低層的標註。
     public static func composite(_ capture: Capture, original: CGImage) -> CGImage {
         let width = original.width, height = original.height
-        var data = [UInt8](repeating: 0, count: width * height * 4)
-        var result: CGImage?
-        data.withUnsafeMutableBytes { buffer in
-            guard let base = buffer.baseAddress,
-                  let ctx = CGContext(
-                    data: base, width: width, height: height, bitsPerComponent: 8, bytesPerRow: width * 4,
-                    space: colorSpace, bitmapInfo: bitmapInfo)
-            else { return }
-            ctx.draw(original, in: CGRect(x: 0, y: 0, width: width, height: height))
+        // 用 calloc 取得歸零的緩衝區：`[UInt8](repeating:count:)` 在 Debug 組態是未特化的泛型，
+        // 5K 影像（約 5900 萬個元素）要花近百毫秒。
+        guard let base = calloc(width * height * 4, 1) else { return original }
+        defer { free(base) }
+        guard let ctx = CGContext(
+            data: base, width: width, height: height, bitsPerComponent: 8, bytesPerRow: width * 4,
+            space: colorSpace, bitmapInfo: bitmapInfo)
+        else { return original }
+        ctx.draw(original, in: CGRect(x: 0, y: 0, width: width, height: height))
 
-            // 之後改用左上為原點的座標繪製標註。
-            ctx.translateBy(x: 0, y: CGFloat(height))
-            ctx.scaleBy(x: 1, y: -1)
+        // 之後改用左上為原點的座標繪製標註。
+        ctx.translateBy(x: 0, y: CGFloat(height))
+        ctx.scaleBy(x: 1, y: -1)
 
-            let pixels = base.assumingMemoryBound(to: UInt8.self)
-            for annotation in capture.annotations.sorted(by: { $0.zIndex < $1.zIndex }) {
-                switch annotation.kind {
-                case let .blur(rect, strength):
-                    Redaction.blur(pixels: pixels, width: width, height: height, region: rect, strength: strength)
-                case let .pixelate(rect, strength):
-                    Redaction.pixelate(pixels: pixels, width: width, height: height, region: rect, strength: strength)
-                default:
-                    draw(annotation, in: ctx)
-                }
+        let pixels = base.assumingMemoryBound(to: UInt8.self)
+        for annotation in capture.annotations.sorted(by: { $0.zIndex < $1.zIndex }) {
+            switch annotation.kind {
+            case let .blur(rect, strength):
+                Redaction.blur(pixels: pixels, width: width, height: height, region: rect, strength: strength)
+            case let .pixelate(rect, strength):
+                Redaction.pixelate(pixels: pixels, width: width, height: height, region: rect, strength: strength)
+            default:
+                draw(annotation, in: ctx)
             }
-            result = ctx.makeImage()
         }
-        return result ?? original
+        return ctx.makeImage() ?? original
     }
 
     /// 把合成結果畫進呼叫端的 context（填滿 0..<寬、0..<高；context 為預設的左下原點）。
