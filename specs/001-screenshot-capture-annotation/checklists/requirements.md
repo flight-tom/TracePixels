@@ -1,36 +1,36 @@
-# Specification Quality Checklist: Screenshot Capture & Annotation
+# 規格品質檢查清單：截圖與標註
 
-**Purpose**: Validate specification completeness and quality before proceeding to planning
-**Created**: 2026-10-23
-**Feature**: [spec.md](../spec.md)
+**目的**：在進入規劃前，驗證規格的完整性與品質
+**建立日期**：2026-10-23
+**功能**：[spec.md](../spec.md)
 
-## Content Quality
+## 內容品質
 
-- [x] No implementation details (languages, frameworks, APIs)
-- [x] Focused on user value and business needs
-- [x] Written for non-technical stakeholders
-- [x] All mandatory sections completed
+- [x] 沒有實作細節（語言、框架、API）
+- [x] 聚焦於使用者價值與業務需求
+- [x] 以非技術利害關係人為對象撰寫
+- [x] 所有必填章節皆已完成
 
-## Requirement Completeness
+## 需求完整性
 
-- [x] No [NEEDS CLARIFICATION] markers remain
-- [x] Requirements are testable and unambiguous
-- [x] Success criteria are measurable
-- [x] Success criteria are technology-agnostic (no implementation details)
-- [x] All acceptance scenarios are defined
-- [x] Edge cases are identified
-- [x] Scope is clearly bounded
-- [x] Dependencies and assumptions identified
+- [x] 沒有殘留的 [NEEDS CLARIFICATION] 標記
+- [x] 需求可測試且無歧義
+- [x] 成功標準可衡量
+- [x] 成功標準與技術無關（沒有實作細節）
+- [x] 所有驗收情境皆已定義
+- [x] 已識別邊界情況
+- [x] 範圍界定清楚
+- [x] 已識別相依與假設
 
-## Feature Readiness
+## 功能就緒度
 
-- [x] All functional requirements have clear acceptance criteria
-- [x] User scenarios cover primary flows
-- [x] Feature meets measurable outcomes defined in Success Criteria
-- [x] No implementation details leak into specification
+- [x] 所有功能需求都有明確的驗收標準
+- [x] 使用者情境涵蓋主要流程
+- [x] 功能符合成功標準中定義的可衡量成果
+- [x] 規格中沒有洩漏實作細節
 
-## Notes
+## 備註
 
-- The "Swift / Xcode project" constraint from the request is recorded under Assumptions as a given constraint, not as a requirement, so the spec body stays implementation-neutral.
-- No [NEEDS CLARIFICATION] markers were needed. Reasonable defaults (PNG/JPEG export, local-only storage, out-of-scope items) are listed in Assumptions.
-- Ready for `/speckit-clarify` (optional) or `/speckit-plan`.
+- 需求中的「Swift／Xcode 專案」限制記錄在「假設」中，作為既定限制而非需求，使規格本文保持與實作無關。
+- 不需要 [NEEDS CLARIFICATION] 標記。合理的預設值（PNG／JPEG 匯出、僅本機儲存、範圍外項目）列在「假設」中。
+- 依專案憲章原則 VI，規格已改寫為繁體中文。

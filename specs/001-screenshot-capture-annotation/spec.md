@@ -1,188 +1,213 @@
-# Feature Specification: Screenshot Capture & Annotation
+# 功能規格：截圖與標註
 
-**Feature Branch**: `001-screenshot-capture-annotation`
+**功能分支**：`001-screenshot-capture-annotation`
 
-**Created**: 2026-10-23
+**建立日期**：2026-10-23
 
-**Status**: Draft
+**狀態**：草稿
 
-**Input**: User description: "I want a native macos version of snagit clone, use swift to write and xcode project. No need recording feature but screenshot capturing and annotation funciton are must to have."
+**輸入**：使用者描述：「I want a native macos version of snagit clone, use swift to write and xcode project. No need recording feature but screenshot capturing and annotation funciton are must to have.」
 
-## User Scenarios & Testing *(mandatory)*
+## Clarifications
 
-### User Story 1 - Capture a Screenshot (Priority: P1)
+### Session 2026-10-23
 
-A user presses a global shortcut (or uses the menu bar icon) and captures part or all of their screen: a dragged region, a single window, or a full display. The captured image is immediately available to them, opened in the editor and also on the clipboard if they chose that option, with no extra steps.
+依專案憲章原則 VII，以下問題皆由 Claude 採用自己的建議答案，未向使用者提問。
 
-**Why this priority**: Capture is the entry point to everything else. On its own it already delivers value as a screenshot utility.
+- Q: 編輯中的變更何時算「已儲存」？關閉編輯器或結束應用程式時，是否會遺失未匯出的標註？ → A: 每次擷取立即自動加入資料庫，編輯內容持續自動保存；關閉編輯器或結束應用程式都不會遺失編輯。需要警告的是刪除擷取，而不是關閉編輯器。
+- Q: 資料庫要保留多少擷取，是否自動刪除舊資料？ → A: 預設永不自動刪除；偏好設定顯示資料庫佔用空間，並提供手動「清除 N 天前的擷取」。
+- Q: 擷取視窗時，被其他視窗遮擋或部分在螢幕外的視窗要如何處理，是否包含視窗陰影？ → A: 擷取完整視窗內容，不含遮擋它的其他視窗；預設不含視窗陰影，可在偏好設定開啟。
+- Q: 預設儲存位置、檔名與 JPEG 品質為何？ → A: 預設存到「圖片」資料夾下的 SnagItForever 子資料夾；檔名為 `SnagItForever yyyy-MM-dd HH.mm.ss`，重名自動加序號；JPEG 品質預設 90%，可在偏好設定調整。
+- Q: 應用程式介面支援哪些語言，無障礙的最低要求為何？ → A: 介面支援繁體中文與英文並跟隨系統語言；所有工具與動作皆可由鍵盤與選單操作，並提供 VoiceOver 可讀的標籤。
 
-**Independent Test**: Trigger each capture mode (region, window, full screen) and confirm that an image matching what was on screen appears in the editor and can be saved or copied.
+### Session 2026-10-23（第 2 輪）
 
-**Acceptance Scenarios**:
+- Q: 復原／重做歷史是否在關閉編輯器後保留？ → A: 僅在編輯器開啟期間保留；重新開啟擷取時，標註內容完整保留，但復原歷史從空白開始。
+- Q: 是否允許同時開啟多個編輯器視窗？ → A: 允許。每個擷取各自開啟一個視窗，同一個擷取最多只有一個視窗。
+- Q: 應用程式以什麼形態常駐，是否登入時自動啟動？ → A: 常駐於選單列；Dock 圖示僅在有編輯器或資料庫視窗開啟時顯示；偏好設定提供「登入時啟動」，預設關閉。
+- Q: 區域擷取時提供哪些選取輔助？ → A: 選取期間即時顯示寬高與游標座標並提供放大鏡；放開滑鼠即確認，確認前可按 Escape 取消。
+- Q: 延遲（計時）擷取是否納入本版本？ → A: 不納入，列為範圍外。
 
-1. **Given** the app is running in the background, **When** the user presses the capture shortcut and drags a rectangle, **Then** the selected region is captured at the display's native resolution and opened in the editor.
-2. **Given** the user is in capture mode, **When** they hover over a window and click, **Then** only that window is captured, including its title bar.
-3. **Given** the user is in capture mode, **When** they choose full screen on a multi-display setup, **Then** the display under the pointer is captured.
-4. **Given** the user is in capture mode, **When** they press Escape, **Then** capture is cancelled and nothing is saved or copied.
-5. **Given** screen capture permission has not been granted, **When** the user attempts a capture, **Then** the app explains what is missing and guides them to grant it, instead of producing a blank or empty image.
+## 使用者情境與測試 *(必填)*
 
----
+### 使用者故事 1 - 擷取螢幕截圖（優先級：P1）
 
-### User Story 2 - Annotate a Capture (Priority: P1)
+使用者按下全域快速鍵（或使用選單列圖示），擷取螢幕的一部分或全部：拖曳選取的區域、單一視窗或整個顯示器。擷取完成的影像會立即可用，自動在編輯器中開啟；若使用者有選擇，也會同時複製到剪貼簿，不需要額外步驟。
 
-After capturing, the user marks up the image in an editor window. They add arrows, rectangles, ellipses, lines, text labels, numbered step markers, and a highlighter. They can blur or pixelate sensitive areas. They can select, move, resize, restyle (color, thickness, font size), reorder, and delete any annotation after placing it, and undo or redo any change.
+**優先級理由**：擷取是後續一切功能的入口。光是這項功能，就已經是一個有價值的截圖工具。
 
-**Why this priority**: Annotation is the other must-have named in the request and is what separates this app from the built-in macOS screenshot tool.
+**獨立測試**：觸發每一種擷取模式（區域、視窗、全螢幕），確認與螢幕上相符的影像出現在編輯器中，並可儲存或複製。
 
-**Independent Test**: Open any image in the editor, add one of each annotation type, edit and delete some of them, use undo and redo, and confirm the edits behave as expected.
+**驗收情境**：
 
-**Acceptance Scenarios**:
-
-1. **Given** an image is open in the editor, **When** the user picks the arrow tool and drags on the image, **Then** an arrow appears from the start point to the end point in the chosen color and thickness.
-2. **Given** an annotation exists, **When** the user selects it, **Then** handles appear and they can move, resize, recolor, or delete it without affecting the underlying image or other annotations.
-3. **Given** the user applied a blur to a region, **When** they export the image, **Then** the original pixel content under the blur cannot be recovered from the exported file.
-4. **Given** the user has made several edits, **When** they undo repeatedly, **Then** each edit is reverted in reverse order, and redo restores them.
-5. **Given** the user picks the step-marker tool, **When** they click several times on the image, **Then** markers are placed with automatically increasing numbers.
-6. **Given** the user picks the text tool, **When** they click and type, **Then** the text appears on the image and remains editable until finalized.
-
----
-
-### User Story 3 - Save, Copy, and Share the Result (Priority: P2)
-
-The user finishes editing and gets the image out of the app: copy to the clipboard, save to a file (PNG, JPEG), drag it into another app, or use the standard macOS share options.
-
-**Why this priority**: Capturing and annotating only pays off if the result is easy to use elsewhere, but a user can still get value from P1 stories using a basic save.
-
-**Independent Test**: Annotate an image, then copy it and paste it into another app, save it as PNG and as JPEG, and drag it into a chat or document window.
-
-**Acceptance Scenarios**:
-
-1. **Given** an annotated image, **When** the user chooses Copy, **Then** pasting into another app inserts the image with all annotations flattened into it.
-2. **Given** an annotated image, **When** the user chooses Save and picks PNG or JPEG, **Then** a file is written with the annotations included.
-3. **Given** an annotated image, **When** the user drags it from the editor to another app, **Then** the image is delivered to that app.
-4. **Given** an annotated image, **When** the user opens the share menu, **Then** the standard macOS sharing destinations are offered.
+1. **假設** 應用程式在背景執行，**當** 使用者按下擷取快速鍵並拖曳出一個矩形，**則** 選取的區域以顯示器的原生解析度被擷取，並在編輯器中開啟。
+2. **假設** 使用者處於擷取模式，**當** 他們將游標移到某個視窗上並點擊，**則** 只擷取該視窗，包含標題列。
+3. **假設** 使用者處於擷取模式，**當** 他們在多螢幕環境中選擇全螢幕，**則** 擷取游標所在的顯示器。
+4. **假設** 使用者處於擷取模式，**當** 他們按下 Escape，**則** 取消擷取，不儲存也不複製任何內容。
+5. **假設** 尚未授予螢幕擷取權限，**當** 使用者嘗試擷取，**則** 應用程式說明缺少什麼並引導使用者授予權限，而不是產出空白影像。
 
 ---
 
-### User Story 4 - Return to Earlier Captures (Priority: P2)
+### 使用者故事 2 - 標註擷取的影像（優先級：P1）
 
-The user can find recent captures in a library and reopen them to keep annotating. Annotations stay editable (not flattened) until the user exports.
+擷取後，使用者在編輯器視窗中為影像加上標記。他們可以加入箭頭、矩形、橢圓、線條、文字標籤、編號步驟標記與螢光筆；可以將敏感區域模糊或馬賽克化；放置標註之後，仍可選取、移動、縮放、調整樣式（顏色、粗細、字級）、調整前後順序與刪除任何標註，並可復原與重做每一項變更。
 
-**Why this priority**: It turns the app from a one-shot tool into a working tool, but is not required for the first useful release.
+**優先級理由**：標註是需求中指明的另一項必備功能，也是本應用程式有別於 macOS 內建截圖工具之處。
 
-**Independent Test**: Capture and annotate an image, close the editor, quit and relaunch the app, then reopen the capture from the library and confirm the annotations are still individually editable.
+**獨立測試**：在編輯器中開啟任一影像，加入每一種標註類型各一個，編輯並刪除其中幾個，使用復原與重做，確認編輯行為符合預期。
 
-**Acceptance Scenarios**:
+**驗收情境**：
 
-1. **Given** the user has made several captures, **When** they open the library, **Then** recent captures appear as thumbnails, newest first.
-2. **Given** a capture with annotations, **When** the user reopens it from the library, **Then** every annotation is still selectable and editable.
-3. **Given** a capture in the library, **When** the user deletes it, **Then** it is removed from the library after confirmation.
-
----
-
-### User Story 5 - Refine the Image (Priority: P3)
-
-The user crops the image, resizes it, and applies simple polish such as a border, drop shadow, or a slight rounded corner, so that screenshots look consistent in documents.
-
-**Why this priority**: These are quality-of-life additions that are useful but not essential to the core capture and annotate loop.
-
-**Independent Test**: Open an image, crop it, resize it, add a border and shadow, and export it.
-
-**Acceptance Scenarios**:
-
-1. **Given** an image in the editor, **When** the user crops it, **Then** the canvas shrinks to the selection and existing annotations that fall outside it are discarded or clipped.
-2. **Given** an image in the editor, **When** the user applies a border or drop shadow, **Then** it appears in the preview and in the exported file.
+1. **假設** 編輯器中已開啟一張影像，**當** 使用者選擇箭頭工具並在影像上拖曳，**則** 從起點到終點出現一個使用所選顏色與粗細的箭頭。
+2. **假設** 已存在一個標註，**當** 使用者選取它，**則** 出現控制點，使用者可以移動、縮放、變更顏色或刪除，而不影響底層影像或其他標註。
+3. **假設** 使用者對某區域套用了模糊，**當** 他們匯出影像，**則** 無法從匯出的檔案中復原模糊區域下的原始像素內容。
+4. **假設** 使用者已做了多項編輯，**當** 他們連續復原，**則** 每項編輯依相反順序被還原，重做則可恢復。
+5. **假設** 使用者選擇步驟標記工具，**當** 他們在影像上連續點擊數次，**則** 標記依序放置，編號自動遞增。
+6. **假設** 使用者選擇文字工具，**當** 他們點擊並輸入，**則** 文字出現在影像上，並在完成前保持可編輯。
 
 ---
 
-### Edge Cases
+### 使用者故事 3 - 儲存、複製與分享成果（優先級：P2）
 
-- The user captures a region that spans multiple displays with different resolutions or scale factors.
-- The user captures on a display with a very high resolution, producing a large image.
-- A capture is requested while a protected window (for example, DRM video or a secure input field) is on screen. The protected content appears blank in the capture, and the user is not misled about this.
-- The user changes screen capture permission while the app is running.
-- The chosen save location is unavailable or the disk is full.
-- The user quits with unsaved annotation changes.
-- The capture shortcut conflicts with another app's or the system's shortcut.
-- A very long text annotation, or many hundreds of annotations, is placed on one image.
-- The system appearance switches between light and dark mode while the editor is open.
+使用者完成編輯後，可將影像帶出應用程式：複製到剪貼簿、儲存為檔案（PNG、JPEG）、拖曳到其他應用程式，或使用 macOS 標準的分享選項。
 
-## Requirements *(mandatory)*
+**優先級理由**：擷取與標註要能輕鬆在其他地方使用才有價值；但即使只有基本的儲存功能，使用者仍能從 P1 故事獲得價值。
 
-### Functional Requirements
+**獨立測試**：標註一張影像後，複製並貼到另一個應用程式，另存為 PNG 與 JPEG，並拖曳到聊天或文件視窗中。
 
-**Capture**
+**驗收情境**：
 
-- **FR-001**: Users MUST be able to start a capture from a configurable global keyboard shortcut and from a menu bar item.
-- **FR-002**: Users MUST be able to capture a user-defined rectangular region, a single window, or a full display.
-- **FR-003**: The system MUST capture at the display's native pixel resolution, including on Retina displays.
-- **FR-004**: Users MUST be able to cancel a capture in progress without side effects.
-- **FR-005**: The system MUST detect when screen capture permission is missing and guide the user to grant it.
-- **FR-006**: Users MUST be able to choose whether the mouse cursor is included in a capture.
-- **FR-007**: Users MUST be able to choose what happens after a capture (open in editor, copy to clipboard, save to a default folder), and these choices are remembered.
+1. **假設** 有一張已標註的影像，**當** 使用者選擇複製，**則** 貼到其他應用程式時插入的是所有標註已合成進去的影像。
+2. **假設** 有一張已標註的影像，**當** 使用者選擇儲存並選擇 PNG 或 JPEG，**則** 寫出包含標註的檔案。
+3. **假設** 有一張已標註的影像，**當** 使用者將它從編輯器拖曳到其他應用程式，**則** 該應用程式收到這張影像。
+4. **假設** 有一張已標註的影像，**當** 使用者開啟分享選單，**則** 提供 macOS 標準的分享目的地。
 
-**Annotation**
+---
 
-- **FR-008**: The editor MUST provide these annotation tools: arrow, line, rectangle, ellipse, freehand pen, highlighter, text, and numbered step marker.
-- **FR-009**: The editor MUST provide blur and pixelate tools for obscuring parts of an image.
-- **FR-010**: Users MUST be able to set color, stroke thickness, and, for text, font and size, for each annotation.
-- **FR-011**: Every annotation MUST remain independently selectable, movable, resizable, restylable, and deletable until the image is exported.
-- **FR-012**: The editor MUST support unlimited undo and redo of all edits during an editing session.
-- **FR-013**: Obscured regions MUST be irreversibly altered in exported output.
-- **FR-014**: Users MUST be able to change the stacking order of overlapping annotations.
-- **FR-015**: The editor MUST support zooming and panning the canvas.
+### 使用者故事 4 - 回到先前的擷取（優先級：P2）
 
-**Output**
+使用者可以在資料庫中找到最近的擷取並重新開啟，繼續標註。在使用者匯出之前，標註保持可編輯（不會被壓平）。
 
-- **FR-016**: Users MUST be able to copy the flattened, annotated image to the clipboard.
-- **FR-017**: Users MUST be able to save the annotated image as PNG or JPEG.
-- **FR-018**: Users MUST be able to drag the annotated image out of the editor into other apps.
-- **FR-019**: The editor MUST offer the standard macOS sharing options.
+**優先級理由**：這讓應用程式從一次性工具變成能持續工作的工具，但不是第一個可用版本所必需。
 
-**Library and persistence**
+**獨立測試**：擷取並標註一張影像，關閉編輯器，結束並重新啟動應用程式，從資料庫重新開啟該擷取，確認標註仍可個別編輯。
 
-- **FR-020**: The system MUST keep a library of recent captures with their editable annotations.
-- **FR-021**: Users MUST be able to reopen, re-edit, and delete captures from the library.
-- **FR-022**: The system MUST warn the user before discarding unsaved changes.
+**驗收情境**：
 
-**Refinement**
+1. **假設** 使用者已進行多次擷取，**當** 他們開啟資料庫，**則** 最近的擷取以縮圖顯示，最新的在前。
+2. **假設** 有一個含標註的擷取，**當** 使用者從資料庫重新開啟，**則** 每個標註仍可選取與編輯。
+3. **假設** 資料庫中有一個擷取，**當** 使用者刪除它，**則** 經確認後從資料庫移除。
 
-- **FR-023**: Users MUST be able to crop and resize the image.
-- **FR-024**: Users MUST be able to add a border and drop shadow to the image.
+---
 
-**General**
+### 使用者故事 5 - 修飾影像（優先級：P3）
 
-- **FR-025**: The app MUST support both light and dark appearance.
-- **FR-026**: Captures and annotations MUST remain on the user's machine unless the user explicitly shares or exports them.
+使用者可以裁切影像、調整大小，並套用簡單的修飾，例如邊框、陰影或輕微圓角，讓文件中的截圖風格一致。
 
-### Key Entities
+**優先級理由**：這些是提升品質的加分功能，有用但不是擷取與標註核心循環所必需。
 
-- **Capture**: A screenshot image taken at a point in time. It has pixel dimensions, a capture time, and a source (region, window, or display).
-- **Annotation**: A single mark placed on a capture. It has a type (for example arrow, text, blur), geometry, style (color, thickness, font), and stacking order. It belongs to exactly one capture.
-- **Library**: The collection of a user's saved captures, with their annotations, ordered by capture time.
-- **Preferences**: The user's settings, including capture shortcut, post-capture behavior, default save location and format, cursor inclusion, and default annotation styles.
+**獨立測試**：開啟一張影像，裁切、調整大小、加上邊框與陰影，然後匯出。
 
-## Success Criteria *(mandatory)*
+**驗收情境**：
 
-### Measurable Outcomes
+1. **假設** 編輯器中有一張影像，**當** 使用者裁切它，**則** 畫布縮小為所選範圍，落在範圍外的既有標註被捨棄或裁掉。
+2. **假設** 編輯器中有一張影像，**當** 使用者套用邊框或陰影，**則** 它同時出現在預覽與匯出的檔案中。
 
-- **SC-001**: A user can go from pressing the capture shortcut to having an image on the clipboard in under 5 seconds for a region capture.
-- **SC-002**: A first-time user can capture a region, add an arrow and a text label, and copy the result in under 2 minutes without reading documentation.
-- **SC-003**: The capture overlay appears within 300 milliseconds of the shortcut press, and the captured image opens in the editor within 1 second on a typical modern Mac.
-- **SC-004**: Annotation interactions (drawing, moving, resizing) feel immediate, with no visible lag on images up to 5K resolution holding 100 annotations.
-- **SC-005**: 100% of exported images with blur or pixelate applied have no recoverable original content in the obscured regions.
-- **SC-006**: An image exported at a given zoom level matches the on-screen composition exactly, with annotations in the same positions and styles.
-- **SC-007**: 100% of saved library captures reopen with all annotations still individually editable after the app is quit and relaunched.
-- **SC-008**: In user testing, at least 90% of participants complete the primary task (capture, annotate, share) on their first attempt.
+---
 
-## Assumptions
+### 邊界情況
 
-- The app targets macOS only and is built natively as a Swift application in an Xcode project, as stated in the request. This is a given constraint, and detailed technical choices are left for the planning phase.
-- Screen recording, video capture, and GIF creation are explicitly out of scope.
-- Scrolling (long page) capture, panoramic capture, and OCR text extraction are out of scope for this release.
-- Cloud sync, accounts, and any network-dependent features are out of scope. All data stays local.
-- The app is for a single user on a single Mac and does not need to support collaboration.
-- The user will grant the macOS screen capture permission when prompted. The app cannot capture without it.
-- The minimum supported macOS version will be decided during planning, targeting reasonably current releases.
-- PNG and JPEG are sufficient export formats for this release.
-- Distribution method (Mac App Store, notarized direct download, or both) is not decided here and does not affect the requirements above.
+- 使用者擷取的區域橫跨多個解析度或縮放比例不同的顯示器。
+- 使用者在極高解析度的顯示器上擷取，產生很大的影像。
+- 擷取時畫面上有受保護的視窗（例如 DRM 影片或安全輸入欄位）。受保護的內容在擷取中顯示為空白，且不會誤導使用者。
+- 應用程式執行期間，使用者變更了螢幕擷取權限。
+- 選定的儲存位置無法使用，或磁碟已滿。
+- 使用者在編輯中途結束應用程式，或應用程式意外終止。最近的編輯已自動保存，重新開啟後可繼續。
+- 要擷取的視窗被其他視窗部分或完全遮擋，或部分位於螢幕之外。
+- 擷取快速鍵與其他應用程式或系統的快速鍵衝突。
+- 單張影像上放置了非常長的文字標註，或數百個標註。
+- 編輯器開啟期間，系統外觀在淺色與深色模式之間切換。
+
+## 需求 *(必填)*
+
+### 功能需求
+
+**擷取**
+
+- **FR-001**：使用者 MUST 能透過可自訂的全域鍵盤快速鍵與選單列項目啟動擷取。
+- **FR-002**：使用者 MUST 能擷取自訂的矩形區域、單一視窗或整個顯示器。區域選取期間 MUST 即時顯示寬高與游標座標並提供放大鏡，放開滑鼠即確認。視窗擷取 MUST 擷取完整視窗內容且不含遮擋它的其他視窗；預設不含視窗陰影，可在偏好設定開啟。
+- **FR-003**：系統 MUST 以顯示器的原生像素解析度擷取，包含 Retina 顯示器。
+- **FR-004**：使用者 MUST 能取消進行中的擷取，且不產生副作用。
+- **FR-005**：系統 MUST 偵測螢幕擷取權限是否缺少，並引導使用者授予。
+- **FR-006**：使用者 MUST 能選擇擷取時是否包含滑鼠游標。
+- **FR-007**：使用者 MUST 能選擇擷取後的行為（在編輯器開啟、複製到剪貼簿、儲存到預設資料夾），且這些選擇會被記住。
+
+**標註**
+
+- **FR-008**：編輯器 MUST 提供下列標註工具：箭頭、線條、矩形、橢圓、手繪筆、螢光筆、文字與編號步驟標記。
+- **FR-009**：編輯器 MUST 提供模糊與馬賽克工具，用於遮蔽影像的部分區域。
+- **FR-010**：使用者 MUST 能為每個標註設定顏色與線條粗細；文字標註另可設定字型與字級。
+- **FR-011**：每個標註在影像匯出前 MUST 保持可個別選取、移動、縮放、調整樣式與刪除。
+- **FR-012**：編輯器 MUST 在編輯器開啟期間支援無限次的復原與重做。復原歷史不跨工作階段保留，重新開啟擷取時標註完整保留但歷史從空白開始。
+- **FR-013**：被遮蔽的區域在匯出結果中 MUST 被不可逆地改變。
+- **FR-014**：使用者 MUST 能變更重疊標註的前後順序。
+- **FR-015**：編輯器 MUST 支援畫布的縮放與平移。
+
+**輸出**
+
+- **FR-016**：使用者 MUST 能將合成後的標註影像複製到剪貼簿。
+- **FR-017**：使用者 MUST 能將標註後的影像儲存為 PNG 或 JPEG。預設儲存位置為「圖片」資料夾下的 SnagItForever 子資料夾，檔名為 `SnagItForever yyyy-MM-dd HH.mm.ss`，重名時自動加序號；JPEG 品質預設 90%，可在偏好設定調整。
+- **FR-018**：使用者 MUST 能將標註後的影像從編輯器拖曳到其他應用程式。
+- **FR-019**：編輯器 MUST 提供 macOS 標準的分享選項。
+
+**資料庫與持久化**
+
+- **FR-020**：系統 MUST 將每次擷取立即自動加入資料庫並保留其可編輯的標註。系統 MUST NOT 自動刪除資料庫中的擷取；偏好設定 MUST 顯示資料庫佔用空間，並提供手動「清除 N 天前的擷取」。
+- **FR-021**：使用者 MUST 能從資料庫重新開啟、重新編輯與刪除擷取。
+- **FR-022**：系統 MUST 在編輯過程中持續自動保存變更，使關閉編輯器或結束應用程式都不會遺失編輯。系統 MUST 在永久刪除擷取前要求使用者確認。
+
+**修飾**
+
+- **FR-023**：使用者 MUST 能裁切與調整影像大小。
+- **FR-024**：使用者 MUST 能為影像加上邊框與陰影。
+
+**一般**
+
+- **FR-025**：應用程式 MUST 支援淺色與深色外觀。
+- **FR-026**：除非使用者明確分享或匯出，擷取與標註 MUST 保留在使用者的電腦上。
+- **FR-027**：應用程式介面 MUST 支援繁體中文與英文，並跟隨系統語言。
+- **FR-028**：所有工具與動作 MUST 能由鍵盤與選單操作，且介面元件 MUST 提供 VoiceOver 可讀的標籤。
+- **FR-029**：應用程式 MUST 常駐於選單列；Dock 圖示僅在有編輯器或資料庫視窗開啟時顯示。偏好設定 MUST 提供「登入時啟動」，預設關閉。
+- **FR-030**：系統 MUST 允許同時開啟多個編輯器視窗，每個擷取各自一個視窗；同一個擷取最多只開啟一個視窗。
+
+### 關鍵實體
+
+- **擷取（Capture）**：某個時間點拍下的螢幕截圖影像。具有像素尺寸、擷取時間、最後修改時間與來源（區域、視窗或顯示器）。
+- **標註（Annotation）**：放在擷取上的單一標記。具有類型（例如箭頭、文字、模糊）、幾何、樣式（顏色、粗細、字型）與前後順序，且恰好屬於一個擷取。
+- **資料庫（Library）**：使用者已儲存的擷取及其標註，依擷取時間排序。
+- **偏好設定（Preferences）**：使用者的設定，包括擷取快速鍵、擷取後行為、預設儲存位置與格式、JPEG 品質、是否包含游標、是否包含視窗陰影、登入時啟動，以及預設標註樣式。
+
+## 成功標準 *(必填)*
+
+### 可衡量的成果
+
+- **SC-001**：使用者從按下擷取快速鍵到影像進入剪貼簿，區域擷取可在 5 秒內完成。
+- **SC-002**：首次使用的使用者不看文件，能在 2 分鐘內完成擷取區域、加上一個箭頭與一個文字標籤，並複製結果。
+- **SC-003**：按下快速鍵後 300 毫秒內出現擷取覆蓋層，在一般的近期 Mac 上，擷取的影像在 1 秒內於編輯器中開啟。
+- **SC-004**：在最高 5K 解析度、含 100 個標註的影像上，標註操作（繪製、移動、縮放）沒有明顯延遲，感覺是即時的。
+- **SC-005**：套用模糊或馬賽克的匯出影像，100% 無法復原被遮蔽區域的原始內容。
+- **SC-006**：在任一縮放比例下匯出的影像，其構圖與螢幕上完全一致，標註的位置與樣式相同。
+- **SC-007**：資料庫中 100% 的已儲存擷取，在應用程式結束並重新啟動後重新開啟，所有標註仍可個別編輯。
+- **SC-008**：在使用者測試中，至少 90% 的參與者第一次嘗試就能完成主要任務（擷取、標註、分享）。
+
+## 假設
+
+- 應用程式僅以 macOS 為目標，依需求以 Swift 原生撰寫並使用 Xcode 專案。這是既定的限制，細部技術選擇留待規劃階段決定。
+- 螢幕錄影、影片擷取與 GIF 製作明確列為範圍外。
+- 捲動（長網頁）擷取、全景擷取、延遲（計時）擷取與 OCR 文字擷取不在本版本範圍內。
+- 雲端同步、帳號與任何依賴網路的功能不在範圍內，所有資料留在本機。
+- 本應用程式供單一使用者在單一 Mac 上使用，不需支援協作。
+- 使用者在被提示時會授予 macOS 螢幕擷取權限；沒有此權限，應用程式無法擷取。
+- 最低支援的 macOS 版本將於規劃階段決定，目標為相當新的版本。
+- 本版本的匯出格式以 PNG 與 JPEG 為足夠。
+- 發行方式（Mac App Store、經公證的直接下載，或兩者）此處不決定，也不影響上述需求。
