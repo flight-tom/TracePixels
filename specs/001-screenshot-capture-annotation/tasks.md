@@ -31,11 +31,11 @@ description: "截圖與標註功能的任務清單"
 
 **目的**：專案初始化與基本結構
 
-- [ ] T001 建立 `Packages/SnagItCore/Package.swift`（swift-tools-version 6.0、platforms `.macOS(.v14)`、library 產品 `SnagItCore`、測試 target `SnagItCoreTests`、Swift 6 語言模式），並建立 `Model/`、`History/`、`Rendering/`、`Persistence/` 子目錄與一個可編譯的占位檔
-- [ ] T002 [P] 建立 App target 骨架：`SnagItForever/Info.plist`（`LSUIElement` 為真、螢幕擷取用途說明、`CFBundleDevelopmentRegion` 為 `zh-Hant`）與 `SnagItForever/SnagItForever.entitlements`（不啟用 App Sandbox）
-- [ ] T003 建立 `SnagItForever.xcodeproj/project.pbxproj` 與共享 scheme `SnagItForever.xcscheme`：使用檔案系統同步群組指向 `SnagItForever/`、以 `XCLocalSwiftPackageReference` 引用 `Packages/SnagItCore`、部署目標 macOS 14.0、App target 使用 Swift 5 語言模式、啟用 Hardened Runtime、ad-hoc 簽署（`CODE_SIGN_IDENTITY = -`）
-- [ ] T004 [P] 建立 `SnagItForever/Resources/Assets.xcassets`（AppIcon 占位、AccentColor）與 `SnagItForever/Resources/Localizable.xcstrings`（開發語言 `zh-Hant`，並含 `en`）
-- [ ] T005 建立最小的 App 進入點 `SnagItForever/App/SnagItForeverApp.swift` 與 `SnagItForever/App/AppDelegate.swift`；驗證 `swift test`（於 `Packages/SnagItCore`）與 `xcodebuild -project SnagItForever.xcodeproj -scheme SnagItForever -configuration Debug -destination 'platform=macOS' build` 皆成功
+- [X] T001 建立 `Packages/SnagItCore/Package.swift`（swift-tools-version 6.0、platforms `.macOS(.v14)`、library 產品 `SnagItCore`、測試 target `SnagItCoreTests`、Swift 6 語言模式），並建立 `Model/`、`History/`、`Rendering/`、`Persistence/` 子目錄與一個可編譯的占位檔
+- [X] T002 [P] 建立 App target 骨架：以 `GENERATE_INFOPLIST_FILE` 產生 Info.plist（`INFOPLIST_KEY_LSUIElement` 為真，開發語言 `zh-Hant`，避免同步群組重複處理 Info.plist），並在儲存庫根目錄建立 `SnagItForever.entitlements`（不啟用 App Sandbox）
+- [X] T003 建立 `SnagItForever.xcodeproj/project.pbxproj` 與共享 scheme `SnagItForever.xcscheme`：使用檔案系統同步群組指向 `SnagItForever/`、以 `XCLocalSwiftPackageReference` 引用 `Packages/SnagItCore`、部署目標 macOS 14.0、App target 使用 Swift 5 語言模式、啟用 Hardened Runtime、ad-hoc 簽署（`CODE_SIGN_IDENTITY = -`）
+- [X] T004 [P] 建立 `SnagItForever/Resources/Assets.xcassets`（AppIcon 占位、AccentColor）與 `SnagItForever/Resources/Localizable.xcstrings`（開發語言 `zh-Hant`，並含 `en`）
+- [X] T005 建立最小的 App 進入點 `SnagItForever/App/main.swift`（明確啟動 `NSApplication`）與 `SnagItForever/App/AppDelegate.swift`；驗證 `swift test`（於 `Packages/SnagItCore`）與 `xcodebuild -project SnagItForever.xcodeproj -scheme SnagItForever -configuration Debug -destination 'platform=macOS' build` 皆成功
 
 ---
 
