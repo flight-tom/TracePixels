@@ -41,6 +41,11 @@ open "$(xcodebuild -project SnagItForever.xcodeproj -scheme SnagItForever \
 | FR-017 檔名與格式 | `SnagItCoreTests/FileNamerTests`、`ExportTests` |
 | FR-020～FR-022、SC-007 資料庫與持久化 | `SnagItCoreTests/LibraryStoreTests`：寫入、重新載入、損毀項目隔離、原圖不被修改 |
 | FR-023、FR-024 裁切、縮放、修飾 | `SnagItCoreTests/FinishAndCropTests` |
+| FR-002 區域選取座標換算（多螢幕、夾限） | `SnagItCoreTests/CaptureGeometryTests` |
+| FR-011 移動與控制點縮放、拖曳草稿與 Shift 約束 | `SnagItCoreTests/AnnotationTransformTests`、`DraftShapeTests` |
+| FR-020 保留策略（不自動刪除、手動清除） | `SnagItCoreTests/LibraryRetentionTests` |
+| FR-021、SC-007 重新開啟後仍可編輯 | `SnagItCoreTests/ReopenRoundTripTests` |
+| SC-004 5K＋100 個標註的渲染時間 | `SnagItCoreTests/PerformanceTests`（`swift test` 與 `swift test -c release` 皆應通過） |
 
 ## 手動驗證程序
 

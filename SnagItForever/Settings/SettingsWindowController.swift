@@ -35,6 +35,8 @@ private struct SettingsRootView: View {
 
     var body: some View {
         TabView {
+            GeneralSettingsView(preferences: preferences)
+                .tabItem { Label("一般", systemImage: "gearshape") }
             CaptureSettingsView(preferences: preferences, hotKeyController: hotKeyController)
                 .tabItem { Label("擷取", systemImage: "camera.viewfinder") }
             ExportSettingsView(preferences: preferences)

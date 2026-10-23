@@ -95,6 +95,17 @@
     "·": {
       "shouldTranslate": false
     },
+    "一般": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "General"
+          }
+        }
+      }
+    },
     "上移一層": {
       "extractionState": "manual",
       "localizations": {
@@ -113,6 +124,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "Send Backward"
+          }
+        }
+      }
+    },
+    "位置 %lld, %lld": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "position %lld, %lld"
           }
         }
       }
@@ -547,6 +569,17 @@
         }
       }
     },
+    "影像畫布": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Image canvas"
+          }
+        }
+      }
+    },
     "復原": {
       "extractionState": "manual",
       "localizations": {
@@ -576,6 +609,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "Pen"
+          }
+        }
+      }
+    },
+    "手繪線": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Freehand stroke"
           }
         }
       }
@@ -756,6 +800,17 @@
         }
       }
     },
+    "文字：%@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Text: %@"
+          }
+        }
+      }
+    },
     "最小化": {
       "extractionState": "manual",
       "localizations": {
@@ -774,6 +829,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "Blur"
+          }
+        }
+      }
+    },
+    "模糊遮蔽": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Blur redaction"
           }
         }
       }
@@ -829,6 +895,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "Step Marker"
+          }
+        }
+      }
+    },
+    "步驟標記 %lld": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Step marker %lld"
           }
         }
       }
@@ -940,6 +1017,28 @@
           "stringUnit": {
             "state": "translated",
             "value": "Unreadable capture, %@"
+          }
+        }
+      }
+    },
+    "無法變更登入時啟動：%@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Could not change launch at login: %@"
+          }
+        }
+      }
+    },
+    "登入時啟動": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Launch at login"
           }
         }
       }
@@ -1098,6 +1197,17 @@
         }
       }
     },
+    "螢光標示": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Highlight"
+          }
+        }
+      }
+    },
     "螢光筆": {
       "extractionState": "manual",
       "localizations": {
@@ -1205,6 +1315,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "Resize Output…"
+          }
+        }
+      }
+    },
+    "請到「系統設定 › 一般 › 登入項目與延伸功能」允許 SnagItForever。": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Allow SnagItForever in System Settings › General › Login Items & Extensions."
           }
         }
       }
@@ -1418,6 +1539,17 @@
         }
       }
     },
+    "開啟後，登入 Mac 時 SnagItForever 會自動在選單列待命。": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "When on, SnagItForever starts automatically in the menu bar when you log in to your Mac."
+          }
+        }
+      }
+    },
     "開啟系統設定": {
       "extractionState": "manual",
       "localizations": {
@@ -1535,6 +1667,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "Pixelate"
+          }
+        }
+      }
+    },
+    "馬賽克遮蔽": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pixelate redaction"
           }
         }
       }

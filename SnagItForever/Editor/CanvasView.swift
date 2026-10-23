@@ -6,7 +6,7 @@ import SnagItCore
 /// 顯示的是 `Renderer` 的合成結果（與匯出同一份程式碼），選取框與控制點畫在其上。
 @MainActor
 final class CanvasView: NSView {
-    private let viewModel: EditorViewModel
+    let viewModel: EditorViewModel
     private let tools: ToolController
     private var textEditor: TextEditingController?
     private var cancellables = Set<AnyCancellable>()
@@ -26,7 +26,11 @@ final class CanvasView: NSView {
             .receive(on: DispatchQueue.main)
             .sink { [weak self] _ in self?.viewModelChanged() }
             .store(in: &cancellables)
+        configureAccessibility()
     }
+
+    override func isAccessibilityElement() -> Bool { false }
+    override func accessibilityChildren() -> [Any]? { makeAccessibilityElements() }
 
     @available(*, unavailable)
     required init?(coder: NSCoder) { fatalError("init(coder:) 未實作") }
@@ -78,7 +82,7 @@ final class CanvasView: NSView {
         border.stroke()
     }
 
-    private func viewRect(_ r: PixelRect) -> NSRect {
+    func viewRect(_ r: PixelRect) -> NSRect {
         let n = r.normalized
         return NSRect(x: n.x / pixelsPerPoint, y: n.y / pixelsPerPoint, width: n.width / pixelsPerPoint, height: n.height / pixelsPerPoint)
     }

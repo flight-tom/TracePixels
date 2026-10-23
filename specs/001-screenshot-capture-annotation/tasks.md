@@ -202,13 +202,13 @@ description: "截圖與標註功能的任務清單"
 **目的**：影響多個使用者故事的改善、文件與最終驗證
 
 - [X] T068 [P] 補齊 `SnagItForever/Resources/Localizable.xcstrings`：所有使用者可見字串的 `zh-Hant` 與 `en` 翻譯（FR-027）
-- [ ] T069 [P] 補齊無障礙：工具列與面板元件的 VoiceOver 標籤、畫布提供標註清單供 VoiceOver 導覽、所有動作皆有選單項目與快速鍵（FR-028）
-- [ ] T070 [P] 實作 `SnagItForever/Settings/GeneralSettingsView.swift`：以 `SMAppService` 提供「登入時啟動」，預設關閉（FR-029）
-- [ ] T071 [P] 檢查淺色與深色外觀：全部使用動態系統顏色，畫布背景與控制點在兩種外觀都清楚（FR-025）
+- [X] T069 [P] 補齊無障礙：工具列與面板元件的 VoiceOver 標籤、畫布提供標註清單供 VoiceOver 導覽、所有動作皆有選單項目與快速鍵（FR-028）
+- [X] T070 [P] 實作 `SnagItForever/Settings/GeneralSettingsView.swift`：以 `SMAppService` 提供「登入時啟動」，預設關閉（FR-029）
+- [X] T071 [P] 檢查淺色與深色外觀：全部使用動態系統顏色，畫布背景與控制點在兩種外觀都清楚（FR-025）
 - [X] T072 [P] 撰寫 `CoreTests/PerformanceTests.swift`：5K（5120×2880）影像含 100 個標註時，單一畫面的渲染耗時中位數（30 次）≤ 33 ms（Debug 與 Release 皆達標；為此核心套件在 Debug 組態也以 `-O` 編譯，並以 `calloc` 配置像素緩衝），`flatten` 在 2 秒內完成（SC-004）
-- [ ] T073 稽核無網路行為：在 `SnagItForever/` 與 `Packages/` 搜尋 `URLSession`、`NWConnection`、`CFNetwork`、`WKWebView` 等網路用法，確認為零（FR-026，憲章原則 II）
-- [ ] T074 以繁體中文更新 `CLAUDE.md`：建置、測試、單一測試指令、高階架構（App target ＋ `SnagItCore`）、螢幕擷取權限的開發注意事項（憲章開發流程要求）
-- [ ] T075 [P] 以繁體中文更新 `README.md`：專案簡介、需求、建置與執行
+- [X] T073 稽核無網路行為：在 `SnagItForever/` 與 `Packages/` 搜尋 `URLSession`、`NWConnection`、`CFNetwork`、`WKWebView` 等網路用法，確認為零（FR-026，憲章原則 II）
+- [X] T074 以繁體中文更新 `CLAUDE.md`：建置、測試、單一測試指令、高階架構（App target ＋ `SnagItCore`）、螢幕擷取權限的開發注意事項（憲章開發流程要求）
+- [X] T075 [P] 以繁體中文更新 `README.md`：專案簡介、需求、建置與執行
 - [ ] T076 最終驗證：執行 quickstart 的所有自動化步驟（`swift test`、`xcodebuild build`），將結果、「需審查者手動驗證的項目」（含 SC-001、SC-003 的量測）與已知限制（受保護內容如 DRM 影片在擷取中為空白，系統無法偵測）寫入 `specs/001-screenshot-capture-annotation/verification.md`
 
 ---
