@@ -14,10 +14,15 @@ final class EditorViewModel: ObservableObject {
     @Published private(set) var style: Style
     @Published private(set) var editingTextID: Annotation.ID?
     @Published var saveWarning: String?
+    /// 拖曳裁切框時的暫時範圍；放開滑鼠才寫入文件（可復原）。
+    @Published var cropDraft: PixelRect?
+    /// 套用裁切、縮放與修飾後的匯出預覽（畫面與匯出一致，FR-024）。
+    @Published private(set) var exportPreview: NSImage?
 
     let original: CGImage
     private let preferences: Preferences
     private var editingTextIsNew = false
+    private var previewTask: Task<Void, Never>?
 
     init(capture: Capture, original: CGImage, preferences: Preferences) {
         self.original = original
@@ -48,6 +53,53 @@ final class EditorViewModel: ObservableObject {
         var visible = document.capture
         if let hidden = editingTextID { visible.annotations.removeAll { $0.id == hidden } }
         rendered = Renderer.composite(visible, original: original)
+        schedulePreview()
+    }
+
+    /// 只有在裁切、縮放或修飾不是預設值時才需要預覽；放在背景執行並去抖動。
+    private func schedulePreview() {
+        previewTask?.cancel()
+        let capture = document.capture
+        guard capture.crop != nil || capture.outputScale != 1 || capture.finish != .none else {
+            exportPreview = nil
+            return
+        }
+        let source = SendableImage(original)
+        previewTask = Task { [weak self] in
+            try? await Task.sleep(for: .milliseconds(250))
+            guard !Task.isCancelled else { return }
+            let image = await Task.detached(priority: .utility) {
+                try? Renderer.flatten(capture, original: source.cgImage)
+            }.value
+            guard !Task.isCancelled, let image else { return }
+            self?.exportPreview = NSImage(cgImage: image, size: NSSize(width: image.width, height: image.height))
+        }
+    }
+
+    // MARK: 裁切、縮放、修飾
+
+    func commitCrop(_ rect: PixelRect) {
+        cropDraft = nil
+        mutate { $0.setCrop(rect) }
+    }
+
+    func clearCrop() { mutate { $0.setCrop(nil) } }
+
+    func setOutputScale(_ scale: Double) { mutate { $0.setOutputScale(scale) } }
+
+    func setFinish(_ change: (inout Finish) -> Void) {
+        var finish = document.capture.finish
+        change(&finish)
+        mutate { $0.setFinish(finish) }
+    }
+
+    /// 目前匯出尺寸（像素）：裁切範圍（或整張）乘以輸出縮放，再加上邊框與陰影的邊距。
+    var outputPixelSize: PixelSize {
+        let base = capture.crop?.normalized ?? capture.pixelSize.rect
+        let width = max(1, Int((base.width * capture.outputScale).rounded()))
+        let height = max(1, Int((base.height * capture.outputScale).rounded()))
+        let margin = capture.finish.margin
+        return PixelSize(width: width + 2 * margin, height: height + 2 * margin)
     }
 
     func mutate(_ change: (inout EditingDocument) -> Void) {

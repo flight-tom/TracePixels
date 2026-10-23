@@ -2,7 +2,7 @@ import SnagItCore
 
 /// 編輯器工具與單鍵快速鍵（見 contracts/commands.md）。
 enum EditorTool: String, CaseIterable, Identifiable {
-    case select, arrow, line, rectangle, ellipse, pen, highlighter, text, step, blur, pixelate
+    case select, arrow, line, rectangle, ellipse, pen, highlighter, text, step, blur, pixelate, crop
 
     var id: String { rawValue }
 
@@ -19,6 +19,7 @@ enum EditorTool: String, CaseIterable, Identifiable {
         case .step: "n"
         case .blur: "b"
         case .pixelate: "x"
+        case .crop: "c"
         }
     }
 
@@ -35,6 +36,7 @@ enum EditorTool: String, CaseIterable, Identifiable {
         case .step: String(localized: "步驟標記")
         case .blur: String(localized: "模糊")
         case .pixelate: String(localized: "馬賽克")
+        case .crop: String(localized: "裁切")
         }
     }
 
@@ -51,6 +53,7 @@ enum EditorTool: String, CaseIterable, Identifiable {
         case .step: "1.circle"
         case .blur: "drop"
         case .pixelate: "squareshape.split.3x3"
+        case .crop: "crop"
         }
     }
 
@@ -64,7 +67,7 @@ enum EditorTool: String, CaseIterable, Identifiable {
         case .blur: .blur
         case .pixelate: .pixelate
         case .text: .text
-        case .select, .pen, .highlighter, .step: nil
+        case .select, .pen, .highlighter, .step, .crop: nil
         }
     }
 

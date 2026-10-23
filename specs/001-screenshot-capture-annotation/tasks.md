@@ -183,15 +183,15 @@ description: "截圖與標註功能的任務清單"
 
 ### 先寫測試
 
-- [ ] T062 [P] [US5] 撰寫 `CoreTests/FinishAndCropTests.swift`：`crop` 必須完全落在 `0..pixelSize` 內且寬高 ≥ 1；`outputScale` 範圍 0.1–4.0；`flatten` 尺寸等於裁切範圍乘以 `outputScale`（加上邊框與陰影的擴張）；圓角使四個角落像素為透明；裁切可復原；原圖與標註資料不被修改
+- [X] T062 [P] [US5] 撰寫 `CoreTests/FinishAndCropTests.swift`：`crop` 必須完全落在 `0..pixelSize` 內且寬高 ≥ 1；`outputScale` 範圍 0.1–4.0；`flatten` 尺寸等於裁切範圍乘以 `outputScale`（加上邊框與陰影的擴張）；圓角使四個角落像素為透明；裁切可復原；原圖與標註資料不被修改
 
 ### 實作
 
-- [ ] T063 [US5] 實作 `Core/Rendering/Renderer.swift` 的 `crop`、`outputScale`、`finish` 處理，以及 `EditingDocument.setCrop`／`setOutputScale`／`setFinish`，使 T062 通過
-- [ ] T064 [P] [US5] 實作 `SnagItForever/Editor/Tools/CropToolController.swift`：裁切工具（`C`）與預覽
-- [ ] T065 [P] [US5] 實作 `SnagItForever/Editor/ResizeSheet.swift`（SwiftUI）：調整輸出大小
-- [ ] T066 [P] [US5] 在 `SnagItForever/Editor/InspectorView.swift` 加入邊框、陰影、圓角控制，預覽與匯出一致（FR-024）
-- [ ] T067 [US5] 驗證：`swift test` 全數通過、`xcodebuild … build` 成功；quickstart M5 列入 PR 供手動驗證
+- [X] T063 [US5] 實作 `Core/Rendering/Renderer.swift` 的 `crop`、`outputScale`、`finish` 處理，以及 `EditingDocument.setCrop`／`setOutputScale`／`setFinish`，使 T062 通過
+- [X] T064 [P] [US5] 實作 `SnagItForever/Editor/Tools/CropToolController.swift`：裁切工具（`C`）與預覽
+- [X] T065 [P] [US5] 實作 `SnagItForever/Editor/ResizeSheet.swift`（SwiftUI）：調整輸出大小
+- [X] T066 [P] [US5] 在 `SnagItForever/Editor/InspectorView.swift` 加入邊框、陰影、圓角控制，預覽與匯出一致（FR-024）
+- [X] T067 [US5] 驗證：`swift test` 全數通過、`xcodebuild … build` 成功；quickstart M5 列入 PR 供手動驗證
 
 **檢查點**：所有使用者故事皆可獨立運作
 

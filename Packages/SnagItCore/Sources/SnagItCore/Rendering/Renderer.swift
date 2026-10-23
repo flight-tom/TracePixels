@@ -49,9 +49,94 @@ public enum Renderer {
         context.draw(image, in: CGRect(x: 0, y: 0, width: image.width, height: image.height))
     }
 
-    /// 合成最終匯出影像。
+    /// 合成最終匯出影像：標註與遮蔽 → 裁切 → 縮放 → 邊框、陰影與圓角。
+    /// 全部是非破壞性的：不會修改傳入的 `capture` 或原圖。
     public static func flatten(_ capture: Capture, original: CGImage) throws -> CGImage {
-        composite(capture, original: original)
+        var image = composite(capture, original: original)
+
+        if let crop = capture.crop {
+            let bounds = PixelRect(x: 0, y: 0, width: Double(image.width), height: Double(image.height))
+            guard let r = crop.clamped(to: bounds) else { throw ExportError.encodingFailed }
+            let rect = CGRect(
+                x: r.minX.rounded(.down), y: r.minY.rounded(.down),
+                width: max(1, r.maxX.rounded(.up) - r.minX.rounded(.down)),
+                height: max(1, r.maxY.rounded(.up) - r.minY.rounded(.down)))
+            guard let cropped = image.cropping(to: rect) else { throw ExportError.encodingFailed }
+            image = cropped
+        }
+
+        if capture.outputScale != 1 {
+            image = try resized(image, scale: capture.outputScale)
+        }
+
+        if capture.finish != .none {
+            image = try decorated(image, with: capture.finish)
+        }
+        return image
+    }
+
+    // MARK: 縮放與修飾
+
+    private static func makeContext(width: Int, height: Int) throws -> CGContext {
+        guard let ctx = CGContext(
+            data: nil, width: width, height: height, bitsPerComponent: 8, bytesPerRow: 0,
+            space: colorSpace, bitmapInfo: bitmapInfo)
+        else { throw ExportError.encodingFailed }
+        ctx.interpolationQuality = .high
+        return ctx
+    }
+
+    private static func resized(_ image: CGImage, scale: Double) throws -> CGImage {
+        let width = max(1, Int((Double(image.width) * scale).rounded()))
+        let height = max(1, Int((Double(image.height) * scale).rounded()))
+        let ctx = try makeContext(width: width, height: height)
+        ctx.draw(image, in: CGRect(x: 0, y: 0, width: width, height: height))
+        guard let result = ctx.makeImage() else { throw ExportError.encodingFailed }
+        return result
+    }
+
+    private static func roundedPath(_ rect: CGRect, radius: Double) -> CGPath {
+        let r = max(0, min(radius, min(rect.width, rect.height) / 2))
+        return CGPath(roundedRect: rect, cornerWidth: r, cornerHeight: r, transform: nil)
+    }
+
+    /// 邊框（在影像外圍）、陰影與圓角。畫布往四邊各擴張 `finish.margin` 像素。
+    private static func decorated(_ image: CGImage, with finish: Finish) throws -> CGImage {
+        let margin = finish.margin
+        let borderWidth = finish.border.map { Double(Int($0.width.rounded(.up))) } ?? 0
+        let width = image.width + 2 * margin, height = image.height + 2 * margin
+        let ctx = try makeContext(width: width, height: height)
+
+        let inner = CGRect(x: margin, y: margin, width: image.width, height: image.height)
+        let framed = inner.insetBy(dx: -borderWidth, dy: -borderWidth)
+        let radius = min(finish.cornerRadius, min(framed.width, framed.height) / 2)
+
+        func enableShadow() {
+            guard let shadow = finish.shadow else { return }
+            // 規格中 offsetY 為正代表往下；CoreGraphics 的 y 軸向上，所以取負號。
+            ctx.setShadow(
+                offset: CGSize(width: shadow.offsetX, height: -shadow.offsetY),
+                blur: CGFloat(shadow.blurRadius), color: cgColor(shadow.color))
+        }
+
+        // 先用整個外框形狀填色來產生陰影（不能在裁切範圍內畫，否則陰影會被裁掉）；
+        // 有邊框時這個填色就是邊框，沒有邊框時之後會被影像以 .copy 完全蓋掉。
+        ctx.saveGState()
+        enableShadow()
+        ctx.setFillColor(finish.border.map { cgColor($0.color) } ?? CGColor(gray: 0, alpha: 1))
+        ctx.addPath(roundedPath(framed, radius: radius))
+        ctx.fillPath()
+        ctx.restoreGState()
+
+        ctx.saveGState()
+        ctx.addPath(roundedPath(inner, radius: max(radius - borderWidth, 0)))
+        ctx.clip()
+        ctx.setBlendMode(.copy)
+        ctx.draw(image, in: inner)
+        ctx.restoreGState()
+
+        guard let result = ctx.makeImage() else { throw ExportError.encodingFailed }
+        return result
     }
 
     // MARK: 逐類型繪製

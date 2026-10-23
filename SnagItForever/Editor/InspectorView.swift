@@ -23,9 +23,13 @@ struct InspectorView: View {
         let style = viewModel.inspectorStyle
         let caps = capabilities
         Form {
-            if caps.isEmpty {
+            if caps.isEmpty && viewModel.tool != .crop {
                 Text("選擇工具或標註以調整樣式")
                     .foregroundStyle(.secondary)
+            }
+
+            if viewModel.tool == .crop || viewModel.capture.crop != nil {
+                cropSection
             }
 
             if !caps.isDisjoint(with: [.stroke, .text, .step]) {
@@ -84,8 +88,83 @@ struct InspectorView: View {
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
+
+            finishSection
+            previewSection
         }
         .formStyle(.grouped)
+    }
+
+    // MARK: 裁切、修飾與預覽
+
+    private var cropSection: some View {
+        Section(String(localized: "裁切")) {
+            if let crop = viewModel.capture.crop {
+                Text("\(Int(crop.width.rounded())) × \(Int(crop.height.rounded())) 像素")
+                    .monospacedDigit()
+                Button("清除裁切") { viewModel.clearCrop() }
+            } else {
+                Text("在影像上拖曳出要保留的範圍。裁切不會修改原圖，可隨時復原。")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+        }
+    }
+
+    private var finishSection: some View {
+        let finish = viewModel.capture.finish
+        return Section(String(localized: "修飾")) {
+            Toggle(String(localized: "邊框"), isOn: Binding(
+                get: { finish.border != nil },
+                set: { on in viewModel.setFinish { $0.border = on ? Finish.Border(color: .black, width: 4) : nil } }))
+            if let border = finish.border {
+                ColorPicker(String(localized: "邊框顏色"), selection: Binding(
+                    get: { border.color.swiftUIColor },
+                    set: { new in viewModel.setFinish { $0.border?.color = RGBAColor(new) } }), supportsOpacity: false)
+                slider(String(localized: "邊框寬度"), value: border.width, range: 1...32) { value in
+                    viewModel.setFinish { $0.border?.width = value }
+                }
+            }
+
+            Toggle(String(localized: "陰影"), isOn: Binding(
+                get: { finish.shadow != nil },
+                set: { on in
+                    viewModel.setFinish {
+                        $0.shadow = on ? Finish.Shadow(blurRadius: 12, offsetX: 0, offsetY: 6, color: RGBAColor(r: 0, g: 0, b: 0, a: 0.4)) : nil
+                    }
+                }))
+            if let shadow = finish.shadow {
+                slider(String(localized: "模糊"), value: shadow.blurRadius, range: 0...40) { value in
+                    viewModel.setFinish { $0.shadow?.blurRadius = value }
+                }
+                slider(String(localized: "垂直位移"), value: shadow.offsetY, range: -30...30) { value in
+                    viewModel.setFinish { $0.shadow?.offsetY = value }
+                }
+            }
+
+            slider(String(localized: "圓角"), value: finish.cornerRadius, range: 0...60) { value in
+                viewModel.setFinish { $0.cornerRadius = value }
+            }
+        }
+    }
+
+    /// 套用裁切、縮放與修飾後的匯出預覽，與實際匯出的檔案一致。
+    @ViewBuilder
+    private var previewSection: some View {
+        if let preview = viewModel.exportPreview {
+            let size = viewModel.outputPixelSize
+            Section(String(localized: "匯出預覽")) {
+                Image(nsImage: preview)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(maxWidth: .infinity, maxHeight: 180)
+                    .accessibilityLabel(String(localized: "匯出預覽"))
+                Text("\(size.width) × \(size.height) 像素")
+                    .font(.caption)
+                    .monospacedDigit()
+                    .foregroundStyle(.secondary)
+            }
+        }
     }
 
     private var isFilled: Bool {

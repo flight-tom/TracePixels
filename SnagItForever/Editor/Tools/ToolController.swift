@@ -15,6 +15,7 @@ final class ToolController {
     }
 
     private var drawing: Drawing?
+    private var cropOrigin: PixelPoint?
 
     init(viewModel: EditorViewModel) {
         self.viewModel = viewModel
@@ -26,6 +27,10 @@ final class ToolController {
         switch tool {
         case .select:
             selectionController.mouseDown(at: point, clickCount: clickCount, shift: shift, tolerance: tolerance)
+
+        case .crop:
+            cropOrigin = point
+            viewModel.cropDraft = PixelRect(x: point.x, y: point.y, width: 0, height: 0)
 
         case .step:
             viewModel.beginGesture()
@@ -57,6 +62,10 @@ final class ToolController {
             selectionController.mouseDragged(to: point)
             return
         }
+        if viewModel.tool == .crop, let origin = cropOrigin {
+            viewModel.cropDraft = Self.clampedCrop(from: origin, to: point, in: viewModel.capture.pixelSize)
+            return
+        }
         guard var drawing else { return }
         let id = drawing.id
         switch drawing.tool {
@@ -77,6 +86,12 @@ final class ToolController {
     func mouseUp(at point: PixelPoint) {
         if viewModel.tool == .select {
             selectionController.mouseUp()
+            return
+        }
+        if viewModel.tool == .crop, let origin = cropOrigin {
+            cropOrigin = nil
+            let rect = Self.clampedCrop(from: origin, to: point, in: viewModel.capture.pixelSize)
+            if rect.width >= 4, rect.height >= 4 { viewModel.commitCrop(rect) } else { viewModel.cropDraft = nil }
             return
         }
         guard let drawing else { return }
@@ -105,5 +120,14 @@ final class ToolController {
         } else {
             viewModel.selection = []
         }
+    }
+
+    /// 拖曳出的裁切框，夾限在影像範圍內。
+    private static func clampedCrop(from a: PixelPoint, to b: PixelPoint, in size: PixelSize) -> PixelRect {
+        let bounds = size.rect
+        func clamp(_ p: PixelPoint) -> PixelPoint {
+            PixelPoint(x: min(max(p.x, bounds.minX), bounds.maxX), y: min(max(p.y, bounds.minY), bounds.maxY))
+        }
+        return PixelRect(from: clamp(a), to: clamp(b))
     }
 }

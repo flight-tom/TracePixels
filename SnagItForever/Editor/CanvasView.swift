@@ -59,7 +59,23 @@ final class CanvasView: NSView {
         NSGraphicsContext.current?.imageInterpolation = magnification >= 2 ? .none : .high
         NSImage(cgImage: viewModel.rendered, size: bounds.size).draw(
             in: bounds, from: .zero, operation: .copy, fraction: 1, respectFlipped: true, hints: nil)
+        drawCrop()
         drawSelection()
+    }
+
+    /// 有裁切範圍（或正在拖曳）時，把範圍外加暗，並描出範圍邊框。匯出只會包含範圍內的內容。
+    private func drawCrop() {
+        guard let crop = viewModel.cropDraft ?? viewModel.capture.crop else { return }
+        let hole = viewRect(crop)
+        let path = NSBezierPath(rect: bounds)
+        path.append(NSBezierPath(rect: hole))
+        path.windingRule = .evenOdd
+        NSColor.black.withAlphaComponent(0.45).setFill()
+        path.fill()
+        let border = NSBezierPath(rect: hole)
+        border.lineWidth = CGFloat(1 / magnification)
+        NSColor.white.setStroke()
+        border.stroke()
     }
 
     private func viewRect(_ r: PixelRect) -> NSRect {

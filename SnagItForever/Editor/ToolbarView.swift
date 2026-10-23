@@ -4,6 +4,7 @@ import SwiftUI
 struct ToolbarView: View {
     @ObservedObject var viewModel: EditorViewModel
     var actions: EditorWindowActions
+    @State private var showsResize = false
 
     var body: some View {
         HStack(spacing: 4) {
@@ -36,6 +37,8 @@ struct ToolbarView: View {
 
             Divider().frame(height: 18).padding(.horizontal, 4)
 
+            iconButton("arrow.up.left.and.arrow.down.right", String(localized: "調整輸出大小…")) { showsResize = true }
+
             iconButton("doc.on.doc", String(localized: "複製影像")) { actions.copyImage() }
             iconButton("square.and.arrow.down", String(localized: "另存新檔…")) { actions.saveAs() }
             ShareButton(share: actions.share)
@@ -53,6 +56,9 @@ struct ToolbarView: View {
         }
         .padding(.horizontal, 10)
         .frame(height: 40)
+        .sheet(isPresented: $showsResize) {
+            ResizeSheet(viewModel: viewModel) { showsResize = false }
+        }
     }
 
     private func iconButton(_ symbol: String, _ title: String, enabled: Bool = true, action: @escaping () -> Void) -> some View {
