@@ -5,11 +5,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var statusItemController: StatusItemController?
     private var hotKeyController: HotKeyController?
     private var coordinator: CaptureCoordinator?
+    private var editors: EditorWindowRegistry?
     private var settingsWindow: SettingsWindowController?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         MainActor.assumeIsolated {
             let editors = EditorWindowRegistry(environment: environment)
+            self.editors = editors
+            NSApp.mainMenu = MainMenuBuilder.build(settingsTarget: self, settingsAction: #selector(openSettings(_:)))
             let coordinator = CaptureCoordinator(environment: environment, editors: editors)
             self.coordinator = coordinator
 
@@ -25,6 +28,20 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             actions.openSettings = { [weak self] in self?.showSettings() }
             statusItemController = StatusItemController(actions: actions)
         }
+    }
+
+    @objc private func openSettings(_ sender: Any?) {
+        showSettings()
+    }
+
+    /// 結束前把所有開啟中的編輯器保存完，避免遺失最後 0.5 秒內的編輯。
+    func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
+        guard let editors else { return .terminateNow }
+        Task { @MainActor in
+            await editors.flushAll()
+            NSApp.reply(toApplicationShouldTerminate: true)
+        }
+        return .terminateLater
     }
 
     private func showSettings() {

@@ -102,25 +102,25 @@ description: "截圖與標註功能的任務清單"
 
 ### 先寫測試
 
-- [ ] T029 [P] [US2] 撰寫 `CoreTests/EditingDocumentTests.swift`：新增／更新／移除、`reorder`（最上層、最下層、上移、下移）、`undo`／`redo`、`beginGesture`／`endGesture` 合併為一次歷史、`hitTest` 的容差與最上層優先、`step` 放置時編號為「目前最大編號 + 1」且不自動重新編號
-- [ ] T030 [P] [US2] 撰寫 `CoreTests/RedactionTests.swift`：給定兩張僅在某磁磚內部細節不同、但該磁磚平均值相同的原圖，`blur` 與 `pixelate` 遮蔽後輸出逐像素相同（SC-005）；強度最小為 8 px；區域外像素不變
-- [ ] T031 [P] [US2] 撰寫 `CoreTests/RendererTests.swift`：每種 `Kind` 畫出的像素落在預期位置；`draw` 與 `flatten` 對同一份資料輸出相同像素（SC-006）；`flatten` 不修改傳入的原圖
+- [X] T029 [P] [US2] 撰寫 `CoreTests/EditingDocumentTests.swift`：新增／更新／移除、`reorder`（最上層、最下層、上移、下移）、`undo`／`redo`、`beginGesture`／`endGesture` 合併為一次歷史、`hitTest` 的容差與最上層優先、`step` 放置時編號為「目前最大編號 + 1」且不自動重新編號
+- [X] T030 [P] [US2] 撰寫 `CoreTests/RedactionTests.swift`：給定兩張僅在某磁磚內部細節不同、但該磁磚平均值相同的原圖，`blur` 與 `pixelate` 遮蔽後輸出逐像素相同（SC-005）；強度最小為 8 px；區域外像素不變
+- [X] T031 [P] [US2] 撰寫 `CoreTests/RendererTests.swift`：每種 `Kind` 畫出的像素落在預期位置；`draw` 與 `flatten` 對同一份資料輸出相同像素（SC-006）；`flatten` 不修改傳入的原圖
 
 ### 實作
 
-- [ ] T032 [P] [US2] 實作 `Core/History/History.swift`：標註陣列的快照式復原／重做堆疊與手勢合併（D-09）
-- [ ] T033 [US2] 實作 `Core/History/EditingDocument.swift`：依 [contracts/core-api.md](./contracts/core-api.md) 提供編輯操作、`hitTest`、`reorder`（相依 T032）
-- [ ] T034 [P] [US2] 實作 `Core/Rendering/Redaction.swift`：磁磚平均的馬賽克，以及先磁磚平均再平滑的模糊（最小磁磚 8 px，D-08）
-- [ ] T035 [US2] 實作 `Core/Rendering/Renderer.swift`：`draw` 與 `flatten`（暫不含 crop／finish／outputScale）逐類型繪製，呼叫 `Redaction`（相依 T034）
-- [ ] T036 [US2] 實作 `SnagItForever/Editor/Tools/ToolController.swift`：箭頭、線條、矩形、橢圓、手繪筆、螢光筆、步驟標記、模糊、馬賽克的拖曳建立流程（相依 T033）
-- [ ] T037 [US2] 擴充 `SnagItForever/Editor/CanvasView.swift`：改用 `Renderer.draw` 繪製、縮放與平移（`⌘+`／`⌘-`／`⌘0`，FR-015）、視圖座標與影像像素座標轉換（相依 T035）
-- [ ] T038 [US2] 實作 `SnagItForever/Editor/Tools/SelectionController.swift`：選取、控制點、移動、縮放、多選（FR-011，相依 T036、T037）
-- [ ] T039 [US2] 實作 `SnagItForever/Editor/Tools/TextEditingController.swift`：文字工具的就地編輯，完成前保持可編輯，雙擊可再編輯
-- [ ] T040 [P] [US2] 實作 `SnagItForever/Editor/ToolbarView.swift`（SwiftUI）：十一個工具按鈕、工具鍵依 commands.md，每個按鈕提供 `accessibilityLabel`
-- [ ] T041 [P] [US2] 實作 `SnagItForever/Editor/InspectorView.swift`（SwiftUI）：顏色、填滿、線條粗細、字型、字級，作用於選取的標註或目前工具的預設樣式（FR-010）
-- [ ] T042 [US2] 實作 `SnagItForever/Editor/EditorViewModel.swift` 並接上編輯選單：復原／重做、刪除、移到最上層／最下層、預設樣式（來自 Preferences）（相依 T033、T038～T041）
-- [ ] T043 [US2] 實作 `SnagItForever/Editor/AutosaveController.swift`：變更後 0.5 秒去抖動呼叫 `LibraryStore.save`，視窗關閉與應用程式結束時同步保存；`⌘W` 不跳警告；保存失敗（磁碟已滿、目錄不可寫）時於編輯器顯示不阻擋操作的提示並持續重試（FR-022，相依 T012、T042）
-- [ ] T044 [US2] 驗證：`swift test` 全數通過、`xcodebuild … build` 成功；quickstart M2 列入 PR 供手動驗證
+- [X] T032 [P] [US2] 實作 `Core/History/History.swift`：標註陣列的快照式復原／重做堆疊與手勢合併（D-09）
+- [X] T033 [US2] 實作 `Core/History/EditingDocument.swift`：依 [contracts/core-api.md](./contracts/core-api.md) 提供編輯操作、`hitTest`、`reorder`（相依 T032）
+- [X] T034 [P] [US2] 實作 `Core/Rendering/Redaction.swift`：磁磚平均的馬賽克，以及先磁磚平均再平滑的模糊（最小磁磚 8 px，D-08）
+- [X] T035 [US2] 實作 `Core/Rendering/Renderer.swift`：`draw` 與 `flatten`（暫不含 crop／finish／outputScale）逐類型繪製，呼叫 `Redaction`（相依 T034）
+- [X] T036 [US2] 實作 `SnagItForever/Editor/Tools/ToolController.swift`（草稿形狀換算與太小判定放在核心的 `Core/Model/DraftShape.swift`，並有 `DraftShapeTests`）：箭頭、線條、矩形、橢圓、手繪筆、螢光筆、步驟標記、模糊、馬賽克的拖曳建立流程（相依 T033）
+- [X] T037 [US2] 擴充 `SnagItForever/Editor/CanvasView.swift`：改用 `Renderer.draw` 繪製、縮放與平移（`⌘+`／`⌘-`／`⌘0`，FR-015）、視圖座標與影像像素座標轉換（相依 T035）
+- [X] T038 [US2] 實作 `SnagItForever/Editor/Tools/SelectionController.swift`（移動與控制點縮放的幾何放在核心的 `Core/Model/Annotation+Transform.swift`，並有 `AnnotationTransformTests`）：選取、控制點、移動、縮放、多選（FR-011，相依 T036、T037）
+- [X] T039 [US2] 實作 `SnagItForever/Editor/Tools/TextEditingController.swift`：文字工具的就地編輯，完成前保持可編輯，雙擊可再編輯
+- [X] T040 [P] [US2] 實作 `SnagItForever/Editor/ToolbarView.swift`（SwiftUI）：十一個工具按鈕、工具鍵依 commands.md，每個按鈕提供 `accessibilityLabel`
+- [X] T041 [P] [US2] 實作 `SnagItForever/Editor/InspectorView.swift`（SwiftUI）：顏色、填滿、線條粗細、字型、字級，作用於選取的標註或目前工具的預設樣式（FR-010）
+- [X] T042 [US2] 實作 `SnagItForever/Editor/EditorViewModel.swift` 並接上編輯選單：復原／重做、刪除、移到最上層／最下層、預設樣式（來自 Preferences）（相依 T033、T038～T041）
+- [X] T043 [US2] 實作 `SnagItForever/Editor/AutosaveController.swift`：變更後 0.5 秒去抖動呼叫 `LibraryStore.save`，視窗關閉與應用程式結束時同步保存；`⌘W` 不跳警告；保存失敗（磁碟已滿、目錄不可寫）時於編輯器顯示不阻擋操作的提示並持續重試（FR-022，相依 T012、T042）
+- [X] T044 [US2] 驗證：`swift test` 全數通過、`xcodebuild … build` 成功；quickstart M2 列入 PR 供手動驗證
 
 **檢查點**：使用者故事 1 與 2 皆可獨立運作
 
