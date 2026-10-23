@@ -47,19 +47,19 @@ description: "截圖與標註功能的任務清單"
 
 ### 先寫測試（必須先失敗）
 
-- [ ] T006 [P] 撰寫 `CoreTests/GeometryTests.swift`：點、尺寸、矩形的正規化（負寬高）、交集、包含、夾限
-- [ ] T007 [P] 撰寫 `CoreTests/ModelCodingTests.swift`：`Capture` 與 10 種 `Annotation.Kind` 的 JSON 往返；驗證規則——`lineWidth` 範圍 1–64、`fontSize` 範圍 8–400、`blur`／`pixelate` 強度小於 8 時一律提升為 8、`pixelSize` 兩邊皆 > 0、`crop` 必須完全落在 `0..pixelSize` 內且寬高 ≥ 1、`annotations` 的 `id` 不可重複；未知 `kind.type` 時該標註被略過但保留原始 JSON
-- [ ] T008 [P] 撰寫 `CoreTests/LibraryStoreTests.swift`：建立、載入、儲存、刪除、`list()` 由新到舊、損毀目錄被隔離為不可用且不影響其他項目、`schemaVersion` 高於支援版本時為不可用且不被覆寫、`image.png` 位元組在儲存後保持不變、縮圖遺失時重建；並建立共用的 `CoreTests/Support/TestImages.swift`（產生純色、棋盤與漸層測試影像）
+- [X] T006 [P] 撰寫 `CoreTests/GeometryTests.swift`：點、尺寸、矩形的正規化（負寬高）、交集、包含、夾限
+- [X] T007 [P] 撰寫 `CoreTests/ModelCodingTests.swift`：`Capture` 與 10 種 `Annotation.Kind` 的 JSON 往返；驗證規則——`lineWidth` 範圍 1–64、`fontSize` 範圍 8–400、`blur`／`pixelate` 強度小於 8 時一律提升為 8、`pixelSize` 兩邊皆 > 0、`crop` 必須完全落在 `0..pixelSize` 內且寬高 ≥ 1、`annotations` 的 `id` 不可重複；未知 `kind.type` 時該標註被略過但保留原始 JSON
+- [X] T008 [P] 撰寫 `CoreTests/LibraryStoreTests.swift`：建立、載入、儲存、刪除、`list()` 由新到舊、損毀目錄被隔離為不可用且不影響其他項目、`schemaVersion` 高於支援版本時為不可用且不被覆寫、`image.png` 位元組在儲存後保持不變、縮圖遺失時重建；並建立共用的 `CoreTests/Support/TestImages.swift`（產生純色、棋盤與漸層測試影像）
 
 ### 實作
 
-- [ ] T009 [P] 實作 `Core/Model/Geometry.swift`：`PixelPoint`、`PixelSize`、`PixelRect`（左上為原點的像素座標，皆為 `Codable`、`Sendable`）
-- [ ] T010 [P] 實作 `Core/Model/Style.swift` 與 `Core/Model/Annotation.swift`：`RGBAColor`、`Style`（`lineWidth` 1–64、`fontSize` 8–400）、`Annotation`、`Annotation.Kind`（arrow、line、rectangle、ellipse、pen、highlighter、text、step、blur、pixelate；`blur`／`pixelate` 強度 < 8 時提升為 8）與保留未知類型的解碼
-- [ ] T011 實作 `Core/Model/Capture.swift`：`Capture`、`CaptureSource`、`Finish`、`schemaVersion` 與驗證（相依 T009、T010）
-- [ ] T012 實作 `Core/Persistence/LibraryStore.swift` 與 `Core/Persistence/Thumbnailer.swift`：依 [contracts/library-format.md](./contracts/library-format.md) 與 [contracts/core-api.md](./contracts/core-api.md)，`<UUID>.snagitcapture/` 目錄、原子寫入、縮圖長邊 320 px；跨 actor 傳遞的影像以 `SendableImage: @unchecked Sendable` 包裝（見 core-api.md）（相依 T011）
-- [ ] T013 [P] 實作 `SnagItForever/Settings/Preferences.swift`：以 `UserDefaults` 封裝 data-model.md 中的偏好設定鍵與預設值（`hotKey`＝`⌃⇧4`、`afterCapture`＝`[openEditor]`、`saveFolder`＝`~/Pictures/SnagItForever`、`jpegQuality`＝0.9 等）
-- [ ] T014 [P] 實作 `SnagItForever/App/StatusItemController.swift`（選單列圖示與選單項目，依 [contracts/commands.md](./contracts/commands.md)）與 `SnagItForever/App/ActivationPolicyManager.swift`（無視窗時隱藏 Dock 圖示、有編輯器或資料庫視窗時顯示，FR-029）
-- [ ] T015 實作 `SnagItForever/App/AppEnvironment.swift`：建立共用的 `LibraryStore`（目錄 `~/Library/Application Support/SnagItForever/Library/`）與 `Preferences`，並接上 `AppDelegate`（相依 T012、T013）
+- [X] T009 [P] 實作 `Core/Model/Geometry.swift`：`PixelPoint`、`PixelSize`、`PixelRect`（左上為原點的像素座標，皆為 `Codable`、`Sendable`）
+- [X] T010 [P] 實作 `Core/Model/Style.swift` 與 `Core/Model/Annotation.swift`：`RGBAColor`、`Style`（`lineWidth` 1–64、`fontSize` 8–400）、`Annotation`、`Annotation.Kind`（arrow、line、rectangle、ellipse、pen、highlighter、text、step、blur、pixelate；`blur`／`pixelate` 強度 < 8 時提升為 8）與保留未知類型的解碼
+- [X] T011 實作 `Core/Model/Capture.swift`：`Capture`、`CaptureSource`、`Finish`、`schemaVersion` 與驗證（相依 T009、T010）
+- [X] T012 實作 `Core/Persistence/LibraryStore.swift` 與 `Core/Persistence/Thumbnailer.swift`：依 [contracts/library-format.md](./contracts/library-format.md) 與 [contracts/core-api.md](./contracts/core-api.md)，`<UUID>.snagitcapture/` 目錄、原子寫入、縮圖長邊 320 px；跨 actor 傳遞的影像以 `SendableImage: @unchecked Sendable` 包裝（見 core-api.md）（相依 T011）
+- [X] T013 [P] 實作 `SnagItForever/Settings/Preferences.swift`：以 `UserDefaults` 封裝 data-model.md 中的偏好設定鍵與預設值（`hotKey`＝`⌃⇧4`、`afterCapture`＝`[openEditor]`、`saveFolder`＝`~/Pictures/SnagItForever`、`jpegQuality`＝0.9 等）
+- [X] T014 [P] 實作 `SnagItForever/App/StatusItemController.swift`（選單列圖示與選單項目，依 [contracts/commands.md](./contracts/commands.md)）與 `SnagItForever/App/ActivationPolicyManager.swift`（無視窗時隱藏 Dock 圖示、有編輯器或資料庫視窗時顯示，FR-029）
+- [X] T015 實作 `SnagItForever/App/AppEnvironment.swift`：建立共用的 `LibraryStore`（目錄 `~/Library/Application Support/SnagItForever/Library/`）與 `Preferences`，並接上 `AppDelegate`（相依 T012、T013）
 
 **檢查點**：基礎就緒——`swift test` 全數通過，App 可啟動並顯示選單列圖示；使用者故事可開始實作
 
