@@ -73,22 +73,22 @@ description: "截圖與標註功能的任務清單"
 
 ### 先寫測試
 
-- [ ] T016 [P] [US1] 撰寫 `CoreTests/CaptureGeometryTests.swift`：螢幕點座標選取矩形轉為顯示器像素 `sourceRect`（含 2.0 縮放、多螢幕原點偏移、選取超出邊界時夾限、拖曳方向反向的正規化、選取橫跨多個顯示器時限制在拖曳起點所在的顯示器內）
+- [X] T016 [P] [US1] 撰寫 `CoreTests/CaptureGeometryTests.swift`：螢幕點座標選取矩形轉為顯示器像素 `sourceRect`（含 2.0 縮放、多螢幕原點偏移、選取超出邊界時夾限、拖曳方向反向的正規化、選取橫跨多個顯示器時限制在拖曳起點所在的顯示器內）
 
 ### 實作
 
-- [ ] T017 [US1] 實作 `Core/Model/CaptureGeometry.swift`，使 T016 通過
-- [ ] T018 [P] [US1] 實作 `SnagItForever/Capture/ScreenCapturePermission.swift` 與 `SnagItForever/Capture/PermissionGuideWindow.swift`：`CGPreflightScreenCaptureAccess`／`CGRequestScreenCaptureAccess`，缺少時顯示說明視窗與開啟「螢幕與系統音訊錄製」設定的按鈕（FR-005）
-- [ ] T019 [P] [US1] 實作 `SnagItForever/Capture/GlobalHotKey.swift`：Carbon `RegisterEventHotKey` 封裝，註冊失敗（被占用）時回報錯誤供偏好設定顯示警告（FR-001）
-- [ ] T020 [US1] 實作 `SnagItForever/Capture/CaptureService.swift`：以 `SCScreenshotManager.captureImage` 擷取區域（`sourceRect` 並以 `exceptingWindows` 排除自家覆蓋層）、視窗（`desktopIndependentWindow`，被遮擋仍取得完整內容，`ignoreShadowsSingleWindow` 受偏好設定控制）、全螢幕（游標所在顯示器）；輸出為顯示器原生像素解析度，`showsCursor` 受偏好設定控制（FR-002、FR-003、FR-006）
-- [ ] T021 [US1] 實作 `SnagItForever/Capture/CaptureOverlayController.swift`：每個顯示器一個無邊框覆蓋層視窗、`R`／`W`／`F` 切換模式、上方三個模式按鈕、`Esc` 取消且無副作用（FR-004，依 commands.md）
-- [ ] T022 [P] [US1] 實作 `SnagItForever/Capture/RegionSelectionView.swift`：拖曳選取、即時顯示寬高與游標座標、放大鏡、放開滑鼠即確認，選取範圍限制在拖曳起點所在的顯示器，使用 `CaptureGeometry`（相依 T017）
-- [ ] T023 [P] [US1] 實作 `SnagItForever/Capture/WindowPicker.swift`：以 `SCShareableContent` 列出視窗、游標命中測試與高亮、點擊確認
-- [ ] T024 [US1] 實作 `SnagItForever/Capture/CaptureCoordinator.swift`：快速鍵或選單 → 權限檢查 → 覆蓋層 → `CaptureService` → `LibraryStore.create` → 依 `afterCapture` 執行開啟編輯器、複製到剪貼簿、儲存到預設資料夾（FR-007）；每次擷取都重新檢查權限，執行期間權限被撤銷時改顯示說明視窗；儲存失敗（位置不可用、磁碟已滿）時顯示錯誤提示，但擷取仍保留在資料庫中（相依 T015、T018～T023、T025；T025 須先於本任務完成）
-- [ ] T025 [US1] 實作 `SnagItForever/Editor/EditorWindowController.swift`、`SnagItForever/Editor/CanvasView.swift` 與 `SnagItForever/Editor/EditorWindowRegistry.swift`：先能顯示擷取影像；同一擷取最多一個視窗、可同時開多個（FR-030）
-- [ ] T026 [P] [US1] 實作 `SnagItForever/Settings/SettingsWindowController.swift` 與 `SnagItForever/Settings/CaptureSettingsView.swift`（SwiftUI）：快速鍵錄製元件（含被占用警告）、擷取後行為、是否含游標、是否含視窗陰影、預設儲存資料夾
-- [ ] T027 [US1] 在 `AppDelegate` 與 `StatusItemController` 接上快速鍵註冊與「擷取區域／視窗／全螢幕」「偏好設定…」選單項目（相依 T014、T019、T024、T026）
-- [ ] T028 [US1] 驗證：`swift test` 全數通過、`xcodebuild … build` 成功，並啟動 App 確認不崩潰且選單列圖示出現；在 `CaptureCoordinator` 加入以 `os_signpost` 或日誌記錄的耗時標記（快速鍵→覆蓋層顯示、確認擷取→編輯器開啟），供審查者量測 SC-003；quickstart M1 的互動步驟列入 PR 供審查者手動驗證
+- [X] T017 [US1] 實作 `Core/Model/CaptureGeometry.swift`，使 T016 通過
+- [X] T018 [P] [US1] 實作 `SnagItForever/Capture/ScreenCapturePermission.swift` 與 `SnagItForever/Capture/PermissionGuideWindow.swift`：`CGPreflightScreenCaptureAccess`／`CGRequestScreenCaptureAccess`，缺少時顯示說明視窗與開啟「螢幕與系統音訊錄製」設定的按鈕（FR-005）
+- [X] T019 [P] [US1] 實作 `SnagItForever/Capture/GlobalHotKey.swift`：Carbon `RegisterEventHotKey` 封裝，註冊失敗（被占用）時回報錯誤供偏好設定顯示警告（FR-001）
+- [X] T020 [US1] 實作 `SnagItForever/Capture/CaptureService.swift`：以 `SCScreenshotManager.captureImage` 擷取區域（`sourceRect` 並以 `exceptingWindows` 排除自家覆蓋層）、視窗（`desktopIndependentWindow`，被遮擋仍取得完整內容，`ignoreShadowsSingleWindow` 受偏好設定控制）、全螢幕（游標所在顯示器）；輸出為顯示器原生像素解析度，`showsCursor` 受偏好設定控制（FR-002、FR-003、FR-006）
+- [X] T021 [US1] 實作 `SnagItForever/Capture/CaptureOverlayController.swift`：每個顯示器一個無邊框覆蓋層視窗、`R`／`W`／`F` 切換模式、上方三個模式按鈕、`Esc` 取消且無副作用（FR-004，依 commands.md）
+- [X] T022 [P] [US1] 實作 `SnagItForever/Capture/RegionSelectionView.swift`：拖曳選取、即時顯示寬高與游標座標、放大鏡、放開滑鼠即確認，選取範圍限制在拖曳起點所在的顯示器，使用 `CaptureGeometry`（相依 T017）
+- [X] T023 [P] [US1] 實作 `SnagItForever/Capture/WindowPicker.swift`：以 `SCShareableContent` 列出視窗、游標命中測試與高亮、點擊確認
+- [X] T024 [US1] 實作 `SnagItForever/Capture/CaptureCoordinator.swift`：快速鍵或選單 → 權限檢查 → 覆蓋層 → `CaptureService` → `LibraryStore.create` → 依 `afterCapture` 執行開啟編輯器、複製到剪貼簿、儲存到預設資料夾（FR-007）；每次擷取都重新檢查權限，執行期間權限被撤銷時改顯示說明視窗；儲存失敗（位置不可用、磁碟已滿）時顯示錯誤提示，但擷取仍保留在資料庫中（相依 T015、T018～T023、T025；T025 須先於本任務完成）
+- [X] T025 [US1] 實作 `SnagItForever/Editor/EditorWindowController.swift`、`SnagItForever/Editor/CanvasView.swift` 與 `SnagItForever/Editor/EditorWindowRegistry.swift`：先能顯示擷取影像；同一擷取最多一個視窗、可同時開多個（FR-030）
+- [X] T026 [P] [US1] 實作 `SnagItForever/Settings/SettingsWindowController.swift` 與 `SnagItForever/Settings/CaptureSettingsView.swift`（SwiftUI）：快速鍵錄製元件（含被占用警告）、擷取後行為、是否含游標、是否含視窗陰影、預設儲存資料夾
+- [X] T027 [US1] 在 `AppDelegate` 與 `StatusItemController` 接上快速鍵註冊與「擷取區域／視窗／全螢幕」「偏好設定…」選單項目（相依 T014、T019、T024、T026）
+- [X] T028 [US1] 驗證：`swift test` 全數通過、`xcodebuild … build` 成功，並啟動 App 確認不崩潰且選單列圖示出現；在 `CaptureCoordinator` 加入以 `os.Logger`（子系統 `com.snagitforever.app`、類別 `capture`）記錄的耗時日誌（快速鍵→覆蓋層顯示、確認擷取→編輯器開啟），供審查者量測 SC-003；quickstart M1 的互動步驟列入 PR 供審查者手動驗證
 
 **檢查點**：使用者故事 1 可獨立運作，構成 MVP
 
