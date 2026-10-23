@@ -75,4 +75,5 @@ log stream --predicate 'subsystem == "com.tracepixels.app"' --level info
 - **`NSTextView` 的 Esc 對應 `complete:`**，不是 `cancelOperation:`；文字就地編輯的委派兩個都要接。
 - **CoreGraphics 字形快取**：同字型與大小的第一次繪製與之後的邊緣像素有細微差異。比對渲染結果的測試要先渲染一次再比。
 - **開發時的螢幕擷取權限**：ad-hoc 簽署的 build 每次重新建置後，macOS 可能要求重新授權；擷取空白或被拒絕時，到「系統設定 › 隱私權與安全性 › 螢幕與系統音訊錄製」移除舊項目後重新授權。在沒有此權限的環境（例如本機 CI、沙箱 shell）無法驗證覆蓋層與實際擷取。
+- **App 圖示**由 `scripts/make-app-icon.swift`（CoreGraphics 向量繪製，每個尺寸各自渲染）產生，輸出就是 `Assets.xcassets/AppIcon.appiconset/` 的 PNG：要改圖示就改腳本再重跑 `swift scripts/make-app-icon.swift TracePixels/Resources/Assets.xcassets/AppIcon.appiconset`，不要手改 PNG。選單列圖示是 SF Symbol（`camera.viewfinder`，樣板圖），與 App 圖示無關。
 - 新增或修改字串後，記得同步 `quickstart.md` 的手動驗證步驟與 `verification.md`。
