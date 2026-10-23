@@ -156,4 +156,32 @@ public actor LibraryStore {
         guard fileManager.fileExists(atPath: package.path) else { throw LibraryError.notFound }
         try fileManager.removeItem(at: package)
     }
+
+    // MARK: 空間與保留
+
+    /// 資料庫佔用的總位元組數（所有項目內的所有檔案）。
+    public func totalSize() -> Int64 {
+        guard let walker = fileManager.enumerator(
+            at: directory, includingPropertiesForKeys: [.fileSizeKey, .isRegularFileKey], options: [])
+        else { return 0 }
+        var total: Int64 = 0
+        for case let url as URL in walker {
+            guard let values = try? url.resourceValues(forKeys: [.fileSizeKey, .isRegularFileKey]),
+                  values.isRegularFile == true else { continue }
+            total += Int64(values.fileSize ?? 0)
+        }
+        return total
+    }
+
+    /// 手動清除：刪除擷取時間早於 `date` 的可用項目，回傳刪除數量。
+    /// 資料庫本身絕不會自動刪除任何東西；損毀或版本較新的項目也不會被這個動作刪除。
+    @discardableResult
+    public func deleteOlder(than date: Date) throws -> Int {
+        var removed = 0
+        for entry in list() where entry.isUsable && entry.createdAt < date {
+            try delete(entry.id)
+            removed += 1
+        }
+        return removed
+    }
 }

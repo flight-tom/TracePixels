@@ -7,6 +7,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var coordinator: CaptureCoordinator?
     private var editors: EditorWindowRegistry?
     private var settingsWindow: SettingsWindowController?
+    private var libraryWindow: LibraryWindowController?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         MainActor.assumeIsolated {
@@ -26,6 +27,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             actions.captureWindow = { coordinator.start(mode: .window) }
             actions.captureFullScreen = { coordinator.start(mode: .fullScreen) }
             actions.openSettings = { [weak self] in self?.showSettings() }
+            actions.openLibrary = { [weak self] in MainActor.assumeIsolated { self?.showLibrary() } }
             statusItemController = StatusItemController(actions: actions)
         }
     }
@@ -42,6 +44,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             NSApp.reply(toApplicationShouldTerminate: true)
         }
         return .terminateLater
+    }
+
+    @MainActor private func showLibrary() {
+        guard let editors else { return }
+        let controller = libraryWindow ?? LibraryWindowController(environment: environment, editors: editors)
+        libraryWindow = controller
+        controller.show()
     }
 
     private func showSettings() {

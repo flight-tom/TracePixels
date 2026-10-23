@@ -208,6 +208,11 @@ final class EditorWindowRegistry {
         controller.show()
     }
 
+    /// 資料庫刪除擷取時，一併關閉它開著的編輯器。
+    func close(_ id: Capture.ID) {
+        controllers[id]?.window?.close()
+    }
+
     func closed(_ id: Capture.ID) {
         controllers.removeValue(forKey: id)
     }

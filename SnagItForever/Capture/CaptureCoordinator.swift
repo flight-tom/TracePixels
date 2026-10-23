@@ -86,6 +86,7 @@ final class CaptureCoordinator {
         do {
             let capture = try await environment.library.create(
                 image: SendableImage(result.image), source: result.source, scale: result.scale)
+            NotificationCenter.default.post(name: .libraryDidChange, object: nil)
             let actions = environment.preferences.afterCapture
 
             if actions.contains(.copyToClipboard) {

@@ -160,16 +160,16 @@ description: "截圖與標註功能的任務清單"
 
 ### 先寫測試
 
-- [ ] T055 [P] [US4] 撰寫 `CoreTests/LibraryRetentionTests.swift`：`totalSize()` 回傳目錄總位元組、`deleteOlder(than:)` 只刪除早於指定日期的項目並回傳數量、預設不自動刪除任何項目
-- [ ] T056 [P] [US4] 撰寫 `CoreTests/ReopenRoundTripTests.swift`：儲存含各種標註的 `Capture` 後重新載入，每個標註都可由 `EditingDocument` 個別編輯，且復原歷史為空（FR-012、SC-007）
+- [X] T055 [P] [US4] 撰寫 `CoreTests/LibraryRetentionTests.swift`：`totalSize()` 回傳目錄總位元組、`deleteOlder(than:)` 只刪除早於指定日期的項目並回傳數量、預設不自動刪除任何項目
+- [X] T056 [P] [US4] 撰寫 `CoreTests/ReopenRoundTripTests.swift`：儲存含各種標註的 `Capture` 後重新載入，每個標註都可由 `EditingDocument` 個別編輯，且復原歷史為空（FR-012、SC-007）
 
 ### 實作
 
-- [ ] T057 [US4] 在 `Core/Persistence/LibraryStore.swift` 實作 `totalSize()` 與 `deleteOlder(than:)`，使 T055 通過
-- [ ] T058 [US4] 實作 `SnagItForever/Library/LibraryViewModel.swift` 與 `SnagItForever/Library/LibraryWindowController.swift`、`SnagItForever/Library/LibraryView.swift`（SwiftUI 縮圖格狀檢視，由新到舊，不可用項目以占位顯示）
-- [ ] T059 [US4] 在資料庫視窗接上：雙擊重新開啟（經 `EditorWindowRegistry`，已開啟則帶到前景）、`⌫`／右鍵刪除並跳出確認對話框後才永久刪除（FR-021、FR-022，相依 T058）
-- [ ] T060 [P] [US4] 實作 `SnagItForever/Settings/LibrarySettingsView.swift`（SwiftUI）：顯示資料庫佔用空間與手動「清除 N 天前的擷取」，並在 `StatusItemController` 加入「開啟資料庫…」（FR-020，相依 T057）
-- [ ] T061 [US4] 驗證：`swift test` 全數通過、`xcodebuild … build` 成功；quickstart M4 列入 PR 供手動驗證
+- [X] T057 [US4] 在 `Core/Persistence/LibraryStore.swift` 實作 `totalSize()` 與 `deleteOlder(than:)`，使 T055 通過
+- [X] T058 [US4] 實作 `SnagItForever/Library/LibraryViewModel.swift` 與 `SnagItForever/Library/LibraryWindowController.swift`、`SnagItForever/Library/LibraryView.swift`（SwiftUI 縮圖格狀檢視，由新到舊，不可用項目以占位顯示）
+- [X] T059 [US4] 在資料庫視窗接上：雙擊重新開啟（經 `EditorWindowRegistry`，已開啟則帶到前景）、`⌫`／右鍵刪除並跳出確認對話框後才永久刪除（FR-021、FR-022，相依 T058）
+- [X] T060 [P] [US4] 實作 `SnagItForever/Settings/LibrarySettingsView.swift`（SwiftUI）：顯示資料庫佔用空間與手動「清除 N 天前的擷取」，並在 `StatusItemController` 加入「開啟資料庫…」（FR-020，相依 T057）
+- [X] T061 [US4] 驗證：`swift test` 全數通過、`xcodebuild … build` 成功；quickstart M4 列入 PR 供手動驗證
 
 **檢查點**：使用者故事 1～4 皆可獨立運作
 
