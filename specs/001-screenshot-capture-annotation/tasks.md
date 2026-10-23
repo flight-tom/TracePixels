@@ -279,3 +279,15 @@ T031 CoreTests/RendererTests.swift
 - [Story] 標籤把任務對應到使用者故事，便於追蹤
 - 實作前先確認測試失敗，每個任務或邏輯群組完成後 commit
 - 無法在無頭環境自動化的行為（擷取、覆蓋層、拖曳、VoiceOver）列入 PR 供審查者手動驗證，不得宣稱已驗證
+
+---
+
+## Phase 9: Convergence
+
+**目的**：`/speckit-converge` 對照規格、計畫、任務與憲章，找出實作尚未完全滿足的部分。
+
+- [ ] T077 將匯出尺寸的計算從 `SnagItForever/Editor/EditorViewModel.swift` 的 `outputPixelSize` 移到核心（`Packages/SnagItCore/Sources/SnagItCore/Rendering/` 下，例如 `Capture.outputPixelSize`），並在 `Packages/SnagItCore/Tests/SnagItCoreTests/FinishAndCropTests.swift` 加測試：對裁切、縮放、邊框、陰影的各種組合，斷言它與 `Renderer.flatten` 實際輸出的寬高完全一致，避免兩份算式分歧 per Constitution IV (partial)
+- [ ] T078 建立 `SnagItForeverTests` XCTest target（手寫 `SnagItForever.xcodeproj/project.pbxproj` 與共享 scheme，測試以 `xcodebuild test` 執行），為 `EditorViewModel` 寫單元測試：新建文字輸入後結束／空白取消（整段復原不留歷史）／既有文字清空後刪除、`setTool` 載入該工具的預設樣式、`applyStyle` 同時作用於選取標註與預設樣式、`nudgeSelection`、`deleteSelection`、`reorderSelection`、編輯期間復原被擋下；並更新 `CLAUDE.md` 與 `quickstart.md` 的測試指令 per Constitution IV (partial)
+- [ ] T079 在 `SnagItForever/App/MainMenuBuilder.swift` 補上缺少的選單項目並實作對應動作：「檔案」加入「開啟資料庫…」與「擷取區域／擷取視窗／擷取全螢幕」（與選單列圖示相同，需有可用的快速鍵且不與編輯器快速鍵衝突）、「編輯」或「檢視」加入「調整輸出大小…」與「清除裁切」（於 `EditorWindowController` 實作並在 `validateMenuItem` 反映可用狀態）；為新字串補上 `Localizable.xcstrings` 的英文翻譯；並更新 `contracts/commands.md` per FR-028 (partial)
+- [ ] T080 讓只有編輯器與資料庫視窗觸發 Dock 圖示：移除 `SnagItForever/Settings/SettingsWindowController.swift` 與 `SnagItForever/Capture/ScreenCapturePermission.swift`（`PermissionGuideWindowController`）對 `activationPolicy.track` 的呼叫，並確認這兩個視窗在選單列（`.accessory`）狀態下仍能取得鍵盤焦點與輸入；於 `quickstart.md` M6 加入對應的手動驗證步驟 per FR-029 (contradicts)
+- [ ] T081 同步文件：在 `specs/001-screenshot-capture-annotation/quickstart.md` 的 M1 加入 `log stream --predicate 'subsystem == "com.snagitforever.app"'` 的耗時量測說明（SC-003），並把 `specs/001-screenshot-capture-annotation/plan.md` 的專案結構從 `Info.plist` 改為「以 `GENERATE_INFOPLIST_FILE` 產生」 per SC-003 (partial)
