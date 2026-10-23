@@ -23,13 +23,13 @@
 
 **儲存**：檔案式資料庫，位於 `~/Library/Application Support/SnagItForever/Library/`；每個擷取為一個目錄（原始 PNG + `document.json` + 縮圖）。偏好設定使用 `UserDefaults`
 
-**測試**：`SnagItCore` 以 Swift Testing / XCTest 搭配 `swift test`；App target 以 `xcodebuild build` 作為建置關卡；擷取與 UI 以 [quickstart.md](./quickstart.md) 的手動程序驗證
+**測試**：`SnagItCore` 以 XCTest 搭配 `swift test`；App target 以 `xcodebuild build` 作為建置關卡；擷取與 UI 以 [quickstart.md](./quickstart.md) 的手動程序驗證
 
 **目標平台**：macOS 14.0（Sonoma）以上，開發與驗證環境為 macOS 26.7；Apple Silicon 與 Intel 皆可（Universal）
 
 **專案類型**：desktop-app（選單列常駐的原生 macOS 應用程式）
 
-**效能目標**：快速鍵後 300 ms 內顯示擷取覆蓋層；擷取後 1 秒內開啟編輯器；5K 影像含 100 個標註時互動維持 60 fps 手感（SC-003、SC-004）
+**效能目標**：快速鍵後 300 ms 內顯示擷取覆蓋層；擷取後 1 秒內開啟編輯器；5K 影像含 100 個標註時每個畫面更新耗時中位數 ≤ 33 ms（SC-003、SC-004）
 
 **限制**：離線、無網路請求；非沙盒（理由見 research.md D-07）並啟用 Hardened Runtime；以 ad-hoc 簽署供開發
 

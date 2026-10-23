@@ -49,14 +49,14 @@ description: "截圖與標註功能的任務清單"
 
 - [ ] T006 [P] 撰寫 `CoreTests/GeometryTests.swift`：點、尺寸、矩形的正規化（負寬高）、交集、包含、夾限
 - [ ] T007 [P] 撰寫 `CoreTests/ModelCodingTests.swift`：`Capture` 與 10 種 `Annotation.Kind` 的 JSON 往返；驗證規則——`lineWidth` 範圍 1–64、`fontSize` 範圍 8–400、`blur`／`pixelate` 強度小於 8 時一律提升為 8、`pixelSize` 兩邊皆 > 0、`crop` 必須完全落在 `0..pixelSize` 內且寬高 ≥ 1、`annotations` 的 `id` 不可重複；未知 `kind.type` 時該標註被略過但保留原始 JSON
-- [ ] T008 [P] 撰寫 `CoreTests/LibraryStoreTests.swift`：建立、載入、儲存、刪除、`list()` 由新到舊、損毀目錄被隔離為不可用且不影響其他項目、`schemaVersion` 高於支援版本時為不可用且不被覆寫、`image.png` 位元組在儲存後保持不變、縮圖遺失時重建
+- [ ] T008 [P] 撰寫 `CoreTests/LibraryStoreTests.swift`：建立、載入、儲存、刪除、`list()` 由新到舊、損毀目錄被隔離為不可用且不影響其他項目、`schemaVersion` 高於支援版本時為不可用且不被覆寫、`image.png` 位元組在儲存後保持不變、縮圖遺失時重建；並建立共用的 `CoreTests/Support/TestImages.swift`（產生純色、棋盤與漸層測試影像）
 
 ### 實作
 
 - [ ] T009 [P] 實作 `Core/Model/Geometry.swift`：`PixelPoint`、`PixelSize`、`PixelRect`（左上為原點的像素座標，皆為 `Codable`、`Sendable`）
 - [ ] T010 [P] 實作 `Core/Model/Style.swift` 與 `Core/Model/Annotation.swift`：`RGBAColor`、`Style`（`lineWidth` 1–64、`fontSize` 8–400）、`Annotation`、`Annotation.Kind`（arrow、line、rectangle、ellipse、pen、highlighter、text、step、blur、pixelate；`blur`／`pixelate` 強度 < 8 時提升為 8）與保留未知類型的解碼
 - [ ] T011 實作 `Core/Model/Capture.swift`：`Capture`、`CaptureSource`、`Finish`、`schemaVersion` 與驗證（相依 T009、T010）
-- [ ] T012 實作 `Core/Persistence/LibraryStore.swift` 與 `Core/Persistence/Thumbnailer.swift`：依 [contracts/library-format.md](./contracts/library-format.md) 與 [contracts/core-api.md](./contracts/core-api.md)，`<UUID>.snagitcapture/` 目錄、原子寫入、縮圖長邊 320 px（相依 T011）
+- [ ] T012 實作 `Core/Persistence/LibraryStore.swift` 與 `Core/Persistence/Thumbnailer.swift`：依 [contracts/library-format.md](./contracts/library-format.md) 與 [contracts/core-api.md](./contracts/core-api.md)，`<UUID>.snagitcapture/` 目錄、原子寫入、縮圖長邊 320 px；跨 actor 傳遞的影像以 `SendableImage: @unchecked Sendable` 包裝（見 core-api.md）（相依 T011）
 - [ ] T013 [P] 實作 `SnagItForever/Settings/Preferences.swift`：以 `UserDefaults` 封裝 data-model.md 中的偏好設定鍵與預設值（`hotKey`＝`⌃⇧4`、`afterCapture`＝`[openEditor]`、`saveFolder`＝`~/Pictures/SnagItForever`、`jpegQuality`＝0.9 等）
 - [ ] T014 [P] 實作 `SnagItForever/App/StatusItemController.swift`（選單列圖示與選單項目，依 [contracts/commands.md](./contracts/commands.md)）與 `SnagItForever/App/ActivationPolicyManager.swift`（無視窗時隱藏 Dock 圖示、有編輯器或資料庫視窗時顯示，FR-029）
 - [ ] T015 實作 `SnagItForever/App/AppEnvironment.swift`：建立共用的 `LibraryStore`（目錄 `~/Library/Application Support/SnagItForever/Library/`）與 `Preferences`，並接上 `AppDelegate`（相依 T012、T013）
@@ -73,7 +73,7 @@ description: "截圖與標註功能的任務清單"
 
 ### 先寫測試
 
-- [ ] T016 [P] [US1] 撰寫 `CoreTests/CaptureGeometryTests.swift`：螢幕點座標選取矩形轉為顯示器像素 `sourceRect`（含 2.0 縮放、多螢幕原點偏移、選取超出邊界時夾限、拖曳方向反向的正規化）
+- [ ] T016 [P] [US1] 撰寫 `CoreTests/CaptureGeometryTests.swift`：螢幕點座標選取矩形轉為顯示器像素 `sourceRect`（含 2.0 縮放、多螢幕原點偏移、選取超出邊界時夾限、拖曳方向反向的正規化、選取橫跨多個顯示器時限制在拖曳起點所在的顯示器內）
 
 ### 實作
 
@@ -82,13 +82,13 @@ description: "截圖與標註功能的任務清單"
 - [ ] T019 [P] [US1] 實作 `SnagItForever/Capture/GlobalHotKey.swift`：Carbon `RegisterEventHotKey` 封裝，註冊失敗（被占用）時回報錯誤供偏好設定顯示警告（FR-001）
 - [ ] T020 [US1] 實作 `SnagItForever/Capture/CaptureService.swift`：以 `SCScreenshotManager.captureImage` 擷取區域（`sourceRect` 並以 `exceptingWindows` 排除自家覆蓋層）、視窗（`desktopIndependentWindow`，被遮擋仍取得完整內容，`ignoreShadowsSingleWindow` 受偏好設定控制）、全螢幕（游標所在顯示器）；輸出為顯示器原生像素解析度，`showsCursor` 受偏好設定控制（FR-002、FR-003、FR-006）
 - [ ] T021 [US1] 實作 `SnagItForever/Capture/CaptureOverlayController.swift`：每個顯示器一個無邊框覆蓋層視窗、`R`／`W`／`F` 切換模式、上方三個模式按鈕、`Esc` 取消且無副作用（FR-004，依 commands.md）
-- [ ] T022 [P] [US1] 實作 `SnagItForever/Capture/RegionSelectionView.swift`：拖曳選取、即時顯示寬高與游標座標、放大鏡、放開滑鼠即確認，使用 `CaptureGeometry`（相依 T017）
+- [ ] T022 [P] [US1] 實作 `SnagItForever/Capture/RegionSelectionView.swift`：拖曳選取、即時顯示寬高與游標座標、放大鏡、放開滑鼠即確認，選取範圍限制在拖曳起點所在的顯示器，使用 `CaptureGeometry`（相依 T017）
 - [ ] T023 [P] [US1] 實作 `SnagItForever/Capture/WindowPicker.swift`：以 `SCShareableContent` 列出視窗、游標命中測試與高亮、點擊確認
-- [ ] T024 [US1] 實作 `SnagItForever/Capture/CaptureCoordinator.swift`：快速鍵或選單 → 權限檢查 → 覆蓋層 → `CaptureService` → `LibraryStore.create` → 依 `afterCapture` 執行開啟編輯器、複製到剪貼簿、儲存到預設資料夾（FR-007，相依 T015、T018～T023）
+- [ ] T024 [US1] 實作 `SnagItForever/Capture/CaptureCoordinator.swift`：快速鍵或選單 → 權限檢查 → 覆蓋層 → `CaptureService` → `LibraryStore.create` → 依 `afterCapture` 執行開啟編輯器、複製到剪貼簿、儲存到預設資料夾（FR-007）；每次擷取都重新檢查權限，執行期間權限被撤銷時改顯示說明視窗；儲存失敗（位置不可用、磁碟已滿）時顯示錯誤提示，但擷取仍保留在資料庫中（相依 T015、T018～T023、T025；T025 須先於本任務完成）
 - [ ] T025 [US1] 實作 `SnagItForever/Editor/EditorWindowController.swift`、`SnagItForever/Editor/CanvasView.swift` 與 `SnagItForever/Editor/EditorWindowRegistry.swift`：先能顯示擷取影像；同一擷取最多一個視窗、可同時開多個（FR-030）
 - [ ] T026 [P] [US1] 實作 `SnagItForever/Settings/SettingsWindowController.swift` 與 `SnagItForever/Settings/CaptureSettingsView.swift`（SwiftUI）：快速鍵錄製元件（含被占用警告）、擷取後行為、是否含游標、是否含視窗陰影、預設儲存資料夾
 - [ ] T027 [US1] 在 `AppDelegate` 與 `StatusItemController` 接上快速鍵註冊與「擷取區域／視窗／全螢幕」「偏好設定…」選單項目（相依 T014、T019、T024、T026）
-- [ ] T028 [US1] 驗證：`swift test` 全數通過、`xcodebuild … build` 成功，並啟動 App 確認不崩潰且選單列圖示出現；quickstart M1 的互動步驟列入 PR 供審查者手動驗證
+- [ ] T028 [US1] 驗證：`swift test` 全數通過、`xcodebuild … build` 成功，並啟動 App 確認不崩潰且選單列圖示出現；在 `CaptureCoordinator` 加入以 `os_signpost` 或日誌記錄的耗時標記（快速鍵→覆蓋層顯示、確認擷取→編輯器開啟），供審查者量測 SC-003；quickstart M1 的互動步驟列入 PR 供審查者手動驗證
 
 **檢查點**：使用者故事 1 可獨立運作，構成 MVP
 
@@ -119,7 +119,7 @@ description: "截圖與標註功能的任務清單"
 - [ ] T040 [P] [US2] 實作 `SnagItForever/Editor/ToolbarView.swift`（SwiftUI）：十一個工具按鈕、工具鍵依 commands.md，每個按鈕提供 `accessibilityLabel`
 - [ ] T041 [P] [US2] 實作 `SnagItForever/Editor/InspectorView.swift`（SwiftUI）：顏色、填滿、線條粗細、字型、字級，作用於選取的標註或目前工具的預設樣式（FR-010）
 - [ ] T042 [US2] 實作 `SnagItForever/Editor/EditorViewModel.swift` 並接上編輯選單：復原／重做、刪除、移到最上層／最下層、預設樣式（來自 Preferences）（相依 T033、T038～T041）
-- [ ] T043 [US2] 實作 `SnagItForever/Editor/AutosaveController.swift`：變更後 0.5 秒去抖動呼叫 `LibraryStore.save`，視窗關閉與應用程式結束時同步保存；`⌘W` 不跳警告（FR-022，相依 T012、T042）
+- [ ] T043 [US2] 實作 `SnagItForever/Editor/AutosaveController.swift`：變更後 0.5 秒去抖動呼叫 `LibraryStore.save`，視窗關閉與應用程式結束時同步保存；`⌘W` 不跳警告；保存失敗（磁碟已滿、目錄不可寫）時於編輯器顯示不阻擋操作的提示並持續重試（FR-022，相依 T012、T042）
 - [ ] T044 [US2] 驗證：`swift test` 全數通過、`xcodebuild … build` 成功；quickstart M2 列入 PR 供手動驗證
 
 **檢查點**：使用者故事 1 與 2 皆可獨立運作
@@ -141,7 +141,7 @@ description: "截圖與標註功能的任務清單"
 
 - [ ] T047 [P] [US3] 實作 `Core/Persistence/FileNamer.swift`，使 T045 通過
 - [ ] T048 [US3] 實作 `Core/Rendering/Export.swift`：`ImageFormat`、`Renderer.encode`，使 T046 通過（相依 T035）
-- [ ] T049 [US3] 實作 `SnagItForever/Editor/ExportActions.swift`：複製到剪貼簿（`⌘C`）、另存新檔面板（`⇧⌘S`，預設資料夾與格式取自 Preferences）（FR-016、FR-017，相依 T047、T048）
+- [ ] T049 [US3] 實作 `SnagItForever/Editor/ExportActions.swift`：複製到剪貼簿（`⌘C`）、另存新檔面板（`⇧⌘S`，預設資料夾與格式取自 Preferences；預設資料夾不存在時自動建立，寫入失敗時顯示錯誤提示並讓使用者重選位置）（FR-016、FR-017，相依 T047、T048）
 - [ ] T050 [P] [US3] 實作 `SnagItForever/Editor/DragSourceView.swift`：從編輯器把合成後的影像（暫存 PNG 檔）拖曳到其他 App（FR-018）
 - [ ] T051 [P] [US3] 實作 `SnagItForever/Editor/ShareButton.swift`：以 `NSSharingServicePicker` 提供標準分享選項（FR-019）
 - [ ] T052 [P] [US3] 實作 `SnagItForever/Settings/ExportSettingsView.swift`（SwiftUI）：預設格式、JPEG 品質
@@ -205,11 +205,11 @@ description: "截圖與標註功能的任務清單"
 - [ ] T069 [P] 補齊無障礙：工具列與面板元件的 VoiceOver 標籤、畫布提供標註清單供 VoiceOver 導覽、所有動作皆有選單項目與快速鍵（FR-028）
 - [ ] T070 [P] 實作 `SnagItForever/Settings/GeneralSettingsView.swift`：以 `SMAppService` 提供「登入時啟動」，預設關閉（FR-029）
 - [ ] T071 [P] 檢查淺色與深色外觀：全部使用動態系統顏色，畫布背景與控制點在兩種外觀都清楚（FR-025）
-- [ ] T072 [P] 撰寫 `CoreTests/PerformanceTests.swift`：5K 影像含 100 個標註的 `flatten` 在合理預算內完成（SC-004）
+- [ ] T072 [P] 撰寫 `CoreTests/PerformanceTests.swift`：5K（5120×2880）影像含 100 個標註時，單一畫面的 `Renderer.draw` 耗時中位數（30 次）≤ 33 ms，`flatten` 在 2 秒內完成（SC-004）
 - [ ] T073 稽核無網路行為：在 `SnagItForever/` 與 `Packages/` 搜尋 `URLSession`、`NWConnection`、`CFNetwork`、`WKWebView` 等網路用法，確認為零（FR-026，憲章原則 II）
 - [ ] T074 以繁體中文更新 `CLAUDE.md`：建置、測試、單一測試指令、高階架構（App target ＋ `SnagItCore`）、螢幕擷取權限的開發注意事項（憲章開發流程要求）
 - [ ] T075 [P] 以繁體中文更新 `README.md`：專案簡介、需求、建置與執行
-- [ ] T076 最終驗證：執行 quickstart 的所有自動化步驟（`swift test`、`xcodebuild build`），將結果與「需審查者手動驗證的項目」寫入 `specs/001-screenshot-capture-annotation/verification.md`
+- [ ] T076 最終驗證：執行 quickstart 的所有自動化步驟（`swift test`、`xcodebuild build`），將結果、「需審查者手動驗證的項目」（含 SC-001、SC-003 的量測）與已知限制（受保護內容如 DRM 影片在擷取中為空白，系統無法偵測）寫入 `specs/001-screenshot-capture-annotation/verification.md`
 
 ---
 

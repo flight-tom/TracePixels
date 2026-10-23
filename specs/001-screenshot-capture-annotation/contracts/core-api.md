@@ -55,6 +55,8 @@ public struct Renderer {
 
 ## 資料庫
 
+`CGImage` 在 Swift 6 語言模式下不是 `Sendable`。`SnagItCore` 以 `public struct SendableImage: @unchecked Sendable { public let cgImage: CGImage }` 包裝跨 actor 傳遞的影像；影像建立後不可變，因此是安全的。以下簽章中的 `CGImage` 於跨 actor 邊界時皆指 `SendableImage`。
+
 ```swift
 public actor LibraryStore {
     public init(directory: URL)
