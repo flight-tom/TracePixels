@@ -29,7 +29,7 @@ The two images below are rendered by TracePixels' exporter from a synthetic test
 ## Requirements
 
 - macOS 14 (Sonoma) or later
-- Xcode 16 or later to build from source (developed with Xcode 27.1 on macOS 26)
+- Xcode 26 or later to build from source (built with Xcode 27.1 locally and Xcode 26.6 in CI; older Xcode versions have not been tried)
 - The **Screen & System Audio Recording** permission, requested the first time you capture
 
 ## Install
