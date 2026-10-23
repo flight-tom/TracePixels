@@ -1,6 +1,6 @@
-# SnagItForever
+# TracePixels
 
-原生 macOS 版的 SnagIt 風格截圖與標註工具。以 Swift 撰寫，Xcode 專案，只使用 Apple 框架，所有資料留在本機。
+原生 macOS 的截圖與標註工具。以 Swift 撰寫，Xcode 專案，只使用 Apple 框架，所有資料留在本機。
 
 ## 功能
 
@@ -21,24 +21,25 @@
 
 ```bash
 # 核心邏輯測試
-cd Packages/SnagItCore && swift test
+cd Packages/TracePixelsCore && swift test
 
 # 建置並執行 App
-xcodebuild -project SnagItForever.xcodeproj -scheme SnagItForever \
+xcodebuild -project TracePixels.xcodeproj -scheme TracePixels \
   -configuration Debug -destination 'platform=macOS' -derivedDataPath build/DerivedData build
-open build/DerivedData/Build/Products/Debug/SnagItForever.app
+open build/DerivedData/Build/Products/Debug/TracePixels.app
 ```
 
-也可以直接用 Xcode 開啟 `SnagItForever.xcodeproj`。
+也可以直接用 Xcode 開啟 `TracePixels.xcodeproj`。
 
 ## 專案結構
 
 ```text
-SnagItForever.xcodeproj/   Xcode 專案（檔案系統同步群組）
-SnagItForever/             App：擷取、編輯器、資料庫、偏好設定
-Packages/SnagItCore/       核心套件：模型、復原、渲染、遮蔽、匯出、資料庫（含測試）
-specs/                     功能規格、計畫、任務與驗證紀錄（Spec Kit）
-.specify/                  Spec Kit 設定與專案憲章
+TracePixels.xcodeproj/      Xcode 專案（檔案系統同步群組）
+TracePixels/                App：擷取、編輯器、資料庫、偏好設定
+TracePixelsTests/           App 單元測試（EditorViewModel、主選單）
+Packages/TracePixelsCore/   核心套件：模型、復原、渲染、遮蔽、匯出、資料庫（含測試）
+specs/                      功能規格、計畫、任務與驗證紀錄（Spec Kit）
+.specify/                   Spec Kit 設定與專案憲章
 ```
 
 ## 開發

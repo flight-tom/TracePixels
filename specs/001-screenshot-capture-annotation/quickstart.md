@@ -11,22 +11,22 @@
 
 ```bash
 # 1. 核心邏輯測試（無需螢幕，最快的回饋迴圈）
-cd Packages/SnagItCore && swift test
+cd Packages/TracePixelsCore && swift test
 
 # 2. 只跑單一測試
-cd Packages/SnagItCore && swift test --filter RedactionTests
+cd Packages/TracePixelsCore && swift test --filter RedactionTests
 
 # 3. App 單元測試（EditorViewModel、主選單；以 App 為宿主）
-xcodebuild -project SnagItForever.xcodeproj -scheme SnagItForever \
+xcodebuild -project TracePixels.xcodeproj -scheme TracePixels \
   -destination 'platform=macOS' -derivedDataPath build/DerivedData test
 
 # 4. 建置 App
-xcodebuild -project SnagItForever.xcodeproj -scheme SnagItForever \
+xcodebuild -project TracePixels.xcodeproj -scheme TracePixels \
   -configuration Debug -destination 'platform=macOS' build
 
 # 5. 執行 App
-open "$(xcodebuild -project SnagItForever.xcodeproj -scheme SnagItForever \
-  -configuration Debug -showBuildSettings | awk '/ BUILT_PRODUCTS_DIR/{print $3}')/SnagItForever.app"
+open "$(xcodebuild -project TracePixels.xcodeproj -scheme TracePixels \
+  -configuration Debug -showBuildSettings | awk '/ BUILT_PRODUCTS_DIR/{print $3}')/TracePixels.app"
 ```
 
 **通過標準**：第 1 步全部測試通過；第 3 步 `BUILD SUCCEEDED` 且無警告升級為錯誤。
@@ -39,17 +39,17 @@ open "$(xcodebuild -project SnagItForever.xcodeproj -scheme SnagItForever \
 
 | 規格項目 | 驗證方式 |
 |----------|----------|
-| FR-011、FR-012 標註編輯與復原 | `SnagItCoreTests/EditingDocumentTests` |
-| FR-013、SC-005 遮蔽不可逆 | `SnagItCoreTests/RedactionTests`：兩張只在磁磚內部細節不同的圖，遮蔽後輸出必須逐像素相同 |
-| SC-006 匯出與畫面一致 | `SnagItCoreTests/RendererTests`：`draw` 與 `flatten` 對同一份資料輸出相同像素 |
-| FR-017 檔名與格式 | `SnagItCoreTests/FileNamerTests`、`ExportTests` |
-| FR-020～FR-022、SC-007 資料庫與持久化 | `SnagItCoreTests/LibraryStoreTests`：寫入、重新載入、損毀項目隔離、原圖不被修改 |
-| FR-023、FR-024 裁切、縮放、修飾 | `SnagItCoreTests/FinishAndCropTests` |
-| FR-002 區域選取座標換算（多螢幕、夾限） | `SnagItCoreTests/CaptureGeometryTests` |
-| FR-011 移動與控制點縮放、拖曳草稿與 Shift 約束 | `SnagItCoreTests/AnnotationTransformTests`、`DraftShapeTests` |
-| FR-020 保留策略（不自動刪除、手動清除） | `SnagItCoreTests/LibraryRetentionTests` |
-| FR-021、SC-007 重新開啟後仍可編輯 | `SnagItCoreTests/ReopenRoundTripTests` |
-| SC-004 5K＋100 個標註的渲染時間 | `SnagItCoreTests/PerformanceTests`（`swift test` 與 `swift test -c release` 皆應通過） |
+| FR-011、FR-012 標註編輯與復原 | `TracePixelsCoreTests/EditingDocumentTests` |
+| FR-013、SC-005 遮蔽不可逆 | `TracePixelsCoreTests/RedactionTests`：兩張只在磁磚內部細節不同的圖，遮蔽後輸出必須逐像素相同 |
+| SC-006 匯出與畫面一致 | `TracePixelsCoreTests/RendererTests`：`draw` 與 `flatten` 對同一份資料輸出相同像素 |
+| FR-017 檔名與格式 | `TracePixelsCoreTests/FileNamerTests`、`ExportTests` |
+| FR-020～FR-022、SC-007 資料庫與持久化 | `TracePixelsCoreTests/LibraryStoreTests`：寫入、重新載入、損毀項目隔離、原圖不被修改 |
+| FR-023、FR-024 裁切、縮放、修飾 | `TracePixelsCoreTests/FinishAndCropTests` |
+| FR-002 區域選取座標換算（多螢幕、夾限） | `TracePixelsCoreTests/CaptureGeometryTests` |
+| FR-011 移動與控制點縮放、拖曳草稿與 Shift 約束 | `TracePixelsCoreTests/AnnotationTransformTests`、`DraftShapeTests` |
+| FR-020 保留策略（不自動刪除、手動清除） | `TracePixelsCoreTests/LibraryRetentionTests` |
+| FR-021、SC-007 重新開啟後仍可編輯 | `TracePixelsCoreTests/ReopenRoundTripTests` |
+| SC-004 5K＋100 個標註的渲染時間 | `TracePixelsCoreTests/PerformanceTests`（`swift test` 與 `swift test -c release` 皆應通過） |
 
 ## 手動驗證程序
 
@@ -62,7 +62,7 @@ open "$(xcodebuild -project SnagItForever.xcodeproj -scheme SnagItForever \
 3. 按 `⌃⇧4`，按 `F` 後在第二個螢幕點擊（若有）→ 擷取游標所在螢幕。
 4. 按 `⌃⇧4` 後按 `Esc` → 不產生任何擷取、剪貼簿不變。
 5. 在系統設定撤銷權限後擷取 → 出現說明視窗與前往設定按鈕，不產生空白影像。
-6. 計時（SC-003）：開一個終端機執行 `log stream --predicate 'subsystem == "com.snagitforever.app"' --level info`，再觸發擷取。日誌會輸出「快速鍵到覆蓋層顯示：N ms」（需 < 300 ms）與「確認擷取到編輯器開啟：N ms」（需 < 1000 ms）。SC-001（快速鍵到影像進剪貼簿 < 5 秒）請用碼錶量測。
+6. 計時（SC-003）：開一個終端機執行 `log stream --predicate 'subsystem == "com.tracepixels.app"' --level info`，再觸發擷取。日誌會輸出「快速鍵到覆蓋層顯示：N ms」（需 < 300 ms）與「確認擷取到編輯器開啟：N ms」（需 < 1000 ms）。SC-001（快速鍵到影像進剪貼簿 < 5 秒）請用碼錶量測。
 
 ### M2 標註（使用者故事 2）
 
@@ -75,7 +75,7 @@ open "$(xcodebuild -project SnagItForever.xcodeproj -scheme SnagItForever \
 ### M3 輸出（使用者故事 3）
 
 1. `⌘C` 後貼到「預覽程式」→ 含標註的影像。
-2. `⇧⌘S` 存成 PNG 與 JPEG，檔名符合 `SnagItForever yyyy-MM-dd HH.mm.ss`，重複儲存會加序號。
+2. `⇧⌘S` 存成 PNG 與 JPEG，檔名符合 `TracePixels yyyy-MM-dd HH.mm.ss`，重複儲存會加序號。
 3. 把影像從編輯器拖曳到「備忘錄」或訊息視窗。
 4. 分享按鈕顯示 macOS 標準分享選單。
 

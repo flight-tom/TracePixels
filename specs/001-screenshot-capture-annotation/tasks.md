@@ -9,7 +9,7 @@ description: "截圖與標註功能的任務清單"
 
 **先決條件**：plan.md、spec.md、research.md、data-model.md、contracts/、quickstart.md
 
-**測試**：依憲章原則 IV，`SnagItCore` 的邏輯（標註模型、幾何、復原、持久化、渲染、匯出、遮蔽）MUST 先寫測試再實作。需要螢幕或視窗伺服器的 UI 與擷取行為以 [quickstart.md](./quickstart.md) 的手動程序驗證。
+**測試**：依憲章原則 IV，`TracePixelsCore` 的邏輯（標註模型、幾何、復原、持久化、渲染、匯出、遮蔽）MUST 先寫測試再實作。需要螢幕或視窗伺服器的 UI 與擷取行為以 [quickstart.md](./quickstart.md) 的手動程序驗證。
 
 **組織方式**：任務依使用者故事分組，使每個故事都能獨立實作與測試。
 
@@ -21,9 +21,9 @@ description: "截圖與標註功能的任務清單"
 
 ## 路徑慣例
 
-- 核心套件：`Packages/SnagItCore/Sources/SnagItCore/`，測試在 `Packages/SnagItCore/Tests/SnagItCoreTests/`
-- App target：`SnagItForever/`
-- 以下 `Core/` 代表 `Packages/SnagItCore/Sources/SnagItCore/`，`CoreTests/` 代表 `Packages/SnagItCore/Tests/SnagItCoreTests/`
+- 核心套件：`Packages/TracePixelsCore/Sources/TracePixelsCore/`，測試在 `Packages/TracePixelsCore/Tests/TracePixelsCoreTests/`
+- App target：`TracePixels/`
+- 以下 `Core/` 代表 `Packages/TracePixelsCore/Sources/TracePixelsCore/`，`CoreTests/` 代表 `Packages/TracePixelsCore/Tests/TracePixelsCoreTests/`
 
 ---
 
@@ -31,11 +31,11 @@ description: "截圖與標註功能的任務清單"
 
 **目的**：專案初始化與基本結構
 
-- [X] T001 建立 `Packages/SnagItCore/Package.swift`（swift-tools-version 6.0、platforms `.macOS(.v14)`、library 產品 `SnagItCore`、測試 target `SnagItCoreTests`、Swift 6 語言模式），並建立 `Model/`、`History/`、`Rendering/`、`Persistence/` 子目錄與一個可編譯的占位檔
-- [X] T002 [P] 建立 App target 骨架：以 `GENERATE_INFOPLIST_FILE` 產生 Info.plist（`INFOPLIST_KEY_LSUIElement` 為真，開發語言 `zh-Hant`，避免同步群組重複處理 Info.plist），並在儲存庫根目錄建立 `SnagItForever.entitlements`（不啟用 App Sandbox）
-- [X] T003 建立 `SnagItForever.xcodeproj/project.pbxproj` 與共享 scheme `SnagItForever.xcscheme`：使用檔案系統同步群組指向 `SnagItForever/`、以 `XCLocalSwiftPackageReference` 引用 `Packages/SnagItCore`、部署目標 macOS 14.0、App target 使用 Swift 5 語言模式、啟用 Hardened Runtime、ad-hoc 簽署（`CODE_SIGN_IDENTITY = -`）
-- [X] T004 [P] 建立 `SnagItForever/Resources/Assets.xcassets`（AppIcon 占位、AccentColor）與 `SnagItForever/Resources/Localizable.xcstrings`（開發語言 `zh-Hant`，並含 `en`）
-- [X] T005 建立最小的 App 進入點 `SnagItForever/App/main.swift`（明確啟動 `NSApplication`）與 `SnagItForever/App/AppDelegate.swift`；驗證 `swift test`（於 `Packages/SnagItCore`）與 `xcodebuild -project SnagItForever.xcodeproj -scheme SnagItForever -configuration Debug -destination 'platform=macOS' build` 皆成功
+- [X] T001 建立 `Packages/TracePixelsCore/Package.swift`（swift-tools-version 6.0、platforms `.macOS(.v14)`、library 產品 `TracePixelsCore`、測試 target `TracePixelsCoreTests`、Swift 6 語言模式），並建立 `Model/`、`History/`、`Rendering/`、`Persistence/` 子目錄與一個可編譯的占位檔
+- [X] T002 [P] 建立 App target 骨架：以 `GENERATE_INFOPLIST_FILE` 產生 Info.plist（`INFOPLIST_KEY_LSUIElement` 為真，開發語言 `zh-Hant`，避免同步群組重複處理 Info.plist），並在儲存庫根目錄建立 `TracePixels.entitlements`（不啟用 App Sandbox）
+- [X] T003 建立 `TracePixels.xcodeproj/project.pbxproj` 與共享 scheme `TracePixels.xcscheme`：使用檔案系統同步群組指向 `TracePixels/`、以 `XCLocalSwiftPackageReference` 引用 `Packages/TracePixelsCore`、部署目標 macOS 14.0、App target 使用 Swift 5 語言模式、啟用 Hardened Runtime、ad-hoc 簽署（`CODE_SIGN_IDENTITY = -`）
+- [X] T004 [P] 建立 `TracePixels/Resources/Assets.xcassets`（AppIcon 占位、AccentColor）與 `TracePixels/Resources/Localizable.xcstrings`（開發語言 `zh-Hant`，並含 `en`）
+- [X] T005 建立最小的 App 進入點 `TracePixels/App/main.swift`（明確啟動 `NSApplication`）與 `TracePixels/App/AppDelegate.swift`；驗證 `swift test`（於 `Packages/TracePixelsCore`）與 `xcodebuild -project TracePixels.xcodeproj -scheme TracePixels -configuration Debug -destination 'platform=macOS' build` 皆成功
 
 ---
 
@@ -56,10 +56,10 @@ description: "截圖與標註功能的任務清單"
 - [X] T009 [P] 實作 `Core/Model/Geometry.swift`：`PixelPoint`、`PixelSize`、`PixelRect`（左上為原點的像素座標，皆為 `Codable`、`Sendable`）
 - [X] T010 [P] 實作 `Core/Model/Style.swift` 與 `Core/Model/Annotation.swift`：`RGBAColor`、`Style`（`lineWidth` 1–64、`fontSize` 8–400）、`Annotation`、`Annotation.Kind`（arrow、line、rectangle、ellipse、pen、highlighter、text、step、blur、pixelate；`blur`／`pixelate` 強度 < 8 時提升為 8）與保留未知類型的解碼
 - [X] T011 實作 `Core/Model/Capture.swift`：`Capture`、`CaptureSource`、`Finish`、`schemaVersion` 與驗證（相依 T009、T010）
-- [X] T012 實作 `Core/Persistence/LibraryStore.swift` 與 `Core/Persistence/Thumbnailer.swift`：依 [contracts/library-format.md](./contracts/library-format.md) 與 [contracts/core-api.md](./contracts/core-api.md)，`<UUID>.snagitcapture/` 目錄、原子寫入、縮圖長邊 320 px；跨 actor 傳遞的影像以 `SendableImage: @unchecked Sendable` 包裝（見 core-api.md）（相依 T011）
-- [X] T013 [P] 實作 `SnagItForever/Settings/Preferences.swift`：以 `UserDefaults` 封裝 data-model.md 中的偏好設定鍵與預設值（`hotKey`＝`⌃⇧4`、`afterCapture`＝`[openEditor]`、`saveFolder`＝`~/Pictures/SnagItForever`、`jpegQuality`＝0.9 等）
-- [X] T014 [P] 實作 `SnagItForever/App/StatusItemController.swift`（選單列圖示與選單項目，依 [contracts/commands.md](./contracts/commands.md)）與 `SnagItForever/App/ActivationPolicyManager.swift`（無視窗時隱藏 Dock 圖示、有編輯器或資料庫視窗時顯示，FR-029）
-- [X] T015 實作 `SnagItForever/App/AppEnvironment.swift`：建立共用的 `LibraryStore`（目錄 `~/Library/Application Support/SnagItForever/Library/`）與 `Preferences`，並接上 `AppDelegate`（相依 T012、T013）
+- [X] T012 實作 `Core/Persistence/LibraryStore.swift` 與 `Core/Persistence/Thumbnailer.swift`：依 [contracts/library-format.md](./contracts/library-format.md) 與 [contracts/core-api.md](./contracts/core-api.md)，`<UUID>.tracepixelscapture/` 目錄、原子寫入、縮圖長邊 320 px；跨 actor 傳遞的影像以 `SendableImage: @unchecked Sendable` 包裝（見 core-api.md）（相依 T011）
+- [X] T013 [P] 實作 `TracePixels/Settings/Preferences.swift`：以 `UserDefaults` 封裝 data-model.md 中的偏好設定鍵與預設值（`hotKey`＝`⌃⇧4`、`afterCapture`＝`[openEditor]`、`saveFolder`＝`~/Pictures/TracePixels`、`jpegQuality`＝0.9 等）
+- [X] T014 [P] 實作 `TracePixels/App/StatusItemController.swift`（選單列圖示與選單項目，依 [contracts/commands.md](./contracts/commands.md)）與 `TracePixels/App/ActivationPolicyManager.swift`（無視窗時隱藏 Dock 圖示、有編輯器或資料庫視窗時顯示，FR-029）
+- [X] T015 實作 `TracePixels/App/AppEnvironment.swift`：建立共用的 `LibraryStore`（目錄 `~/Library/Application Support/TracePixels/Library/`）與 `Preferences`，並接上 `AppDelegate`（相依 T012、T013）
 
 **檢查點**：基礎就緒——`swift test` 全數通過，App 可啟動並顯示選單列圖示；使用者故事可開始實作
 
@@ -78,17 +78,17 @@ description: "截圖與標註功能的任務清單"
 ### 實作
 
 - [X] T017 [US1] 實作 `Core/Model/CaptureGeometry.swift`，使 T016 通過
-- [X] T018 [P] [US1] 實作 `SnagItForever/Capture/ScreenCapturePermission.swift` 與 `SnagItForever/Capture/PermissionGuideWindow.swift`：`CGPreflightScreenCaptureAccess`／`CGRequestScreenCaptureAccess`，缺少時顯示說明視窗與開啟「螢幕與系統音訊錄製」設定的按鈕（FR-005）
-- [X] T019 [P] [US1] 實作 `SnagItForever/Capture/GlobalHotKey.swift`：Carbon `RegisterEventHotKey` 封裝，註冊失敗（被占用）時回報錯誤供偏好設定顯示警告（FR-001）
-- [X] T020 [US1] 實作 `SnagItForever/Capture/CaptureService.swift`：以 `SCScreenshotManager.captureImage` 擷取區域（`sourceRect` 並以 `exceptingWindows` 排除自家覆蓋層）、視窗（`desktopIndependentWindow`，被遮擋仍取得完整內容，`ignoreShadowsSingleWindow` 受偏好設定控制）、全螢幕（游標所在顯示器）；輸出為顯示器原生像素解析度，`showsCursor` 受偏好設定控制（FR-002、FR-003、FR-006）
-- [X] T021 [US1] 實作 `SnagItForever/Capture/CaptureOverlayController.swift`：每個顯示器一個無邊框覆蓋層視窗、`R`／`W`／`F` 切換模式、上方三個模式按鈕、`Esc` 取消且無副作用（FR-004，依 commands.md）
-- [X] T022 [P] [US1] 實作 `SnagItForever/Capture/RegionSelectionView.swift`：拖曳選取、即時顯示寬高與游標座標、放大鏡、放開滑鼠即確認，選取範圍限制在拖曳起點所在的顯示器，使用 `CaptureGeometry`（相依 T017）
-- [X] T023 [P] [US1] 實作 `SnagItForever/Capture/WindowPicker.swift`：以 `SCShareableContent` 列出視窗、游標命中測試與高亮、點擊確認
-- [X] T024 [US1] 實作 `SnagItForever/Capture/CaptureCoordinator.swift`：快速鍵或選單 → 權限檢查 → 覆蓋層 → `CaptureService` → `LibraryStore.create` → 依 `afterCapture` 執行開啟編輯器、複製到剪貼簿、儲存到預設資料夾（FR-007）；每次擷取都重新檢查權限，執行期間權限被撤銷時改顯示說明視窗；儲存失敗（位置不可用、磁碟已滿）時顯示錯誤提示，但擷取仍保留在資料庫中（相依 T015、T018～T023、T025；T025 須先於本任務完成）
-- [X] T025 [US1] 實作 `SnagItForever/Editor/EditorWindowController.swift`、`SnagItForever/Editor/CanvasView.swift` 與 `SnagItForever/Editor/EditorWindowRegistry.swift`：先能顯示擷取影像；同一擷取最多一個視窗、可同時開多個（FR-030）
-- [X] T026 [P] [US1] 實作 `SnagItForever/Settings/SettingsWindowController.swift` 與 `SnagItForever/Settings/CaptureSettingsView.swift`（SwiftUI）：快速鍵錄製元件（含被占用警告）、擷取後行為、是否含游標、是否含視窗陰影、預設儲存資料夾
+- [X] T018 [P] [US1] 實作 `TracePixels/Capture/ScreenCapturePermission.swift` 與 `TracePixels/Capture/PermissionGuideWindow.swift`：`CGPreflightScreenCaptureAccess`／`CGRequestScreenCaptureAccess`，缺少時顯示說明視窗與開啟「螢幕與系統音訊錄製」設定的按鈕（FR-005）
+- [X] T019 [P] [US1] 實作 `TracePixels/Capture/GlobalHotKey.swift`：Carbon `RegisterEventHotKey` 封裝，註冊失敗（被占用）時回報錯誤供偏好設定顯示警告（FR-001）
+- [X] T020 [US1] 實作 `TracePixels/Capture/CaptureService.swift`：以 `SCScreenshotManager.captureImage` 擷取區域（`sourceRect` 並以 `exceptingWindows` 排除自家覆蓋層）、視窗（`desktopIndependentWindow`，被遮擋仍取得完整內容，`ignoreShadowsSingleWindow` 受偏好設定控制）、全螢幕（游標所在顯示器）；輸出為顯示器原生像素解析度，`showsCursor` 受偏好設定控制（FR-002、FR-003、FR-006）
+- [X] T021 [US1] 實作 `TracePixels/Capture/CaptureOverlayController.swift`：每個顯示器一個無邊框覆蓋層視窗、`R`／`W`／`F` 切換模式、上方三個模式按鈕、`Esc` 取消且無副作用（FR-004，依 commands.md）
+- [X] T022 [P] [US1] 實作 `TracePixels/Capture/RegionSelectionView.swift`：拖曳選取、即時顯示寬高與游標座標、放大鏡、放開滑鼠即確認，選取範圍限制在拖曳起點所在的顯示器，使用 `CaptureGeometry`（相依 T017）
+- [X] T023 [P] [US1] 實作 `TracePixels/Capture/WindowPicker.swift`：以 `SCShareableContent` 列出視窗、游標命中測試與高亮、點擊確認
+- [X] T024 [US1] 實作 `TracePixels/Capture/CaptureCoordinator.swift`：快速鍵或選單 → 權限檢查 → 覆蓋層 → `CaptureService` → `LibraryStore.create` → 依 `afterCapture` 執行開啟編輯器、複製到剪貼簿、儲存到預設資料夾（FR-007）；每次擷取都重新檢查權限，執行期間權限被撤銷時改顯示說明視窗；儲存失敗（位置不可用、磁碟已滿）時顯示錯誤提示，但擷取仍保留在資料庫中（相依 T015、T018～T023、T025；T025 須先於本任務完成）
+- [X] T025 [US1] 實作 `TracePixels/Editor/EditorWindowController.swift`、`TracePixels/Editor/CanvasView.swift` 與 `TracePixels/Editor/EditorWindowRegistry.swift`：先能顯示擷取影像；同一擷取最多一個視窗、可同時開多個（FR-030）
+- [X] T026 [P] [US1] 實作 `TracePixels/Settings/SettingsWindowController.swift` 與 `TracePixels/Settings/CaptureSettingsView.swift`（SwiftUI）：快速鍵錄製元件（含被占用警告）、擷取後行為、是否含游標、是否含視窗陰影、預設儲存資料夾
 - [X] T027 [US1] 在 `AppDelegate` 與 `StatusItemController` 接上快速鍵註冊與「擷取區域／視窗／全螢幕」「偏好設定…」選單項目（相依 T014、T019、T024、T026）
-- [X] T028 [US1] 驗證：`swift test` 全數通過、`xcodebuild … build` 成功，並啟動 App 確認不崩潰且選單列圖示出現；在 `CaptureCoordinator` 加入以 `os.Logger`（子系統 `com.snagitforever.app`、類別 `capture`）記錄的耗時日誌（快速鍵→覆蓋層顯示、確認擷取→編輯器開啟），供審查者量測 SC-003；quickstart M1 的互動步驟列入 PR 供審查者手動驗證
+- [X] T028 [US1] 驗證：`swift test` 全數通過、`xcodebuild … build` 成功，並啟動 App 確認不崩潰且選單列圖示出現；在 `CaptureCoordinator` 加入以 `os.Logger`（子系統 `com.tracepixels.app`、類別 `capture`）記錄的耗時日誌（快速鍵→覆蓋層顯示、確認擷取→編輯器開啟），供審查者量測 SC-003；quickstart M1 的互動步驟列入 PR 供審查者手動驗證
 
 **檢查點**：使用者故事 1 可獨立運作，構成 MVP
 
@@ -112,14 +112,14 @@ description: "截圖與標註功能的任務清單"
 - [X] T033 [US2] 實作 `Core/History/EditingDocument.swift`：依 [contracts/core-api.md](./contracts/core-api.md) 提供編輯操作、`hitTest`、`reorder`（相依 T032）
 - [X] T034 [P] [US2] 實作 `Core/Rendering/Redaction.swift`：磁磚平均的馬賽克，以及先磁磚平均再平滑的模糊（最小磁磚 8 px，D-08）
 - [X] T035 [US2] 實作 `Core/Rendering/Renderer.swift`：`draw` 與 `flatten`（暫不含 crop／finish／outputScale）逐類型繪製，呼叫 `Redaction`（相依 T034）
-- [X] T036 [US2] 實作 `SnagItForever/Editor/Tools/ToolController.swift`（草稿形狀換算與太小判定放在核心的 `Core/Model/DraftShape.swift`，並有 `DraftShapeTests`）：箭頭、線條、矩形、橢圓、手繪筆、螢光筆、步驟標記、模糊、馬賽克的拖曳建立流程（相依 T033）
-- [X] T037 [US2] 擴充 `SnagItForever/Editor/CanvasView.swift`：改用 `Renderer.draw` 繪製、縮放與平移（`⌘+`／`⌘-`／`⌘0`，FR-015）、視圖座標與影像像素座標轉換（相依 T035）
-- [X] T038 [US2] 實作 `SnagItForever/Editor/Tools/SelectionController.swift`（移動與控制點縮放的幾何放在核心的 `Core/Model/Annotation+Transform.swift`，並有 `AnnotationTransformTests`）：選取、控制點、移動、縮放、多選（FR-011，相依 T036、T037）
-- [X] T039 [US2] 實作 `SnagItForever/Editor/Tools/TextEditingController.swift`：文字工具的就地編輯，完成前保持可編輯，雙擊可再編輯
-- [X] T040 [P] [US2] 實作 `SnagItForever/Editor/ToolbarView.swift`（SwiftUI）：十一個工具按鈕、工具鍵依 commands.md，每個按鈕提供 `accessibilityLabel`
-- [X] T041 [P] [US2] 實作 `SnagItForever/Editor/InspectorView.swift`（SwiftUI）：顏色、填滿、線條粗細、字型、字級，作用於選取的標註或目前工具的預設樣式（FR-010）
-- [X] T042 [US2] 實作 `SnagItForever/Editor/EditorViewModel.swift` 並接上編輯選單：復原／重做、刪除、移到最上層／最下層、預設樣式（來自 Preferences）（相依 T033、T038～T041）
-- [X] T043 [US2] 實作 `SnagItForever/Editor/AutosaveController.swift`：變更後 0.5 秒去抖動呼叫 `LibraryStore.save`，視窗關閉與應用程式結束時同步保存；`⌘W` 不跳警告；保存失敗（磁碟已滿、目錄不可寫）時於編輯器顯示不阻擋操作的提示並持續重試（FR-022，相依 T012、T042）
+- [X] T036 [US2] 實作 `TracePixels/Editor/Tools/ToolController.swift`（草稿形狀換算與太小判定放在核心的 `Core/Model/DraftShape.swift`，並有 `DraftShapeTests`）：箭頭、線條、矩形、橢圓、手繪筆、螢光筆、步驟標記、模糊、馬賽克的拖曳建立流程（相依 T033）
+- [X] T037 [US2] 擴充 `TracePixels/Editor/CanvasView.swift`：改用 `Renderer.draw` 繪製、縮放與平移（`⌘+`／`⌘-`／`⌘0`，FR-015）、視圖座標與影像像素座標轉換（相依 T035）
+- [X] T038 [US2] 實作 `TracePixels/Editor/Tools/SelectionController.swift`（移動與控制點縮放的幾何放在核心的 `Core/Model/Annotation+Transform.swift`，並有 `AnnotationTransformTests`）：選取、控制點、移動、縮放、多選（FR-011，相依 T036、T037）
+- [X] T039 [US2] 實作 `TracePixels/Editor/Tools/TextEditingController.swift`：文字工具的就地編輯，完成前保持可編輯，雙擊可再編輯
+- [X] T040 [P] [US2] 實作 `TracePixels/Editor/ToolbarView.swift`（SwiftUI）：十一個工具按鈕、工具鍵依 commands.md，每個按鈕提供 `accessibilityLabel`
+- [X] T041 [P] [US2] 實作 `TracePixels/Editor/InspectorView.swift`（SwiftUI）：顏色、填滿、線條粗細、字型、字級，作用於選取的標註或目前工具的預設樣式（FR-010）
+- [X] T042 [US2] 實作 `TracePixels/Editor/EditorViewModel.swift` 並接上編輯選單：復原／重做、刪除、移到最上層／最下層、預設樣式（來自 Preferences）（相依 T033、T038～T041）
+- [X] T043 [US2] 實作 `TracePixels/Editor/AutosaveController.swift`：變更後 0.5 秒去抖動呼叫 `LibraryStore.save`，視窗關閉與應用程式結束時同步保存；`⌘W` 不跳警告；保存失敗（磁碟已滿、目錄不可寫）時於編輯器顯示不阻擋操作的提示並持續重試（FR-022，相依 T012、T042）
 - [X] T044 [US2] 驗證：`swift test` 全數通過、`xcodebuild … build` 成功；quickstart M2 列入 PR 供手動驗證
 
 **檢查點**：使用者故事 1 與 2 皆可獨立運作
@@ -134,18 +134,18 @@ description: "截圖與標註功能的任務清單"
 
 ### 先寫測試
 
-- [X] T045 [P] [US3] 撰寫 `CoreTests/FileNamerTests.swift`：檔名格式 `SnagItForever yyyy-MM-dd HH.mm.ss.<ext>`、重名時加序號 ` 2`、` 3`…
+- [X] T045 [P] [US3] 撰寫 `CoreTests/FileNamerTests.swift`：檔名格式 `TracePixels yyyy-MM-dd HH.mm.ss.<ext>`、重名時加序號 ` 2`、` 3`…
 - [X] T046 [P] [US3] 撰寫 `CoreTests/ExportTests.swift`：PNG 與 JPEG 編碼可被解碼回等尺寸影像；JPEG 品質越低檔案越小；`flatten` 後的標註已合成進像素
 
 ### 實作
 
 - [X] T047 [P] [US3] 實作 `Core/Persistence/FileNamer.swift`，使 T045 通過
 - [X] T048 [US3] 實作 `Core/Rendering/Export.swift`：`ImageFormat`、`Renderer.encode`，使 T046 通過（相依 T035）
-- [X] T049 [US3] 實作 `SnagItForever/Editor/ExportActions.swift`：複製到剪貼簿（`⌘C`）、另存新檔面板（`⇧⌘S`，預設資料夾與格式取自 Preferences；預設資料夾不存在時自動建立，寫入失敗時顯示錯誤提示並讓使用者重選位置）（FR-016、FR-017，相依 T047、T048）
-- [X] T050 [P] [US3] 實作 `SnagItForever/Editor/DragSourceView.swift`：從編輯器把合成後的影像（暫存 PNG 檔）拖曳到其他 App（FR-018）
-- [X] T051 [P] [US3] 實作 `SnagItForever/Editor/ShareButton.swift`：以 `NSSharingServicePicker` 提供標準分享選項（FR-019）
-- [X] T052 [P] [US3] 實作 `SnagItForever/Settings/ExportSettingsView.swift`（SwiftUI）：預設格式、JPEG 品質
-- [X] T053 [US3] 更新 `SnagItForever/Capture/CaptureCoordinator.swift`，使「儲存到預設資料夾」使用 `FileNamer` 與偏好格式（相依 T047、T048）
+- [X] T049 [US3] 實作 `TracePixels/Editor/ExportActions.swift`：複製到剪貼簿（`⌘C`）、另存新檔面板（`⇧⌘S`，預設資料夾與格式取自 Preferences；預設資料夾不存在時自動建立，寫入失敗時顯示錯誤提示並讓使用者重選位置）（FR-016、FR-017，相依 T047、T048）
+- [X] T050 [P] [US3] 實作 `TracePixels/Editor/DragSourceView.swift`：從編輯器把合成後的影像（暫存 PNG 檔）拖曳到其他 App（FR-018）
+- [X] T051 [P] [US3] 實作 `TracePixels/Editor/ShareButton.swift`：以 `NSSharingServicePicker` 提供標準分享選項（FR-019）
+- [X] T052 [P] [US3] 實作 `TracePixels/Settings/ExportSettingsView.swift`（SwiftUI）：預設格式、JPEG 品質
+- [X] T053 [US3] 更新 `TracePixels/Capture/CaptureCoordinator.swift`，使「儲存到預設資料夾」使用 `FileNamer` 與偏好格式（相依 T047、T048）
 - [X] T054 [US3] 驗證：`swift test` 全數通過、`xcodebuild … build` 成功；quickstart M3 列入 PR 供手動驗證
 
 **檢查點**：使用者故事 1～3 皆可獨立運作
@@ -166,9 +166,9 @@ description: "截圖與標註功能的任務清單"
 ### 實作
 
 - [X] T057 [US4] 在 `Core/Persistence/LibraryStore.swift` 實作 `totalSize()` 與 `deleteOlder(than:)`，使 T055 通過
-- [X] T058 [US4] 實作 `SnagItForever/Library/LibraryViewModel.swift` 與 `SnagItForever/Library/LibraryWindowController.swift`、`SnagItForever/Library/LibraryView.swift`（SwiftUI 縮圖格狀檢視，由新到舊，不可用項目以占位顯示）
+- [X] T058 [US4] 實作 `TracePixels/Library/LibraryViewModel.swift` 與 `TracePixels/Library/LibraryWindowController.swift`、`TracePixels/Library/LibraryView.swift`（SwiftUI 縮圖格狀檢視，由新到舊，不可用項目以占位顯示）
 - [X] T059 [US4] 在資料庫視窗接上：雙擊重新開啟（經 `EditorWindowRegistry`，已開啟則帶到前景）、`⌫`／右鍵刪除並跳出確認對話框後才永久刪除（FR-021、FR-022，相依 T058）
-- [X] T060 [P] [US4] 實作 `SnagItForever/Settings/LibrarySettingsView.swift`（SwiftUI）：顯示資料庫佔用空間與手動「清除 N 天前的擷取」，並在 `StatusItemController` 加入「開啟資料庫…」（FR-020，相依 T057）
+- [X] T060 [P] [US4] 實作 `TracePixels/Settings/LibrarySettingsView.swift`（SwiftUI）：顯示資料庫佔用空間與手動「清除 N 天前的擷取」，並在 `StatusItemController` 加入「開啟資料庫…」（FR-020，相依 T057）
 - [X] T061 [US4] 驗證：`swift test` 全數通過、`xcodebuild … build` 成功；quickstart M4 列入 PR 供手動驗證
 
 **檢查點**：使用者故事 1～4 皆可獨立運作
@@ -188,9 +188,9 @@ description: "截圖與標註功能的任務清單"
 ### 實作
 
 - [X] T063 [US5] 實作 `Core/Rendering/Renderer.swift` 的 `crop`、`outputScale`、`finish` 處理，以及 `EditingDocument.setCrop`／`setOutputScale`／`setFinish`，使 T062 通過
-- [X] T064 [P] [US5] 實作 `SnagItForever/Editor/Tools/CropToolController.swift`：裁切工具（`C`）與預覽
-- [X] T065 [P] [US5] 實作 `SnagItForever/Editor/ResizeSheet.swift`（SwiftUI）：調整輸出大小
-- [X] T066 [P] [US5] 在 `SnagItForever/Editor/InspectorView.swift` 加入邊框、陰影、圓角控制，預覽與匯出一致（FR-024）
+- [X] T064 [P] [US5] 實作 `TracePixels/Editor/Tools/CropToolController.swift`：裁切工具（`C`）與預覽
+- [X] T065 [P] [US5] 實作 `TracePixels/Editor/ResizeSheet.swift`（SwiftUI）：調整輸出大小
+- [X] T066 [P] [US5] 在 `TracePixels/Editor/InspectorView.swift` 加入邊框、陰影、圓角控制，預覽與匯出一致（FR-024）
 - [X] T067 [US5] 驗證：`swift test` 全數通過、`xcodebuild … build` 成功；quickstart M5 列入 PR 供手動驗證
 
 **檢查點**：所有使用者故事皆可獨立運作
@@ -201,13 +201,13 @@ description: "截圖與標註功能的任務清單"
 
 **目的**：影響多個使用者故事的改善、文件與最終驗證
 
-- [X] T068 [P] 補齊 `SnagItForever/Resources/Localizable.xcstrings`：所有使用者可見字串的 `zh-Hant` 與 `en` 翻譯（FR-027）
+- [X] T068 [P] 補齊 `TracePixels/Resources/Localizable.xcstrings`：所有使用者可見字串的 `zh-Hant` 與 `en` 翻譯（FR-027）
 - [X] T069 [P] 補齊無障礙：工具列與面板元件的 VoiceOver 標籤、畫布提供標註清單供 VoiceOver 導覽、所有動作皆有選單項目與快速鍵（FR-028）
-- [X] T070 [P] 實作 `SnagItForever/Settings/GeneralSettingsView.swift`：以 `SMAppService` 提供「登入時啟動」，預設關閉（FR-029）
+- [X] T070 [P] 實作 `TracePixels/Settings/GeneralSettingsView.swift`：以 `SMAppService` 提供「登入時啟動」，預設關閉（FR-029）
 - [X] T071 [P] 檢查淺色與深色外觀：全部使用動態系統顏色，畫布背景與控制點在兩種外觀都清楚（FR-025）
 - [X] T072 [P] 撰寫 `CoreTests/PerformanceTests.swift`：5K（5120×2880）影像含 100 個標註時，單一畫面的渲染耗時中位數（30 次）≤ 33 ms（Debug 與 Release 皆達標；為此核心套件在 Debug 組態也以 `-O` 編譯，並以 `calloc` 配置像素緩衝），`flatten` 在 2 秒內完成（SC-004）
-- [X] T073 稽核無網路行為：在 `SnagItForever/` 與 `Packages/` 搜尋 `URLSession`、`NWConnection`、`CFNetwork`、`WKWebView` 等網路用法，確認為零（FR-026，憲章原則 II）
-- [X] T074 以繁體中文更新 `CLAUDE.md`：建置、測試、單一測試指令、高階架構（App target ＋ `SnagItCore`）、螢幕擷取權限的開發注意事項（憲章開發流程要求）
+- [X] T073 稽核無網路行為：在 `TracePixels/` 與 `Packages/` 搜尋 `URLSession`、`NWConnection`、`CFNetwork`、`WKWebView` 等網路用法，確認為零（FR-026，憲章原則 II）
+- [X] T074 以繁體中文更新 `CLAUDE.md`：建置、測試、單一測試指令、高階架構（App target ＋ `TracePixelsCore`）、螢幕擷取權限的開發注意事項（憲章開發流程要求）
 - [X] T075 [P] 以繁體中文更新 `README.md`：專案簡介、需求、建置與執行
 - [X] T076 最終驗證：執行 quickstart 的所有自動化步驟（`swift test`、`xcodebuild build`），將結果、「需審查者手動驗證的項目」（含 SC-001、SC-003 的量測）與已知限制（受保護內容如 DRM 影片在擷取中為空白，系統無法偵測）寫入 `specs/001-screenshot-capture-annotation/verification.md`
 
@@ -286,8 +286,8 @@ T031 CoreTests/RendererTests.swift
 
 **目的**：`/speckit-converge` 對照規格、計畫、任務與憲章，找出實作尚未完全滿足的部分。
 
-- [X] T077 將匯出尺寸的計算從 `SnagItForever/Editor/EditorViewModel.swift` 的 `outputPixelSize` 移到核心（`Packages/SnagItCore/Sources/SnagItCore/Rendering/` 下，例如 `Capture.outputPixelSize`），並在 `Packages/SnagItCore/Tests/SnagItCoreTests/FinishAndCropTests.swift` 加測試：對裁切、縮放、邊框、陰影的各種組合，斷言它與 `Renderer.flatten` 實際輸出的寬高完全一致，避免兩份算式分歧 per Constitution IV (partial)
-- [X] T078 建立 `SnagItForeverTests` XCTest target（手寫 `SnagItForever.xcodeproj/project.pbxproj` 與共享 scheme，測試以 `xcodebuild test` 執行），為 `EditorViewModel` 寫單元測試：新建文字輸入後結束／空白取消（整段復原不留歷史）／既有文字清空後刪除、`setTool` 載入該工具的預設樣式、`applyStyle` 同時作用於選取標註與預設樣式、`nudgeSelection`、`deleteSelection`、`reorderSelection`、編輯期間復原被擋下；並更新 `CLAUDE.md` 與 `quickstart.md` 的測試指令 per Constitution IV (partial)
-- [X] T079 在 `SnagItForever/App/MainMenuBuilder.swift` 補上缺少的選單項目並實作對應動作：「檔案」加入「開啟資料庫…」與「擷取區域／擷取視窗／擷取全螢幕」（與選單列圖示相同，需有可用的快速鍵且不與編輯器快速鍵衝突）、「編輯」或「檢視」加入「調整輸出大小…」與「清除裁切」（於 `EditorWindowController` 實作並在 `validateMenuItem` 反映可用狀態）；為新字串補上 `Localizable.xcstrings` 的英文翻譯；並更新 `contracts/commands.md` per FR-028 (partial)
-- [X] T080 讓只有編輯器與資料庫視窗觸發 Dock 圖示：移除 `SnagItForever/Settings/SettingsWindowController.swift` 與 `SnagItForever/Capture/ScreenCapturePermission.swift`（`PermissionGuideWindowController`）對 `activationPolicy.track` 的呼叫，並確認這兩個視窗在選單列（`.accessory`）狀態下仍能取得鍵盤焦點與輸入；於 `quickstart.md` M6 加入對應的手動驗證步驟 per FR-029 (contradicts)
-- [X] T081 同步文件：在 `specs/001-screenshot-capture-annotation/quickstart.md` 的 M1 加入 `log stream --predicate 'subsystem == "com.snagitforever.app"'` 的耗時量測說明（SC-003），並把 `specs/001-screenshot-capture-annotation/plan.md` 的專案結構從 `Info.plist` 改為「以 `GENERATE_INFOPLIST_FILE` 產生」 per SC-003 (partial)
+- [X] T077 將匯出尺寸的計算從 `TracePixels/Editor/EditorViewModel.swift` 的 `outputPixelSize` 移到核心（`Packages/TracePixelsCore/Sources/TracePixelsCore/Rendering/` 下，例如 `Capture.outputPixelSize`），並在 `Packages/TracePixelsCore/Tests/TracePixelsCoreTests/FinishAndCropTests.swift` 加測試：對裁切、縮放、邊框、陰影的各種組合，斷言它與 `Renderer.flatten` 實際輸出的寬高完全一致，避免兩份算式分歧 per Constitution IV (partial)
+- [X] T078 建立 `TracePixelsTests` XCTest target（手寫 `TracePixels.xcodeproj/project.pbxproj` 與共享 scheme，測試以 `xcodebuild test` 執行），為 `EditorViewModel` 寫單元測試：新建文字輸入後結束／空白取消（整段復原不留歷史）／既有文字清空後刪除、`setTool` 載入該工具的預設樣式、`applyStyle` 同時作用於選取標註與預設樣式、`nudgeSelection`、`deleteSelection`、`reorderSelection`、編輯期間復原被擋下；並更新 `CLAUDE.md` 與 `quickstart.md` 的測試指令 per Constitution IV (partial)
+- [X] T079 在 `TracePixels/App/MainMenuBuilder.swift` 補上缺少的選單項目並實作對應動作：「檔案」加入「開啟資料庫…」與「擷取區域／擷取視窗／擷取全螢幕」（與選單列圖示相同，需有可用的快速鍵且不與編輯器快速鍵衝突）、「編輯」或「檢視」加入「調整輸出大小…」與「清除裁切」（於 `EditorWindowController` 實作並在 `validateMenuItem` 反映可用狀態）；為新字串補上 `Localizable.xcstrings` 的英文翻譯；並更新 `contracts/commands.md` per FR-028 (partial)
+- [X] T080 讓只有編輯器與資料庫視窗觸發 Dock 圖示：移除 `TracePixels/Settings/SettingsWindowController.swift` 與 `TracePixels/Capture/ScreenCapturePermission.swift`（`PermissionGuideWindowController`）對 `activationPolicy.track` 的呼叫，並確認這兩個視窗在選單列（`.accessory`）狀態下仍能取得鍵盤焦點與輸入；於 `quickstart.md` M6 加入對應的手動驗證步驟 per FR-029 (contradicts)
+- [X] T081 同步文件：在 `specs/001-screenshot-capture-annotation/quickstart.md` 的 M1 加入 `log stream --predicate 'subsystem == "com.tracepixels.app"'` 的耗時量測說明（SC-003），並把 `specs/001-screenshot-capture-annotation/plan.md` 的專案結構從 `Info.plist` 改為「以 `GENERATE_INFOPLIST_FILE` 產生」 per SC-003 (partial)

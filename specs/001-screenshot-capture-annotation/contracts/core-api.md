@@ -1,6 +1,6 @@
-# 契約：SnagItCore 對 App 公開的介面
+# 契約：TracePixelsCore 對 App 公開的介面
 
-`SnagItCore` 是 App 與純邏輯之間的邊界。以下是 App target 允許依賴的公開介面；此處為介面簽章層級的契約，不含實作。型別細節見 [data-model.md](../data-model.md)。
+`TracePixelsCore` 是 App 與純邏輯之間的邊界。以下是 App target 允許依賴的公開介面；此處為介面簽章層級的契約，不含實作。型別細節見 [data-model.md](../data-model.md)。
 
 ## 編輯文件
 
@@ -81,7 +81,7 @@ public enum CaptureGeometry {   // 螢幕點座標（左上原點）→ 擷取�
 
 ## 資料庫
 
-`CGImage` 在 Swift 6 語言模式下不是 `Sendable`。`SnagItCore` 以 `public struct SendableImage: @unchecked Sendable { public let cgImage: CGImage }` 包裝跨 actor 傳遞的影像；影像建立後不可變，因此是安全的。`LibraryStore` 的方法跨 actor 邊界時使用 `SendableImage`。
+`CGImage` 在 Swift 6 語言模式下不是 `Sendable`。`TracePixelsCore` 以 `public struct SendableImage: @unchecked Sendable { public let cgImage: CGImage }` 包裝跨 actor 傳遞的影像；影像建立後不可變，因此是安全的。`LibraryStore` 的方法跨 actor 邊界時使用 `SendableImage`。
 
 ```swift
 public actor LibraryStore {
@@ -110,7 +110,7 @@ public struct LibraryEntry: Sendable {
 
 ```swift
 public struct FileNamer {
-    /// 例如 "SnagItForever 2026-10-23 14.30.05.png"；若已存在則加序號 " 2"、" 3"…
+    /// 例如 "TracePixels 2026-10-23 14.30.05.png"；若已存在則加序號 " 2"、" 3"…
     public static func uniqueURL(in folder: URL, date: Date, ext: String, timeZone: TimeZone = .current) -> URL
 }
 ```

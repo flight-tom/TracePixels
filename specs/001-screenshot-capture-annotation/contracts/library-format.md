@@ -1,12 +1,12 @@
 # 契約：資料庫磁碟格式
 
-位置：`~/Library/Application Support/SnagItForever/Library/`
+位置：`~/Library/Application Support/TracePixels/Library/`
 
 ## 目錄結構
 
 ```text
 Library/
-└── <UUID>.snagitcapture/
+└── <UUID>.tracepixelscapture/
     ├── image.png          # 原始擷取，建立後永不修改
     ├── document.json      # 標註與中繼資料
     └── thumbnail.jpg      # 最長邊 320 px 的縮圖，可由 image.png 重建

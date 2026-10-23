@@ -14,7 +14,7 @@
   - **AppKit**：擷取覆蓋層（每個顯示器一個無邊框 `NSWindow`）、編輯器畫布（自訂 `NSView`，處理滑鼠、縮放、平移、選取控制點、文字就地編輯）、全域快速鍵、選單列（`NSStatusItem`）。
   - **SwiftUI**：偏好設定、資料庫縮圖格狀檢視、工具列與屬性面板，透過 `NSHostingView` 嵌入。
 - **理由**：低階滑鼠事件、游標、無邊框覆蓋層與精細繪圖在 AppKit 中最可控；表單式介面用 SwiftUI 最快。畫布若用 SwiftUI `Canvas` 會在命中測試、控制點與文字就地編輯上受限。
-- **語言模式**：App target 用 Swift 5 語言模式，避免 AppKit 回呼與 `@MainActor` 在 Swift 6 嚴格檢查下的大量樣板；`SnagItCore` 為純值型別，使用 Swift 6 語言模式取得完整資料競爭檢查。
+- **語言模式**：App target 用 Swift 5 語言模式，避免 AppKit 回呼與 `@MainActor` 在 Swift 6 嚴格檢查下的大量樣板；`TracePixelsCore` 為純值型別，使用 Swift 6 語言模式取得完整資料競爭檢查。
 - **替代方案**：純 SwiftUI（畫布互動受限）；純 AppKit（設定與列表表單開發成本高）。
 
 ## D-03 擷取 API
@@ -41,7 +41,7 @@
 
 ## D-06 渲染與所見即所得
 
-- **決策**：`SnagItCore` 提供單一 `AnnotationRenderer`，把標註繪進 `CGContext`。畫布 `draw(_:)` 與匯出（`ExportRenderer`）呼叫同一份程式碼，只在 context 的縮放與視口不同。
+- **決策**：`TracePixelsCore` 提供單一 `AnnotationRenderer`，把標註繪進 `CGContext`。畫布 `draw(_:)` 與匯出（`ExportRenderer`）呼叫同一份程式碼，只在 context 的縮放與視口不同。
 - **理由**：直接保證 SC-006（匯出與畫面一致），並讓渲染可在無頭環境測試（把輸出與預期像素比對）。
 - **替代方案**：畫布用 CALayer、匯出另寫一份（兩份實作必然漂移）。
 
@@ -65,11 +65,11 @@
 
 - **決策**：快照式歷史：每次提交的編輯（放置、移動結束、縮放結束、刪除、樣式變更）存下標註陣列的快照；連續拖曳以單一提交合併。歷史上限以記憶體估計不設硬性次數，符合「無限次」需求；因標註為輕量值型別，100 個標註的快照成本可忽略。
 - **理由**：實作簡單、行為可預測、易測試。不跨工作階段保留（澄清結果）。
-- **替代方案**：命令模式（每種操作寫正反兩個方向，容易漏寫）；`NSUndoManager`（與 `SnagItCore` 的無 UI 相依衝突）。
+- **替代方案**：命令模式（每種操作寫正反兩個方向，容易漏寫）；`NSUndoManager`（與 `TracePixelsCore` 的無 UI 相依衝突）。
 
 ## D-10 資料庫儲存與自動保存
 
-- **決策**：每個擷取一個目錄 `<UUID>.snagitcapture/`，內含 `image.png`（原圖，建立後不再修改）、`document.json`（標註與中繼資料）、`thumbnail.jpg`。寫入採「寫入暫存檔再原子取代」。編輯器變更後以 0.5 秒去抖動自動保存，並在關閉視窗與應用程式結束時同步保存一次。資料庫列表於啟動時掃描目錄並依擷取時間排序；損毀的目錄標記為不可用而不影響其他項目。
+- **決策**：每個擷取一個目錄 `<UUID>.tracepixelscapture/`，內含 `image.png`（原圖，建立後不再修改）、`document.json`（標註與中繼資料）、`thumbnail.jpg`。寫入採「寫入暫存檔再原子取代」。編輯器變更後以 0.5 秒去抖動自動保存，並在關閉視窗與應用程式結束時同步保存一次。資料庫列表於啟動時掃描目錄並依擷取時間排序；損毀的目錄標記為不可用而不影響其他項目。
 - **理由**：檔案式簡單、可除錯、不需要資料庫遷移；符合「原圖不被修改」（原則 III）；能直接以 Finder 檢視。
 - **替代方案**：SwiftData／Core Data（遷移與測試成本、Swift 6 並行摩擦）；單一大型 JSON 索引（寫入放大、易損毀）。
 
@@ -85,7 +85,7 @@
 
 ## D-13 專案檔建立方式
 
-- **決策**：手寫 `SnagItForever.xcodeproj/project.pbxproj`，使用 Xcode 16 起的檔案系統同步群組（`PBXFileSystemSynchronizedRootGroup`），並以 `XCLocalSwiftPackageReference` 引用 `Packages/SnagItCore`。建立後以 `xcodebuild -list` 與實際建置驗證。
+- **決策**：手寫 `TracePixels.xcodeproj/project.pbxproj`，使用 Xcode 16 起的檔案系統同步群組（`PBXFileSystemSynchronizedRootGroup`），並以 `XCLocalSwiftPackageReference` 引用 `Packages/TracePixelsCore`。建立後以 `xcodebuild -list` 與實際建置驗證。
 - **理由**：環境未安裝 xcodegen／tuist，且不應為了產生專案檔而增加使用者必須安裝的工具；同步群組使新增檔案不需修改 pbxproj，大幅降低手寫風險與日後合併衝突。
 - **替代方案**：以 Homebrew 安裝 xcodegen（修改使用者系統環境，且使專案依賴外部工具）。
 - **風險**：手寫 pbxproj 可能被 Xcode 拒絕；若建置驗證失敗，退而在 Xcode 內以命令列建立等價專案並記錄原因。
@@ -96,8 +96,8 @@
 |------|--------|
 | 全域快速鍵 | `⌃⇧4` |
 | 擷取後行為 | 在編輯器開啟 |
-| 預設儲存位置 | `~/Pictures/SnagItForever/` |
-| 檔名 | `SnagItForever yyyy-MM-dd HH.mm.ss`，重名加序號 |
+| 預設儲存位置 | `~/Pictures/TracePixels/` |
+| 檔名 | `TracePixels yyyy-MM-dd HH.mm.ss`，重名加序號 |
 | JPEG 品質 | 90% |
 | 是否含游標／視窗陰影 | 否／否 |
 | 登入時啟動 | 關閉 |
@@ -106,7 +106,7 @@
 
 ## D-15 渲染效能（SC-004）
 
-- **決策**：像素緩衝以 `calloc` 配置；`SnagItCore` 在 Debug 組態也以 `-O` 編譯（`Package.swift` 的 `unsafeFlags(["-O"], .when(configuration: .debug))`，本地套件允許）。
+- **決策**：像素緩衝以 `calloc` 配置；`TracePixelsCore` 在 Debug 組態也以 `-O` 編譯（`Package.swift` 的 `unsafeFlags(["-O"], .when(configuration: .debug))`，本地套件允許）。
 - **量測**（5120×2880、100 個標註，單次 `Renderer.composite` 中位數）：最佳化前 Debug 400 ms／Release 19 ms；`calloc` 後無標註基底 94→20 ms；加上 `-O` 後 Debug 19.8 ms／Release 16.6 ms；`flatten`（含邊框陰影圓角）約 130 ms。上限為 33 ms 與 2 s。
 - **理由**：畫布每次變更都重新合成；遮蔽的像素迴圈在 `-Onone` 下慢近百倍，開發時會卡到無法操作。`@_optimize(speed)` 試過，沒有效果。`[UInt8](repeating:count:)` 在 Debug 是未特化的泛型，5900 萬個元素要近百毫秒。
 - **替代方案**：快取「原圖＋較低層標註」的基底層，只重畫變動的標註（複雜度高，目前已達標，列為效能再惡化時的備案）。

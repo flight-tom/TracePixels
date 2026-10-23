@@ -8,8 +8,8 @@
 
 | 項目 | 指令 | 結果 |
 |------|------|------|
-| 核心邏輯測試（Debug） | `cd Packages/SnagItCore && swift test` | 127 項全過 |
-| 核心邏輯測試（Release） | `cd Packages/SnagItCore && swift test -c release` | 127 項全過 |
+| 核心邏輯測試（Debug） | `cd Packages/TracePixelsCore && swift test` | 127 項全過 |
+| 核心邏輯測試（Release） | `cd Packages/TracePixelsCore && swift test -c release` | 127 項全過 |
 | App 單元測試 | `xcodebuild … test`（`EditorViewModelTests` 18＋`MainMenuTests` 5） | 23 項全過；連續 4 次皆通過。**另有 1 次早先的執行顯示 `TEST FAILED`，我當時只過濾輸出、沒留下失敗原因，之後無法重現，原因不明**（可能是新增測試檔後第一次啟動宿主 App 的暫時性問題） |
 | App 建置（Debug） | `xcodebuild … -configuration Debug build` | BUILD SUCCEEDED，無警告 |
 | App 建置（Release） | `xcodebuild … -configuration Release build` | BUILD SUCCEEDED，無警告（Phase 9 後重新確認）；Universal（x86_64、arm64）；ad-hoc＋Hardened Runtime 簽署 |
@@ -53,7 +53,7 @@
 - [ ] 擷取結果為顯示器**原生像素解析度**（Retina 上像素為點數的 2 倍）；多顯示器各自的縮放比例。
 - [ ] 視窗擷取：被其他視窗遮擋仍取得完整內容；預設不含陰影、偏好設定開啟後含陰影（**視窗陰影開啟時的輸出尺寸尚未確認**，目前以 `SCShareableContent.info(for:)` 的 `contentRect` 決定大小）。
 - [ ] 權限缺失時出現說明視窗與前往系統設定的按鈕；執行期間撤銷權限後再擷取也是。
-- [ ] **SC-001**（快速鍵到剪貼簿 < 5 秒）、**SC-003**（覆蓋層 < 300 ms、編輯器 < 1 秒）：以 `log stream --predicate 'subsystem == "com.snagitforever.app"'` 觀察耗時日誌。
+- [ ] **SC-001**（快速鍵到剪貼簿 < 5 秒）、**SC-003**（覆蓋層 < 300 ms、編輯器 < 1 秒）：以 `log stream --predicate 'subsystem == "com.tracepixels.app"'` 觀察耗時日誌。
 
 ### 編輯器（M2、M3，使用者故事 2、3）
 

@@ -1,6 +1,6 @@
 # 資料模型
 
-所有實體定義於 `SnagItCore`，皆為值型別並符合 `Codable`、`Sendable`。座標一律為「影像像素座標，左上為原點」。
+所有實體定義於 `TracePixelsCore`，皆為值型別並符合 `Codable`、`Sendable`。座標一律為「影像像素座標，左上為原點」。
 
 ## Capture（擷取）
 
@@ -74,13 +74,13 @@
 
 ## Preferences（偏好設定）
 
-存於 `UserDefaults`，不在 `SnagItCore` 內序列化。
+存於 `UserDefaults`，不在 `TracePixelsCore` 內序列化。
 
 | 鍵 | 型別 | 預設 |
 |----|------|------|
 | `hotKey` | keyCode＋modifiers | `⌃⇧4` |
 | `afterCapture` | 集合：openEditor、copy、saveToFolder | `[openEditor]` |
-| `saveFolder` | URL | `~/Pictures/SnagItForever` |
+| `saveFolder` | URL | `~/Pictures/TracePixels` |
 | `saveFormat` | `png` ／ `jpeg` | `png` |
 | `jpegQuality` | Double | 0.9 |
 | `includeCursor` | Bool | false |
