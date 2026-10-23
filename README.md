@@ -236,6 +236,6 @@ TracePixels was developed with [Spec Kit](https://github.com/github/spec-kit)'s 
 
 Copyright (C) 2026 Tom Tang.
 
-TracePixels is free software, released under the **GNU Lesser General Public License, version 3** (SPDX: `LGPL-3.0-only`). The full text is in [`LICENSE`](LICENSE). The LGPL is a set of additional permissions on top of the **GNU General Public License, version 3**, so that text is included as well in [`COPYING`](COPYING).
+TracePixels is free software, released under the **GNU Lesser General Public License, version 3** (SPDX: `LGPL-3.0-only`). The full text is in [`COPYING.LESSER`](COPYING.LESSER). The LGPL is a set of additional permissions on top of the **GNU General Public License, version 3**, so that text is included as well in [`COPYING`](COPYING).
 
 In short (this is a summary, not legal advice; the license text is what governs): you may use, study, modify, and redistribute TracePixels, and you may use its code, such as the `TracePixelsCore` package, as a library inside other programs, including proprietary ones, as long as you follow the LGPL's conditions. Those conditions include sharing changes you make to TracePixels itself under the same license and letting users replace the LGPL-covered part with a modified version.
