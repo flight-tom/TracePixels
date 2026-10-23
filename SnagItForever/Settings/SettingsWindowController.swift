@@ -4,10 +4,7 @@ import SwiftUI
 
 /// 偏好設定視窗。各分頁見 `*SettingsView`。
 final class SettingsWindowController: NSWindowController {
-    private let environment: AppEnvironment
-
     init(environment: AppEnvironment, hotKeyController: HotKeyController) {
-        self.environment = environment
         let root = SettingsRootView(preferences: environment.preferences, hotKeyController: hotKeyController, library: environment.library)
         let hosting = NSHostingController(rootView: root)
         let window = NSWindow(contentViewController: hosting)
@@ -20,8 +17,8 @@ final class SettingsWindowController: NSWindowController {
     @available(*, unavailable)
     required init?(coder: NSCoder) { fatalError("init(coder:) 未實作") }
 
+    /// 偏好設定視窗不觸發 Dock 圖示（FR-029：只有編輯器與資料庫視窗才會）。
     func show() {
-        if let window { environment.activationPolicy.track(window) }
         window?.center()
         showWindow(nil)
         NSApp.activate(ignoringOtherApps: true)

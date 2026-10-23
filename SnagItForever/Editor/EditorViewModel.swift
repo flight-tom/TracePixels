@@ -16,6 +16,8 @@ final class EditorViewModel: ObservableObject {
     @Published var saveWarning: String?
     /// 拖曳裁切框時的暫時範圍；放開滑鼠才寫入文件（可復原）。
     @Published var cropDraft: PixelRect?
+    /// 「調整輸出大小」面板是否顯示；工具列按鈕與選單項目共用。
+    @Published var showsResizeSheet = false
     /// 套用裁切、縮放與修飾後的匯出預覽（畫面與匯出一致，FR-024）。
     @Published private(set) var exportPreview: NSImage?
 
@@ -93,14 +95,8 @@ final class EditorViewModel: ObservableObject {
         mutate { $0.setFinish(finish) }
     }
 
-    /// 目前匯出尺寸（像素）：裁切範圍（或整張）乘以輸出縮放，再加上邊框與陰影的邊距。
-    var outputPixelSize: PixelSize {
-        let base = capture.crop?.normalized ?? capture.pixelSize.rect
-        let width = max(1, Int((base.width * capture.outputScale).rounded()))
-        let height = max(1, Int((base.height * capture.outputScale).rounded()))
-        let margin = capture.finish.margin
-        return PixelSize(width: width + 2 * margin, height: height + 2 * margin)
-    }
+    /// 目前匯出尺寸（像素）。算式在核心（`Capture.outputPixelSize`），與 `Renderer.flatten` 共用同一個換算。
+    var outputPixelSize: PixelSize { capture.outputPixelSize }
 
     func mutate(_ change: (inout EditingDocument) -> Void) {
         change(&document)

@@ -52,14 +52,10 @@ public enum Renderer {
     public static func flatten(_ capture: Capture, original: CGImage) throws -> CGImage {
         var image = composite(capture, original: original)
 
-        if let crop = capture.crop {
-            let bounds = PixelRect(x: 0, y: 0, width: Double(image.width), height: Double(image.height))
-            guard let r = crop.clamped(to: bounds) else { throw ExportError.encodingFailed }
-            let rect = CGRect(
-                x: r.minX.rounded(.down), y: r.minY.rounded(.down),
-                width: max(1, r.maxX.rounded(.up) - r.minX.rounded(.down)),
-                height: max(1, r.maxY.rounded(.up) - r.minY.rounded(.down)))
-            guard let cropped = image.cropping(to: rect) else { throw ExportError.encodingFailed }
+        if capture.crop != nil {
+            guard let rect = capture.croppedPixelRect(imageWidth: image.width, imageHeight: image.height),
+                  let cropped = image.cropping(to: rect)
+            else { throw ExportError.encodingFailed }
             image = cropped
         }
 

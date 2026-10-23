@@ -79,7 +79,8 @@ SnagItForever/                    # App target
 ├── Library/                      # 資料庫視窗（縮圖格狀檢視）
 ├── Settings/                     # 偏好設定（SwiftUI）
 ├── Resources/                    # Assets.xcassets、Localizable.xcstrings（zh-Hant、en）
-└── Info.plist
+└── （Info.plist 由 GENERATE_INFOPLIST_FILE 產生，不是原始碼檔案）
+SnagItForeverTests/               # App 單元測試（EditorViewModel、主選單；以 App 為宿主）
 Packages/SnagItCore/              # 本地 Swift Package（無 UI 相依）
 ├── Package.swift
 ├── Sources/SnagItCore/

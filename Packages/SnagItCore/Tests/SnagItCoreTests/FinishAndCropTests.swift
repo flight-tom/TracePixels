@@ -144,4 +144,39 @@ final class FinishAndCropTests: XCTestCase {
         XCTAssertEqual(c, snapshot)
         XCTAssertEqual(TestImages.pixels(original), before)
     }
+
+    // MARK: 匯出尺寸（T077）：算式必須與 flatten 實際輸出一致
+
+    func testOutputPixelSizeAlwaysMatchesTheFlattenedImage() throws {
+        let crops: [PixelRect?] = [
+            nil,
+            PixelRect(x: 100, y: 50, width: 80, height: 40),
+            PixelRect(x: 10.4, y: 5.6, width: 80.3, height: 40.2),   // 小數座標：flatten 會向外取整
+            PixelRect(x: 0.5, y: 0.5, width: 1, height: 1),
+            PixelRect(x: 199.2, y: 99.2, width: 0.8, height: 0.8),   // 貼著右下角
+        ]
+        let scales: [Double] = [1, 0.5, 2, 0.1, 3.3]
+        let finishes: [Finish] = [
+            .none,
+            Finish(border: Finish.Border(color: .black, width: 4)),
+            Finish(border: Finish.Border(color: .black, width: 2.5)),
+            Finish(shadow: Finish.Shadow(blurRadius: 10, offsetX: 3, offsetY: -7, color: .black)),
+            Finish(border: Finish.Border(color: .black, width: 6), shadow: Finish.Shadow(blurRadius: 4, offsetX: 0, offsetY: 5, color: .black), cornerRadius: 12),
+        ]
+        for crop in crops {
+            for scale in scales {
+                for finish in finishes {
+                    let c = capture { $0.crop = crop; $0.outputScale = scale; $0.finish = finish }
+                    let out = try Renderer.flatten(c, original: white())
+                    XCTAssertEqual(
+                        c.outputPixelSize, PixelSize(width: out.width, height: out.height),
+                        "crop=\(String(describing: crop)) scale=\(scale) finish=\(finish)")
+                }
+            }
+        }
+    }
+
+    func testOutputPixelSizeWithoutAnyEditsIsTheImageSize() {
+        XCTAssertEqual(capture().outputPixelSize, size)
+    }
 }

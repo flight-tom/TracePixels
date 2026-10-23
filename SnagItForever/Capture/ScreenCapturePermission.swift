@@ -21,20 +21,17 @@ enum ScreenCapturePermission {
 
 /// 缺少權限時的說明視窗（FR-005）：說明缺少什麼，並提供前往系統設定的按鈕，而不是產出空白影像。
 final class PermissionGuideWindowController: NSWindowController {
-    private var environment: AppEnvironment?
-
-    convenience init(environment: AppEnvironment) {
+    convenience init() {
         let hosting = NSHostingController(rootView: PermissionGuideView(onClose: {}))
         let window = NSWindow(contentViewController: hosting)
         window.title = String(localized: "需要螢幕擷取權限")
         window.styleMask = [.titled, .closable]
         self.init(window: window)
         hosting.rootView = PermissionGuideView(onClose: { [weak window] in window?.close() })
-        self.environment = environment
     }
 
+    /// 權限說明視窗不觸發 Dock 圖示（FR-029：只有編輯器與資料庫視窗才會）。
     func show() {
-        if let window { environment?.activationPolicy.track(window) }
         window?.center()
         showWindow(nil)
         NSApp.activate(ignoringOtherApps: true)

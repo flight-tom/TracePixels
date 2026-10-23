@@ -16,11 +16,15 @@ cd Packages/SnagItCore && swift test
 # 2. 只跑單一測試
 cd Packages/SnagItCore && swift test --filter RedactionTests
 
-# 3. 建置 App
+# 3. App 單元測試（EditorViewModel、主選單；以 App 為宿主）
+xcodebuild -project SnagItForever.xcodeproj -scheme SnagItForever \
+  -destination 'platform=macOS' -derivedDataPath build/DerivedData test
+
+# 4. 建置 App
 xcodebuild -project SnagItForever.xcodeproj -scheme SnagItForever \
   -configuration Debug -destination 'platform=macOS' build
 
-# 4. 執行 App
+# 5. 執行 App
 open "$(xcodebuild -project SnagItForever.xcodeproj -scheme SnagItForever \
   -configuration Debug -showBuildSettings | awk '/ BUILT_PRODUCTS_DIR/{print $3}')/SnagItForever.app"
 ```
@@ -58,7 +62,7 @@ open "$(xcodebuild -project SnagItForever.xcodeproj -scheme SnagItForever \
 3. 按 `⌃⇧4`，按 `F` 後在第二個螢幕點擊（若有）→ 擷取游標所在螢幕。
 4. 按 `⌃⇧4` 後按 `Esc` → 不產生任何擷取、剪貼簿不變。
 5. 在系統設定撤銷權限後擷取 → 出現說明視窗與前往設定按鈕，不產生空白影像。
-6. 計時：按下快速鍵到覆蓋層出現 < 300 ms（SC-003）。
+6. 計時（SC-003）：開一個終端機執行 `log stream --predicate 'subsystem == "com.snagitforever.app"' --level info`，再觸發擷取。日誌會輸出「快速鍵到覆蓋層顯示：N ms」（需 < 300 ms）與「確認擷取到編輯器開啟：N ms」（需 < 1000 ms）。SC-001（快速鍵到影像進剪貼簿 < 5 秒）請用碼錶量測。
 
 ### M2 標註（使用者故事 2）
 
@@ -91,5 +95,6 @@ open "$(xcodebuild -project SnagItForever.xcodeproj -scheme SnagItForever \
 1. 切換淺色／深色外觀，編輯器正常顯示（FR-025）。
 2. 切換系統語言為英文與繁體中文，介面對應切換（FR-027）。
 3. 使用 VoiceOver 可讀出工具列按鈕名稱（FR-028）。
-4. 只有選單列圖示（無視窗時），Dock 無圖示；開啟編輯器時 Dock 圖示出現（FR-029）。
-5. 以 `nettop` 或 Little Snitch 類工具觀察，應用程式沒有任何對外連線（FR-026）。
+4. 只有選單列圖示（無視窗時），Dock 無圖示；開啟編輯器或資料庫視窗時 Dock 圖示出現，全部關閉後消失（FR-029）。
+5. 開啟「偏好設定…」與（撤銷權限後觸發的）權限說明視窗時，**Dock 圖示不會出現**，且視窗能取得鍵盤焦點、可在欄位輸入（例如快速鍵錄製、清除天數）。
+6. 以 `nettop` 或 Little Snitch 類工具觀察，應用程式沒有任何對外連線（FR-026）。

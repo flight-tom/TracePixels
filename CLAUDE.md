@@ -29,6 +29,11 @@ cd Packages/SnagItCore && swift test --filter ExportTests/testPNGRoundTripIsLoss
 cd Packages/SnagItCore && swift test --filter PerformanceTests
 cd Packages/SnagItCore && swift test -c release --filter PerformanceTests
 
+# App 單元測試（EditorViewModel、主選單；以 App 為宿主，執行時不會註冊快速鍵與選單列圖示）
+xcodebuild -project SnagItForever.xcodeproj -scheme SnagItForever \
+  -destination 'platform=macOS' -derivedDataPath build/DerivedData test
+# 單一 App 測試：加上 -only-testing:SnagItForeverTests/EditorViewModelTests/testNudgeMovesTheSelectionAndEachNudgeIsOneUndoStep
+
 # 建置 App（產物放在被 .gitignore 忽略的 build/）
 xcodebuild -project SnagItForever.xcodeproj -scheme SnagItForever \
   -configuration Debug -destination 'platform=macOS' -derivedDataPath build/DerivedData build
@@ -40,7 +45,7 @@ open build/DerivedData/Build/Products/Debug/SnagItForever.app
 log stream --predicate 'subsystem == "com.snagitforever.app"' --level info
 ```
 
-App target 目前沒有單元測試；需要螢幕、視窗伺服器或權限的行為以 `specs/001-screenshot-capture-annotation/quickstart.md` 的手動程序驗證。
+`SnagItForeverTests/` 涵蓋不需要螢幕的 App 狀態邏輯（`EditorViewModel`、主選單）；需要螢幕、視窗伺服器或權限的行為（擷取、覆蓋層、拖曳、分享…）以 `specs/001-screenshot-capture-annotation/quickstart.md` 的手動程序驗證。
 
 ## 架構
 
@@ -58,12 +63,12 @@ App target 目前沒有單元測試；需要螢幕、視窗伺服器或權限的
 
 - **擷取流程**：`GlobalHotKey`（Carbon，不需輔助使用權限）／選單列 → `CaptureCoordinator`（檢查權限 → `CaptureOverlayController` 每顯示器一個覆蓋層視窗 → `CaptureService` 以 ScreenCaptureKit 擷取 → `LibraryStore.create` → 開編輯器／複製／儲存）。座標換算在核心的 `CaptureGeometry`（可測試）；選取限制在拖曳起點所在的顯示器。覆蓋層自己的視窗 ID 擷取時要排除。
 - **編輯器**：每個擷取一個視窗（`EditorWindowRegistry` 保證同一擷取只開一個）。`EditorViewModel` 持有 `EditingDocument` 與選取／工具／樣式，每次變更重新 `Renderer.composite` 並顯示；`CanvasView`（`NSView`，翻轉座標）把滑鼠事件交給 `ToolController`／`SelectionController`；屬性面板與工具列是 SwiftUI。`AutosaveController` 0.5 秒去抖動寫回資料庫，視窗關閉與結束應用程式時同步保存，所以沒有「未儲存」狀態。
-- **Dock 圖示**：`LSUIElement` 為真；`ActivationPolicyManager` 在有編輯器／資料庫／偏好設定視窗時切到 `.regular`，全關後切回 `.accessory`。
+- **Dock 圖示**：`LSUIElement` 為真；`ActivationPolicyManager` 只在有**編輯器或資料庫**視窗時切到 `.regular`（FR-029），全關後切回 `.accessory`；偏好設定與權限說明視窗不觸發。
 - 偏好設定存 `UserDefaults`（`Preferences`）。**不啟用 App Sandbox**，啟用 Hardened Runtime，ad-hoc 簽署。
 
 ## 注意事項
 
-- **專案檔是手寫的**，使用檔案系統同步群組：在 `SnagItForever/` 下新增檔案**不需要**修改 `project.pbxproj`。環境沒有 xcodegen／tuist，也不要為此安裝。
+- **專案檔是手寫的**，使用檔案系統同步群組：在 `SnagItForever/` 或 `SnagItForeverTests/` 下新增檔案**不需要**修改 `project.pbxproj`。環境沒有 xcodegen／tuist，也不要為此安裝。
 - **語言模式**：核心用 Swift 6；App target 用 Swift 5（AppKit 回呼的嚴格並行檢查成本高於收益）。從非隔離的閉包（Carbon 回呼、`Actions` 閉包）呼叫 `@MainActor` 程式碼時用 `MainActor.assumeIsolated`。
 - **核心在 Debug 組態也以 `-O` 編譯**（`Package.swift` 的 `unsafeFlags`，僅本地套件允許）：渲染器的像素迴圈在 `-Onone` 下慢近百倍，畫布會卡。像素緩衝用 `calloc`，不要用 `[UInt8](repeating:count:)`（Debug 下是未特化的泛型）。
 - **本地化**：`Localizable.xcstrings`，開發語言 `zh-Hant`，key 就是中文原文。用 `xcodebuild`／`swift build` 建置**不會**回寫目錄；新增使用者可見字串後，要補上 `en` 翻譯（可從 `build/DerivedData/**/SnagItForever.build/**/*.stringsdata` 取出所有 key 比對缺漏）。

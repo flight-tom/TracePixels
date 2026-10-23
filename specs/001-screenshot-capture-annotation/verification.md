@@ -8,10 +8,11 @@
 
 | 項目 | 指令 | 結果 |
 |------|------|------|
-| 核心邏輯測試（Debug） | `cd Packages/SnagItCore && swift test` | 125 項全過 |
-| 核心邏輯測試（Release） | `cd Packages/SnagItCore && swift test -c release` | 125 項全過 |
+| 核心邏輯測試（Debug） | `cd Packages/SnagItCore && swift test` | 127 項全過 |
+| 核心邏輯測試（Release） | `cd Packages/SnagItCore && swift test -c release` | 127 項全過 |
+| App 單元測試 | `xcodebuild … test`（`EditorViewModelTests` 18＋`MainMenuTests` 5） | 23 項全過；連續 4 次皆通過。**另有 1 次早先的執行顯示 `TEST FAILED`，我當時只過濾輸出、沒留下失敗原因，之後無法重現，原因不明**（可能是新增測試檔後第一次啟動宿主 App 的暫時性問題） |
 | App 建置（Debug） | `xcodebuild … -configuration Debug build` | BUILD SUCCEEDED，無警告 |
-| App 建置（Release） | `xcodebuild … -configuration Release build` | BUILD SUCCEEDED，無警告；Universal（x86_64、arm64）；ad-hoc＋Hardened Runtime 簽署 |
+| App 建置（Release） | `xcodebuild … -configuration Release build` | BUILD SUCCEEDED，無警告（Phase 9 後重新確認）；Universal（x86_64、arm64）；ad-hoc＋Hardened Runtime 簽署 |
 | 啟動煙霧測試 | 啟動後等待數秒 | 程序持續執行、無崩潰報告 |
 | 無網路稽核（T073） | 原始碼搜尋 `URLSession`／`NWConnection`／`WKWebView`／`http(s)://` 等；`otool -L` | 原始碼為零；未連結 Network／WebKit／CFNetwork；entitlements 無 network |
 | 本地化（T068） | 從建置產物取出所有 key 比對 `Localizable.xcstrings` | 156 項皆有英文（含 4 項複數形式）；`en.lproj` 與 `zh-Hant.lproj` 皆已編入 |
@@ -20,6 +21,9 @@
 
 | 規格項目 | 驗證 |
 |----------|------|
+| FR-028 所有動作都有選單項目、快速鍵不重複 | `MainMenuTests`（App 單元測試） |
+| 匯出尺寸算式與 `flatten` 一致 | `FinishAndCropTests`（25 種裁切／縮放／修飾組合）、`EditorViewModelTests` |
+| 檢視模型狀態邏輯（文字結束編輯、工具樣式、選取、微調、順序） | `EditorViewModelTests`（18） |
 | FR-011、FR-012 標註編輯與復原 | `EditingDocumentTests`（16）、`AnnotationTransformTests`（8）、`DraftShapeTests`（5） |
 | FR-013、SC-005 遮蔽不可逆 | `RedactionTests`（8）：磁磚內部細節不同但平均值相同的兩張圖，遮蔽後區域內逐像素相同；強度下限 8；遮蔽也蓋住下層標註 |
 | SC-006 畫面與匯出一致 | `RendererTests`（10）：`draw`／`composite`／`flatten` 逐像素相同 |
@@ -65,7 +69,8 @@
 - [ ] 淺色與深色外觀的實際外觀（已稽核硬編碼顏色，見 `CLAUDE.md`／稽核紀錄，但未目視兩種外觀）。
 - [ ] 英文介面（系統語言切換為英文）與繁體中文介面的實際呈現。
 - [ ] VoiceOver 實際唸出工具列、模式列、資料庫項目與畫布標註清單。
-- [ ] 「登入時啟動」實際生效（`SMAppService`）；Dock 圖示在視窗開啟／全關時的出現與消失。
+- [ ] 「登入時啟動」實際生效（`SMAppService`）；Dock 圖示在編輯器／資料庫視窗開啟與全關時的出現與消失；偏好設定與權限說明視窗**不**觸發 Dock 圖示，且仍能取得鍵盤焦點與輸入。
+- [ ] 主選單各項目（含新增的擷取三項、開啟資料庫、調整輸出大小、清除裁切）實際可點擊、快速鍵生效。
 - [ ] **SC-002**（首次使用者 2 分鐘內完成擷取＋箭頭＋文字＋複製）、**SC-008**（使用者測試 ≥ 90%）：屬使用者測試，尚未進行。
 
 ## 4. 已知限制

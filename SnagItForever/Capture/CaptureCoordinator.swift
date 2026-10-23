@@ -123,7 +123,7 @@ final class CaptureCoordinator {
     // MARK: 錯誤與權限
 
     private func showPermissionGuide() {
-        let guide = permissionGuide ?? PermissionGuideWindowController(environment: environment)
+        let guide = permissionGuide ?? PermissionGuideWindowController()
         permissionGuide = guide
         guide.show()
     }

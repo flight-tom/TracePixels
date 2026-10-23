@@ -144,6 +144,9 @@ final class EditorWindowController: NSWindowController, NSWindowDelegate, NSMenu
         viewModel.setTool(tool)
     }
 
+    @MainActor @objc func resizeOutput(_ sender: Any?) { viewModel.showsResizeSheet = true }
+    @MainActor @objc func clearCrop(_ sender: Any?) { viewModel.clearCrop() }
+
     @MainActor @objc func bringToFront(_ sender: Any?) { viewModel.reorderSelection(.front) }
     @MainActor @objc func sendToBack(_ sender: Any?) { viewModel.reorderSelection(.back) }
     @MainActor @objc func bringForward(_ sender: Any?) { viewModel.reorderSelection(.forward) }
@@ -183,6 +186,7 @@ final class EditorWindowController: NSWindowController, NSWindowDelegate, NSMenu
         case #selector(deleteSelection(_:)), #selector(bringToFront(_:)), #selector(sendToBack(_:)),
              #selector(bringForward(_:)), #selector(sendBackward(_:)):
             return !viewModel.selection.isEmpty
+        case #selector(clearCrop(_:)): return viewModel.capture.crop != nil && viewModel.editingTextID == nil
         default: return true
         }
     }

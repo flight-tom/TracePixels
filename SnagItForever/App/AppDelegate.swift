@@ -1,6 +1,6 @@
 import AppKit
 
-final class AppDelegate: NSObject, NSApplicationDelegate {
+final class AppDelegate: NSObject, NSApplicationDelegate, AppMenuActions {
     private let environment = AppEnvironment.shared
     private var statusItemController: StatusItemController?
     private var hotKeyController: HotKeyController?
@@ -10,10 +10,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var libraryWindow: LibraryWindowController?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        // 單元測試以本 App 為宿主：不要在測試時註冊全域快速鍵、選單列圖示與主選單。
+        guard ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] == nil else { return }
         MainActor.assumeIsolated {
             let editors = EditorWindowRegistry(environment: environment)
             self.editors = editors
-            NSApp.mainMenu = MainMenuBuilder.build(settingsTarget: self, settingsAction: #selector(openSettings(_:)))
+            NSApp.mainMenu = MainMenuBuilder.build(appTarget: self)
             let coordinator = CaptureCoordinator(environment: environment, editors: editors)
             self.coordinator = coordinator
 
@@ -32,9 +34,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
 
-    @objc private func openSettings(_ sender: Any?) {
-        showSettings()
-    }
+    // 主選單的 App 層動作（與選單列圖示相同）。
+    @objc func openSettings(_ sender: Any?) { showSettings() }
+    @objc func openLibrary(_ sender: Any?) { MainActor.assumeIsolated { showLibrary() } }
+    @objc func captureRegion(_ sender: Any?) { MainActor.assumeIsolated { coordinator?.start(mode: .region) } }
+    @objc func captureWindow(_ sender: Any?) { MainActor.assumeIsolated { coordinator?.start(mode: .window) } }
+    @objc func captureFullScreen(_ sender: Any?) { MainActor.assumeIsolated { coordinator?.start(mode: .fullScreen) } }
 
     /// 結束前把所有開啟中的編輯器保存完，避免遺失最後 0.5 秒內的編輯。
     func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
