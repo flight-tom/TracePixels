@@ -209,7 +209,7 @@ description: "截圖與標註功能的任務清單"
 - [X] T073 稽核無網路行為：在 `SnagItForever/` 與 `Packages/` 搜尋 `URLSession`、`NWConnection`、`CFNetwork`、`WKWebView` 等網路用法，確認為零（FR-026，憲章原則 II）
 - [X] T074 以繁體中文更新 `CLAUDE.md`：建置、測試、單一測試指令、高階架構（App target ＋ `SnagItCore`）、螢幕擷取權限的開發注意事項（憲章開發流程要求）
 - [X] T075 [P] 以繁體中文更新 `README.md`：專案簡介、需求、建置與執行
-- [ ] T076 最終驗證：執行 quickstart 的所有自動化步驟（`swift test`、`xcodebuild build`），將結果、「需審查者手動驗證的項目」（含 SC-001、SC-003 的量測）與已知限制（受保護內容如 DRM 影片在擷取中為空白，系統無法偵測）寫入 `specs/001-screenshot-capture-annotation/verification.md`
+- [X] T076 最終驗證：執行 quickstart 的所有自動化步驟（`swift test`、`xcodebuild build`），將結果、「需審查者手動驗證的項目」（含 SC-001、SC-003 的量測）與已知限制（受保護內容如 DRM 影片在擷取中為空白，系統無法偵測）寫入 `specs/001-screenshot-capture-annotation/verification.md`
 
 ---
 
