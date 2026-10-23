@@ -29,12 +29,24 @@ The two images below are rendered by TracePixels' exporter from a synthetic test
 ## Requirements
 
 - macOS 14 (Sonoma) or later
-- Xcode 16 or later to build from source (developed with Xcode 27.1 on macOS 26)
+- Xcode 26 or later to build from source (built with Xcode 27.1 locally and Xcode 26.6 in CI; older Xcode versions have not been tried)
 - The **Screen & System Audio Recording** permission, requested the first time you capture
 
 ## Install
 
-There is no packaged release yet, so you build TracePixels from source.
+### Download
+
+Grab the latest `TracePixels-<version>.dmg` from the [Releases page](https://github.com/flight-tom/TracePixels/releases), open it, and drag **TracePixels** into **Applications**. The app is a Universal binary (Apple silicon and Intel).
+
+TracePixels is signed ad hoc and **not notarized by Apple**, so macOS blocks it the first time you open it. Try to open it once, then go to **System Settings › Privacy & Security**, scroll down and click **Open Anyway**. Or remove the quarantine flag in Terminal:
+
+```bash
+xattr -dr com.apple.quarantine /Applications/TracePixels.app
+```
+
+Each release also carries a `.sha256` file, so you can check the download with `shasum -a 256 -c TracePixels-<version>.dmg.sha256`.
+
+### Build from source
 
 ```bash
 git clone https://github.com/flight-tom/TracePixels.git
@@ -218,9 +230,21 @@ TracePixels.xcodeproj/      Xcode project (file-system synchronized groups)
 TracePixels/                App: capture, editor, library, settings
 TracePixelsTests/           App unit tests (editor view model, main menu)
 Packages/TracePixelsCore/   Core package: model, undo, rendering, redaction, export, library
+scripts/                    App icon generator and DMG packaging script
+.github/workflows/          Release workflow (build, package, publish)
 specs/                      Specification, plan, tasks, contracts, and verification notes
 .specify/                   Spec Kit configuration and the project constitution
 ```
+
+### Publishing a release
+
+Releases are built by GitHub Actions (`.github/workflows/release.yml`). Pushing a tag named `v<major>.<minor>.<patch>` runs the core tests, builds a Universal Release app, packages it with `scripts/make-dmg.sh`, and attaches `TracePixels-<version>.dmg` and its `.sha256` to a new GitHub Release (versions below 1.0 are marked as pre-releases).
+
+```bash
+git tag v0.1.0 && git push origin v0.1.0
+```
+
+You can also run `scripts/make-dmg.sh <TracePixels.app> <version> <output folder>` locally to package a build you made yourself.
 
 ### Project status
 

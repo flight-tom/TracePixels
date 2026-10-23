@@ -1,0 +1,137 @@
+# 發行：推送 `v<主>.<次>.<修>` 標籤（例如 v0.1.0）→ 建置 Release、包成 DMG、發布到 GitHub Release。
+# 修改本檔的 PR 與手動觸發只建置並上傳 DMG 成工作流程成品，不會發布。
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+  pull_request:
+    paths:
+      - '.github/workflows/release.yml'
+      - '.github/release-notes.md'
+      - 'scripts/make-dmg.sh'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: 建置並打包 DMG
+    runs-on: macos-26
+    timeout-minutes: 45
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 決定版本
+        id: version
+        env:
+          REF_TYPE: ${{ github.ref_type }}
+          REF_NAME: ${{ github.ref_name }}
+        run: |
+          if [[ $REF_TYPE == tag ]]; then
+            if [[ ! $REF_NAME =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+              echo "::error::標籤必須是 v<主>.<次>.<修>（例如 v0.1.0），實際是 $REF_NAME"
+              exit 1
+            fi
+            version=${REF_NAME#v}
+          else
+            version=0.0.0
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "版本：$version"
+
+      - name: 工具鏈版本
+        run: |
+          sw_vers
+          xcodebuild -version
+          swift --version
+
+      - name: 核心測試
+        working-directory: Packages/TracePixelsCore
+        run: swift test
+
+      - name: 建置 Release（Universal）
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+          BUILD_NUMBER: ${{ github.run_number }}
+        run: |
+          xcodebuild -project TracePixels.xcodeproj -scheme TracePixels \
+            -configuration Release -destination 'generic/platform=macOS' \
+            -derivedDataPath build/DerivedData \
+            ARCHS="arm64 x86_64" ONLY_ACTIVE_ARCH=NO \
+            MARKETING_VERSION="$VERSION" CURRENT_PROJECT_VERSION="$BUILD_NUMBER" \
+            build
+
+      - name: 檢查產物
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          app=build/DerivedData/Build/Products/Release/TracePixels.app
+          archs=$(lipo -archs "$app/Contents/MacOS/TracePixels")
+          echo "架構：$archs"
+          [[ $archs == *arm64* && $archs == *x86_64* ]] || { echo "::error::不是 Universal"; exit 1; }
+
+          codesign --verify --strict --verbose=2 "$app"
+          flags=$(codesign -dv "$app" 2>&1 | grep -E '^CodeDirectory')
+          echo "$flags"
+          [[ $flags == *runtime* ]] || { echo "::error::沒有啟用 Hardened Runtime"; exit 1; }
+
+          shown=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$app/Contents/Info.plist")
+          echo "CFBundleShortVersionString：$shown"
+          [[ $shown == "$VERSION" ]] || { echo "::error::版本不符（預期 $VERSION）"; exit 1; }
+
+      - name: 打包 DMG
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: scripts/make-dmg.sh build/DerivedData/Build/Products/Release/TracePixels.app "$VERSION" dist
+
+      - name: 檢查 DMG 內容
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          hdiutil verify "dist/TracePixels-$VERSION.dmg"
+          mnt=$(mktemp -d)
+          hdiutil attach "dist/TracePixels-$VERSION.dmg" -mountpoint "$mnt" -nobrowse -readonly
+          trap 'hdiutil detach "$mnt" -force' EXIT
+          ls -la "$mnt"
+          [[ -d $mnt/TracePixels.app && -L $mnt/Applications ]] || { echo "::error::DMG 內容不正確"; exit 1; }
+          codesign --verify --strict "$mnt/TracePixels.app"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: TracePixels-${{ steps.version.outputs.version }}
+          path: dist/*
+          if-no-files-found: error
+
+  publish:
+    name: 發布到 GitHub Release
+    needs: build
+    if: github.ref_type == 'tag'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: TracePixels-${{ needs.build.outputs.version }}
+          path: dist
+
+      - name: 建立 Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+          VERSION: ${{ needs.build.outputs.version }}
+        run: |
+          # 0.x 視為預覽版（README 的專案狀態也說明仍是早期版本）
+          flags=()
+          [[ $VERSION == 0.* ]] && flags+=(--prerelease)
+          gh release create "$TAG" \
+            "dist/TracePixels-$VERSION.dmg" "dist/TracePixels-$VERSION.dmg.sha256" \
+            --title "TracePixels $VERSION" \
+            --notes-file .github/release-notes.md --generate-notes \
+            --verify-tag "${flags[@]}"
