@@ -73,9 +73,8 @@ final class CaptureService {
         config.showsCursor = includeCursor
         config.captureResolution = .best
         let image = try await screenshot(filter, config)
-        return CaptureResult(
-            image: image, source: .region,
-            scale: Double(image.width) / selection.sourceRect.width)
+        // 倍率直接用顯示器的值；不要用像素除以點反推（四捨五入會讓它變成 1.9996 這類不精確的數字）。
+        return CaptureResult(image: image, source: .region, scale: selection.scale)
     }
 
     /// 擷取整個顯示器。

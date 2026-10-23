@@ -21,6 +21,9 @@ public struct RegionSelection: Sendable, Equatable {
     public let sourceRect: PixelRect
     /// 以顯示器原生解析度擷取時的像素尺寸。
     public let pixelSize: PixelSize
+    /// 顯示器的像素／點比例，直接取自顯示器（例如 2.0）。
+    /// 不能用 `pixelSize.width / sourceRect.width` 反推：像素尺寸有四捨五入，反推出來會是 1.9996 這類不精確的值。
+    public let scale: Double
 }
 
 /// 擷取座標換算。純邏輯，不依賴螢幕或視窗伺服器。
@@ -61,6 +64,6 @@ public enum CaptureGeometry {
         let size = PixelSize(
             width: max(1, Int((local.width * display.scale).rounded())),
             height: max(1, Int((local.height * display.scale).rounded())))
-        return RegionSelection(displayID: display.id, sourceRect: local, pixelSize: size)
+        return RegionSelection(displayID: display.id, sourceRect: local, pixelSize: size, scale: display.scale)
     }
 }

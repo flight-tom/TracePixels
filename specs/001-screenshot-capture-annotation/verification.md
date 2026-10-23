@@ -8,8 +8,8 @@
 
 | 項目 | 指令 | 結果 |
 |------|------|------|
-| 核心邏輯測試（Debug） | `cd Packages/TracePixelsCore && swift test` | 127 項全過 |
-| 核心邏輯測試（Release） | `cd Packages/TracePixelsCore && swift test -c release` | 127 項全過 |
+| 核心邏輯測試（Debug） | `cd Packages/TracePixelsCore && swift test` | 130 項全過 |
+| 核心邏輯測試（Release） | `cd Packages/TracePixelsCore && swift test -c release` | 130 項全過 |
 | App 單元測試 | `xcodebuild … test`（`EditorViewModelTests` 18＋`MainMenuTests` 5） | 23 項全過；連續 4 次皆通過。**另有 1 次早先的執行顯示 `TEST FAILED`，我當時只過濾輸出、沒留下失敗原因，之後無法重現，原因不明**（可能是新增測試檔後第一次啟動宿主 App 的暫時性問題） |
 | App 建置（Debug） | `xcodebuild … -configuration Debug build` | BUILD SUCCEEDED，無警告 |
 | App 建置（Release） | `xcodebuild … -configuration Release build` | BUILD SUCCEEDED，無警告（Phase 9 後重新確認）；Universal（x86_64、arm64）；ad-hoc＋Hardened Runtime 簽署 |
@@ -27,7 +27,7 @@
 | FR-011、FR-012 標註編輯與復原 | `EditingDocumentTests`（16）、`AnnotationTransformTests`（8）、`DraftShapeTests`（5） |
 | FR-013、SC-005 遮蔽不可逆 | `RedactionTests`（8）：磁磚內部細節不同但平均值相同的兩張圖，遮蔽後區域內逐像素相同；強度下限 8；遮蔽也蓋住下層標註 |
 | SC-006 畫面與匯出一致 | `RendererTests`（10）：`draw`／`composite`／`flatten` 逐像素相同 |
-| FR-002 區域換算（多螢幕、夾限在起點所在顯示器） | `CaptureGeometryTests`（10） |
+| FR-002 區域換算（多螢幕、夾限在起點所在顯示器） | `CaptureGeometryTests`（13，含擷取倍率必須取自顯示器、不可由像素反推） |
 | FR-017 檔名與格式 | `FileNamerTests`（5）、`ExportTests`（6） |
 | FR-020～FR-022、SC-007 資料庫與持久化 | `LibraryStoreTests`（10）、`LibraryRetentionTests`（6）、`ReopenRoundTripTests`（5）：原子寫入、`image.png` 位元組不變、損毀與較新版本項目隔離不刪除、重新載入後每個標註可個別編輯、復原歷史為空 |
 | FR-023、FR-024 裁切、縮放、修飾 | `FinishAndCropTests`（13） |

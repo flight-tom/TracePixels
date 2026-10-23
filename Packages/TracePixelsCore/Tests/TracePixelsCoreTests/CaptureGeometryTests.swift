@@ -67,4 +67,28 @@ final class CaptureGeometryTests: XCTestCase {
         XCTAssertEqual(CaptureGeometry.pixelSize(of: main), PixelSize(width: 2880, height: 1800))
         XCTAssertEqual(CaptureGeometry.pixelSize(of: side), PixelSize(width: 1920, height: 1080))
     }
+
+    // MARK: 擷取倍率必須是顯示器的倍率，不能由「像素 ÷ 點」反推
+
+    func testSelectionCarriesTheDisplayScaleExactly() {
+        XCTAssertEqual(select((100, 100), (300, 250))?.scale, 2)
+        XCTAssertEqual(select((1500, 100), (1700, 200))?.scale, 1)
+    }
+
+    func testScaleStaysExactEvenWhenPixelRoundingWouldSkewTheRatio() throws {
+        // 寬 486.6 點 × 2 = 973.2 像素，四捨五入為 973；973 ÷ 486.6 ≈ 1.9996，不是 2。
+        let s = try XCTUnwrap(select((100, 100), (586.6, 400)))
+        XCTAssertEqual(s.pixelSize.width, 973)
+        XCTAssertNotEqual(Double(s.pixelSize.width) / s.sourceRect.width, 2, "反推的倍率會有誤差")
+        XCTAssertEqual(s.scale, 2, "但記錄的倍率必須是顯示器的 2.0")
+    }
+
+    func testSelectionScaleFollowsEachDisplayInAMixedScaleSetup() {
+        let retina = DisplayInfo(id: 1, frame: PixelRect(x: 0, y: 0, width: 1000, height: 800), scale: 2)
+        let external = DisplayInfo(id: 2, frame: PixelRect(x: 1000, y: 0, width: 1000, height: 800), scale: 1.5)
+        let a = CaptureGeometry.selection(from: PixelPoint(x: 10, y: 10), to: PixelPoint(x: 99.3, y: 77.7), displays: [retina, external])
+        let b = CaptureGeometry.selection(from: PixelPoint(x: 1010, y: 10), to: PixelPoint(x: 1099.3, y: 77.7), displays: [retina, external])
+        XCTAssertEqual(a?.scale, 2)
+        XCTAssertEqual(b?.scale, 1.5)
+    }
 }
