@@ -34,6 +34,14 @@ struct ToolbarView: View {
             iconButton("plus.magnifyingglass", String(localized: "放大")) { actions.zoomIn() }
             iconButton("arrow.up.left.and.down.right.magnifyingglass", String(localized: "符合視窗")) { actions.zoomToFit() }
 
+            Divider().frame(height: 18).padding(.horizontal, 4)
+
+            iconButton("doc.on.doc", String(localized: "複製影像")) { actions.copyImage() }
+            iconButton("square.and.arrow.down", String(localized: "另存新檔…")) { actions.saveAs() }
+            ShareButton(share: actions.share)
+            DragExportHandle(payload: actions.dragPayload)
+                .frame(width: 26, height: 22)
+
             Spacer()
 
             if let warning = viewModel.saveWarning {

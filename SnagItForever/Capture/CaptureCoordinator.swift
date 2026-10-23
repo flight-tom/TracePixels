@@ -109,16 +109,14 @@ final class CaptureCoordinator {
         }
     }
 
+    /// 儲存到預設資料夾：檔名與格式依偏好設定（FR-007、FR-017）。
     private func saveToFolder(_ image: CGImage) throws {
-        let folder = environment.preferences.saveFolder
+        let preferences = environment.preferences
+        let format: ImageFormat = preferences.saveFormat == .png ? .png : .jpeg(quality: preferences.jpegQuality)
+        let folder = preferences.saveFolder
         try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd HH.mm.ss"
-        let url = folder.appendingPathComponent("SnagItForever \(formatter.string(from: Date())).png")
-        guard let data = NSBitmapImageRep(cgImage: image).representation(using: .png, properties: [:]) else {
-            throw LibraryError.imageEncodingFailed
-        }
-        try data.write(to: url, options: .atomic)
+        let url = FileNamer.uniqueURL(in: folder, date: Date(), ext: format.fileExtension)
+        try Renderer.encode(image, as: format).write(to: url, options: .atomic)
     }
 
     // MARK: 錯誤與權限

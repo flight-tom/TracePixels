@@ -7,6 +7,10 @@ struct EditorWindowActions {
     var zoomIn: () -> Void = {}
     var zoomOut: () -> Void = {}
     var zoomToFit: () -> Void = {}
+    var copyImage: () -> Void = {}
+    var saveAs: () -> Void = {}
+    var share: (NSView) -> Void = { _ in }
+    var dragPayload: () -> (item: NSPasteboardItem, preview: NSImage)? = { nil }
 }
 
 /// 一個擷取對應一個編輯器視窗：上方工具列、中間畫布（可縮放平移）、右側屬性面板。
@@ -19,6 +23,8 @@ final class EditorWindowController: NSWindowController, NSWindowDelegate, NSMenu
     private let canvas: CanvasView
     private let scrollView = NSScrollView()
     private let autosave: AutosaveController
+    private lazy var exporter = ExportActions(
+        viewModel: viewModel, preferences: environment.preferences, window: { [weak self] in self?.window })
 
     @MainActor
     init(capture: Capture, image: CGImage, environment: AppEnvironment, registry: EditorWindowRegistry) {
@@ -48,6 +54,10 @@ final class EditorWindowController: NSWindowController, NSWindowDelegate, NSMenu
         actions.zoomIn = { [weak self] in self?.zoomIn(nil) }
         actions.zoomOut = { [weak self] in self?.zoomOut(nil) }
         actions.zoomToFit = { [weak self] in self?.zoomToFit(nil) }
+        actions.copyImage = { [weak self] in self?.copy(nil) }
+        actions.saveAs = { [weak self] in self?.saveAs(nil) }
+        actions.share = { [weak self] view in self?.exporter.share(relativeTo: view) }
+        actions.dragPayload = { [weak self] in self?.exporter.dragPayload() }
         buildLayout(in: window, inspectorWidth: inspectorWidth, actions: actions)
     }
 
@@ -138,6 +148,13 @@ final class EditorWindowController: NSWindowController, NSWindowDelegate, NSMenu
     @MainActor @objc func sendToBack(_ sender: Any?) { viewModel.reorderSelection(.back) }
     @MainActor @objc func bringForward(_ sender: Any?) { viewModel.reorderSelection(.forward) }
     @MainActor @objc func sendBackward(_ sender: Any?) { viewModel.reorderSelection(.backward) }
+
+    @MainActor @objc func copy(_ sender: Any?) { exporter.copyToPasteboard() }
+    @MainActor @objc func saveAs(_ sender: Any?) { exporter.saveAs() }
+
+    @MainActor @objc func shareImage(_ sender: Any?) {
+        if let anchor = window?.contentView { exporter.share(relativeTo: anchor) }
+    }
 
     @MainActor @objc func zoomIn(_ sender: Any?) {
         scrollView.setMagnification(min(scrollView.magnification * 1.25, scrollView.maxMagnification), centeredAt: visibleCenter)

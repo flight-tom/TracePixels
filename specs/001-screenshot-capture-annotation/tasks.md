@@ -134,19 +134,19 @@ description: "截圖與標註功能的任務清單"
 
 ### 先寫測試
 
-- [ ] T045 [P] [US3] 撰寫 `CoreTests/FileNamerTests.swift`：檔名格式 `SnagItForever yyyy-MM-dd HH.mm.ss.<ext>`、重名時加序號 ` 2`、` 3`…
-- [ ] T046 [P] [US3] 撰寫 `CoreTests/ExportTests.swift`：PNG 與 JPEG 編碼可被解碼回等尺寸影像；JPEG 品質越低檔案越小；`flatten` 後的標註已合成進像素
+- [X] T045 [P] [US3] 撰寫 `CoreTests/FileNamerTests.swift`：檔名格式 `SnagItForever yyyy-MM-dd HH.mm.ss.<ext>`、重名時加序號 ` 2`、` 3`…
+- [X] T046 [P] [US3] 撰寫 `CoreTests/ExportTests.swift`：PNG 與 JPEG 編碼可被解碼回等尺寸影像；JPEG 品質越低檔案越小；`flatten` 後的標註已合成進像素
 
 ### 實作
 
-- [ ] T047 [P] [US3] 實作 `Core/Persistence/FileNamer.swift`，使 T045 通過
-- [ ] T048 [US3] 實作 `Core/Rendering/Export.swift`：`ImageFormat`、`Renderer.encode`，使 T046 通過（相依 T035）
-- [ ] T049 [US3] 實作 `SnagItForever/Editor/ExportActions.swift`：複製到剪貼簿（`⌘C`）、另存新檔面板（`⇧⌘S`，預設資料夾與格式取自 Preferences；預設資料夾不存在時自動建立，寫入失敗時顯示錯誤提示並讓使用者重選位置）（FR-016、FR-017，相依 T047、T048）
-- [ ] T050 [P] [US3] 實作 `SnagItForever/Editor/DragSourceView.swift`：從編輯器把合成後的影像（暫存 PNG 檔）拖曳到其他 App（FR-018）
-- [ ] T051 [P] [US3] 實作 `SnagItForever/Editor/ShareButton.swift`：以 `NSSharingServicePicker` 提供標準分享選項（FR-019）
-- [ ] T052 [P] [US3] 實作 `SnagItForever/Settings/ExportSettingsView.swift`（SwiftUI）：預設格式、JPEG 品質
-- [ ] T053 [US3] 更新 `SnagItForever/Capture/CaptureCoordinator.swift`，使「儲存到預設資料夾」使用 `FileNamer` 與偏好格式（相依 T047、T048）
-- [ ] T054 [US3] 驗證：`swift test` 全數通過、`xcodebuild … build` 成功；quickstart M3 列入 PR 供手動驗證
+- [X] T047 [P] [US3] 實作 `Core/Persistence/FileNamer.swift`，使 T045 通過
+- [X] T048 [US3] 實作 `Core/Rendering/Export.swift`：`ImageFormat`、`Renderer.encode`，使 T046 通過（相依 T035）
+- [X] T049 [US3] 實作 `SnagItForever/Editor/ExportActions.swift`：複製到剪貼簿（`⌘C`）、另存新檔面板（`⇧⌘S`，預設資料夾與格式取自 Preferences；預設資料夾不存在時自動建立，寫入失敗時顯示錯誤提示並讓使用者重選位置）（FR-016、FR-017，相依 T047、T048）
+- [X] T050 [P] [US3] 實作 `SnagItForever/Editor/DragSourceView.swift`：從編輯器把合成後的影像（暫存 PNG 檔）拖曳到其他 App（FR-018）
+- [X] T051 [P] [US3] 實作 `SnagItForever/Editor/ShareButton.swift`：以 `NSSharingServicePicker` 提供標準分享選項（FR-019）
+- [X] T052 [P] [US3] 實作 `SnagItForever/Settings/ExportSettingsView.swift`（SwiftUI）：預設格式、JPEG 品質
+- [X] T053 [US3] 更新 `SnagItForever/Capture/CaptureCoordinator.swift`，使「儲存到預設資料夾」使用 `FileNamer` 與偏好格式（相依 T047、T048）
+- [X] T054 [US3] 驗證：`swift test` 全數通過、`xcodebuild … build` 成功；quickstart M3 列入 PR 供手動驗證
 
 **檢查點**：使用者故事 1～3 皆可獨立運作
 

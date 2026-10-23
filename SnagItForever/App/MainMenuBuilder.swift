@@ -44,6 +44,9 @@ enum MainMenuBuilder {
 
     private static func fileMenu() -> NSMenu {
         let menu = NSMenu(title: String(localized: "檔案"))
+        menu.addItem(item(String(localized: "另存新檔…"), Selector(("saveAs:")), "s", modifiers: [.command, .shift]))
+        menu.addItem(item(String(localized: "分享…"), Selector(("shareImage:"))))
+        menu.addItem(.separator())
         menu.addItem(item(String(localized: "關閉視窗"), #selector(NSWindow.performClose(_:)), "w"))
         return menu
     }
@@ -53,6 +56,7 @@ enum MainMenuBuilder {
         menu.addItem(item(String(localized: "復原"), Selector(("undo:")), "z"))
         menu.addItem(item(String(localized: "重做"), Selector(("redo:")), "z", modifiers: [.command, .shift]))
         menu.addItem(.separator())
+        menu.addItem(item(String(localized: "複製影像"), #selector(NSText.copy(_:)), "c"))
         menu.addItem(item(String(localized: "刪除所選標註"), Selector(("deleteSelection:"))))
         menu.addItem(.separator())
         menu.addItem(item(String(localized: "移到最上層"), Selector(("bringToFront:")), "]", modifiers: [.command, .option]))

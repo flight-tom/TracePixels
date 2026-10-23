@@ -35,6 +35,8 @@ private struct SettingsRootView: View {
         TabView {
             CaptureSettingsView(preferences: preferences, hotKeyController: hotKeyController)
                 .tabItem { Label("擷取", systemImage: "camera.viewfinder") }
+            ExportSettingsView(preferences: preferences)
+                .tabItem { Label("輸出", systemImage: "square.and.arrow.up") }
         }
         .frame(width: 520)
         .padding(20)
