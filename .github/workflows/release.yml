@@ -1,5 +1,5 @@
 # 發行：推送 `v<主>.<次>.<修>` 標籤（例如 v0.1.0）→ 建置 Release、包成 DMG、發布到 GitHub Release。
-# 修改本檔的 PR 與手動觸發只建置並上傳 DMG 成工作流程成品，不會發布。
+# 修改本檔的 PR 與手動觸發只建置、上傳成品，並演練「下載成品＋檢查校驗碼」，不會建立 Release。
 name: Release
 
 on:
@@ -23,7 +23,7 @@ jobs:
     outputs:
       version: ${{ steps.version.outputs.version }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: 決定版本
         id: version
@@ -100,7 +100,7 @@ jobs:
           [[ -d $mnt/TracePixels.app && -L $mnt/Applications ]] || { echo "::error::DMG 內容不正確"; exit 1; }
           codesign --verify --strict "$mnt/TracePixels.app"
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: TracePixels-${{ steps.version.outputs.version }}
           path: dist/*
@@ -109,19 +109,28 @@ jobs:
   publish:
     name: 發布到 GitHub Release
     needs: build
-    if: github.ref_type == 'tag'
     runs-on: ubuntu-latest
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: TracePixels-${{ needs.build.outputs.version }}
           path: dist
 
+      - name: 檢查校驗碼
+        env:
+          VERSION: ${{ needs.build.outputs.version }}
+        working-directory: dist
+        run: |
+          ls -l
+          sha256sum -c "TracePixels-$VERSION.dmg.sha256"
+
+      # 只有標籤觸發才真的發布；其他情況（PR、手動）到上一步為止，用來演練下載成品
       - name: 建立 Release
+        if: github.ref_type == 'tag'
         env:
           GH_TOKEN: ${{ github.token }}
           TAG: ${{ github.ref_name }}
