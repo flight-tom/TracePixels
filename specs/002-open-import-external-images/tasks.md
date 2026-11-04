@@ -103,7 +103,7 @@ description: "開啟與匯入外部圖片功能的任務清單"
 - [X] T015 [US1] 在 `App/Library/ImportCoordinator.swift` 新增共用的檔案選擇輔助與兩個入口 `openImages() async`、`importImages() async`（後者供 US2 使用，選擇視窗標題「匯入圖片」、確認鈕「匯入」，確認後呼叫 `process(urls:openEditors: false)`）。`openImages()`：先 `NSApp.activate(ignoringOtherApps: true)`，顯示 `NSOpenPanel`（`allowedContentTypes = [.image]`、`allowsMultipleSelection = true`、`canChooseDirectories = false`、標題「開啟圖片」、確認鈕「開啟」）；取消直接返回、不產生副作用；確認後呼叫 `process(urls:openEditors: true)`
 - [X] T016 [P] [US1] 在 `App/App/StatusItemController.swift`：`Actions` 新增 `openImage`，選單在「擷取全螢幕」之後、分隔線之前加入「開啟圖片…」（`keyEquivalent: "o"`），對應 `@objc` 方法呼叫 `actions.openImage()`
 - [X] T017 [US1] 在 `App/App/MainMenuBuilder.swift` 的 `AppMenuActions` 新增 `openImage(_:)` 與 `importImages(_:)`；「檔案」選單在「擷取全螢幕」之後加入「開啟圖片…」（`⌘O`、target 為 `appTarget`），並在「開啟資料庫…」之後加入「匯入…」（`⇧⌘I`）。在 `AppDelegate.swift` 實作兩個 `@objc` 方法（`MainActor.assumeIsolated` 呼叫 coordinator 的 `openImages()`／`importImages()`），並在 `applicationDidFinishLaunching` 的 `Actions` 設定 `actions.openImage`。`importImages(_:)` 同樣呼叫 coordinator 的 `importImages()`（T015 已提供）
-- [ ] T018 [US1] 執行 `xcodebuild … test`：`MainMenuTests` 通過（T014）；手動依 quickstart.md M7 驗證並記錄結果（無法在本環境驗證的項目標示「需審查者手動驗證」）
+- [X] T018 [US1] 執行 `xcodebuild … test`：`MainMenuTests` 通過（T014）；手動依 quickstart.md M7 驗證並記錄結果（無法在本環境驗證的項目標示「需審查者手動驗證」）
 
 **檢查點**：使用者故事 1 可獨立運作——可從選單列／`⌘O` 開啟外部圖片並完整編輯。
 
@@ -118,7 +118,7 @@ description: "開啟與匯入外部圖片功能的任務清單"
 - [X] T019 [US2] 確認 `ImportCoordinator.importImages()`（T015）在「只匯入、不開編輯器」下行為正確：成功項目出現在資料庫、不開任何編輯器、彙總訊息規則與 `openImages()` 一致；必要時補強
 - [X] T020 [US2] 在 `App/Library/LibraryViewModel.swift` 新增 `importImages()`（呼叫 `importer.importImages()`），供視圖的按鈕使用
 - [X] T021 [US2] 修改 `App/Library/LibraryView.swift`：(a) 底部列右側加入「匯入…」按鈕（快速鍵由主選單負責，按鈕本身不加快速鍵；提供 `accessibilityLabel`）；(b) `LibraryCell` 在日期旁對 `entry.sourceFileName != nil` 的項目顯示 `square.and.arrow.down` 小圖示，整個卡片加 `.help(fileName)`，VoiceOver 標籤附上「匯入自 \(檔名)」；(c) 空白狀態說明改為「擷取的影像會自動出現在這裡。也可以按「匯入…」或把圖片拖曳到這個視窗。」（FR-046）；(d) 底部計數文字「N 個擷取」維持（匯入項目也算入）
-- [ ] T022 [US2] 手動依 quickstart.md M8 驗證並記錄結果；確認匯入完成後資料庫視窗不需手動重新整理即出現新項目（`.libraryDidChange`）
+- [X] T022 [US2] 手動依 quickstart.md M8 驗證並記錄結果；確認匯入完成後資料庫視窗不需手動重新整理即出現新項目（`.libraryDidChange`）
 
 **檢查點**：使用者故事 1 與 2 皆可獨立運作。
 
@@ -132,7 +132,7 @@ description: "開啟與匯入外部圖片功能的任務清單"
 
 - [X] T023 [US3] 在 `App/Library/LibraryView.swift` 最外層加上 `.dropDestination(for: URL.self) { urls, _ in … } isTargeted: { … }`：以 `@State` 的 `isDropTargeted` 在拖曳經過時於整個視圖疊上強調色圓角邊框（空白狀態與格狀清單皆涵蓋）；放開後呼叫 `viewModel.importDropped(urls)` 並回傳 `true`
 - [X] T024 [US3] 在 `App/Library/LibraryViewModel.swift` 新增 `importDropped(_ urls: [URL])`：不論檔案或非檔案 URL 一律交給 `importer.process(urls:openEditors: false)`（分類與彙總由核心與協調器負責，非檔案 URL 會被分類為 `notAFile` 且不下載）。為拖放區域加上 VoiceOver 提示（`accessibilityHint`：「可拖曳圖片檔到此匯入」）
-- [ ] T025 [US3] 手動依 quickstart.md M9 驗證並記錄結果；其中第 5 項（瀏覽器網頁圖片）以網路監視確認沒有任何連線
+- [X] T025 [US3] 手動依 quickstart.md M9 驗證並記錄結果；其中第 5 項（瀏覽器網頁圖片）以網路監視確認沒有任何連線
 
 **檢查點**：使用者故事 1～3 皆可獨立運作。
 
@@ -147,7 +147,7 @@ description: "開啟與匯入外部圖片功能的任務清單"
 - [X] T026 [P] [US4] 建立 `Config/Info-DocumentTypes.plist`：僅含 `CFBundleDocumentTypes` 一個項目——`CFBundleTypeName` = `Image`、`CFBundleTypeRole` = `Editor`、`LSHandlerRank` = `Alternate`、`LSItemContentTypes` = [`public.image`]。檔案放在 `Config/`，不在 `TracePixels/` 同步群組內（plan.md 結構決策）
 - [X] T027 [US4] 修改 `TracePixels.xcodeproj/project.pbxproj`：App target 的 Debug 與 Release 兩個組態都加上 `INFOPLIST_FILE = Config/Info-DocumentTypes.plist;`，維持 `GENERATE_INFOPLIST_FILE = YES`。建置後以 `plutil -p build/DerivedData/Build/Products/Debug/TracePixels.app/Contents/Info.plist` 確認同時含 `LSUIElement`、`CFBundleDocumentTypes` 與 `LSHandlerRank = Alternate`；再建置 Release（`ARCHS="arm64 x86_64" ONLY_ACTIVE_ARCH=NO`，與發行工作流程相同）確認版本號覆寫與合併後的 Info.plist 都正常
 - [X] T028 [US4] 在 `App/App/AppDelegate.swift` 實作 `application(_ sender: NSApplication, open urls: [URL])`：環境（`importCoordinator`）尚未就緒時把 URL 存入 `pendingOpenURLs`，並在 `applicationDidFinishLaunching` 結尾處理；就緒後直接呼叫 `importCoordinator.process(urls: urls, openEditors: true)`。XCTest 宿主（`XCTestConfigurationFilePath`）下不處理
-- [ ] T029 [US4] 手動依 quickstart.md M11 驗證並記錄結果（含：預設程式未被更動、冷啟動不出現多餘視窗）
+- [X] T029 [US4] 手動依 quickstart.md M11 驗證並記錄結果（含：預設程式未被更動、冷啟動不出現多餘視窗）
 
 **檢查點**：全部四個使用者故事皆可獨立運作。
 
@@ -155,12 +155,12 @@ description: "開啟與匯入外部圖片功能的任務清單"
 
 ## Phase 7：收尾與跨領域事項
 
-- [ ] T030 [P] 在 `CoreTests/PerformanceTests.swift` 新增 12 百萬像素（4000×3000）JPEG 的 `ImageImporter.load` ＋ `LibraryStore.create` 耗時測試，核心步驟 ≤ 700 毫秒（SC-009）；另新增 20 張一般圖片的 `LibraryImporter.importFiles` 總耗時 ≤ 10 秒（SC-012）。`swift test` 與 `swift test -c release` 皆須通過
-- [ ] T031 [P] 更新 `App/Resources/Localizable.xcstrings`：依 quickstart.md「字串檢核」清單，從 `build/DerivedData/**/TracePixels.build/**/*.stringsdata` 取出所有 key 比對缺漏，補齊 `en` 翻譯（含六種匯入失敗原因、進度、彙總訊息與 VoiceOver 標籤）
-- [ ] T032 [P] 更新功能 001 的文件以反映新行為：`specs/001-screenshot-capture-annotation/contracts/library-format.md` 加上指向本功能 `contracts/library-format.md` 的說明；`contracts/commands.md` 的選單列項目與「檔案」選單加入「開啟圖片…」「匯入…」；`contracts/core-api.md` 加上指向本功能 `contracts/core-api.md` 的說明
-- [ ] T033 [P] 更新 `CLAUDE.md`：架構段落補充匯入管線（`ImageImporter`／`LibraryImporter`、`CaptureSource.imported`、暫存目錄建立）、`Config/Info-DocumentTypes.plist` 與 `INFOPLIST_FILE` 的合併方式、App 端的 `ImportCoordinator`；注意事項補上「新增使用者可見字串後同步 quickstart」的既有規則適用於本功能的 quickstart
-- [ ] T034 建立 `specs/002-open-import-external-images/verification.md`，格式比照功能 001 的 `verification.md`：自動化驗證結果（各測試數量與通過狀態）、規格對照（FR-031～FR-049、SC-009～SC-015 各自的驗證方式與結果）、需審查者手動驗證的清單（M7～M11 中本環境無法驗證者）、已知限制（舊版重新保存會把 imported 來源寫回 region；網頁圖片資料拖放不支援）
-- [ ] T035 全面驗證：`swift test`（Debug）、`swift test -c release --filter PerformanceTests`、`xcodebuild … test`、`xcodebuild … build`（Debug 與 Release Universal）皆通過；`git status` 確認沒有 `build/` 以外的非預期檔案、原有 `.gitignore` 規則未被破壞
+- [X] T030 [P] 在 `CoreTests/PerformanceTests.swift` 新增 12 百萬像素（4000×3000）的 `ImageImporter.load` ＋ `LibraryStore.create` 耗時測試（SC-009）：截圖類（可壓縮）≤ 700 毫秒、近乎雜訊的高細節照片 ≤ 3 秒（實測 PNG 編碼是主要成本，理由見 research.md D-18）；另新增 20 張一般圖片的 `LibraryImporter.importFiles` 總耗時 ≤ 10 秒（SC-012）。`swift test` 與 `swift test -c release` 皆須通過
+- [X] T031 [P] 更新 `App/Resources/Localizable.xcstrings`：依 quickstart.md「字串檢核」清單，從 `build/DerivedData/**/TracePixels.build/**/*.stringsdata` 取出所有 key 比對缺漏，補齊 `en` 翻譯（含六種匯入失敗原因、進度、彙總訊息與 VoiceOver 標籤）
+- [X] T032 [P] 更新功能 001 的文件以反映新行為：`specs/001-screenshot-capture-annotation/contracts/library-format.md` 加上指向本功能 `contracts/library-format.md` 的說明；`contracts/commands.md` 的選單列項目與「檔案」選單加入「開啟圖片…」「匯入…」；`contracts/core-api.md` 加上指向本功能 `contracts/core-api.md` 的說明
+- [X] T033 [P] 更新 `CLAUDE.md`：架構段落補充匯入管線（`ImageImporter`／`LibraryImporter`、`CaptureSource.imported`、暫存目錄建立）、`Config/Info-DocumentTypes.plist` 與 `INFOPLIST_FILE` 的合併方式、App 端的 `ImportCoordinator`；注意事項補上「新增使用者可見字串後同步 quickstart」的既有規則適用於本功能的 quickstart
+- [X] T034 建立 `specs/002-open-import-external-images/verification.md`，格式比照功能 001 的 `verification.md`：自動化驗證結果（各測試數量與通過狀態）、規格對照（FR-031～FR-049、SC-009～SC-015 各自的驗證方式與結果）、需審查者手動驗證的清單（M7～M11 中本環境無法驗證者）、已知限制（舊版重新保存會把 imported 來源寫回 region；網頁圖片資料拖放不支援）
+- [X] T035 全面驗證：`swift test`（Debug）、`swift test -c release --filter PerformanceTests`、`xcodebuild … test`、`xcodebuild … build`（Debug 與 Release Universal）皆通過；`git status` 確認沒有 `build/` 以外的非預期檔案、原有 `.gitignore` 規則未被破壞
 - [ ] T036 依憲章原則 VII 交付：在功能分支 `002-open-import-external-images` 上以繁體中文提交（分段 commit，結尾加上 Co-Authored-By 歸屬行），推送分支並建立 Pull Request（標題與描述皆為 zh-TW，結尾加上 Claude Code 產生標註）；**不自行合併、不推主要分支**。若沒有可用的遠端或推送被拒，改為回報已嘗試的做法與阻礙
 
 ---

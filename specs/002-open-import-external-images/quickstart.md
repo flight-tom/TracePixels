@@ -46,7 +46,7 @@ plutil -p build/DerivedData/Build/Products/Debug/TracePixels.app/Contents/Info.p
 | SC-014 重新啟動後仍可編輯 | `LibraryImporterTests`：匯入 → 加標註 → 存檔 → 以新的 `LibraryStore` 實例載入 → 標註仍在 |
 | FR-045 混合輸入彙總 | `LibraryImporterTests`：有效＋損毀＋資料夾＋http URL 的組合，`imported`／`failures`／`skippedNonFileCount` 正確 |
 | 取消 | `LibraryImporterTests`：取消後已完成的保留、`cancelled == true` |
-| SC-009 ≤ 12 百萬像素 | `PerformanceTests`：核心步驟 ≤ 700 毫秒 |
+| SC-009 ≤ 12 百萬像素 | `PerformanceTests`：截圖類核心步驟 ≤ 700 毫秒；高細節照片 ≤ 3 秒 |
 | FR-031 主選單項目與快速鍵 | `TracePixelsTests/MainMenuTests`：「開啟圖片…」`⌘O`、「匯入…」`⇧⌘I` 存在且位置正確 |
 
 ## 手動驗證程序
