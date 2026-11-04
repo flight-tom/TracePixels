@@ -161,7 +161,7 @@ description: "開啟與匯入外部圖片功能的任務清單"
 - [X] T033 [P] 更新 `CLAUDE.md`：架構段落補充匯入管線（`ImageImporter`／`LibraryImporter`、`CaptureSource.imported`、暫存目錄建立）、`Config/Info-DocumentTypes.plist` 與 `INFOPLIST_FILE` 的合併方式、App 端的 `ImportCoordinator`；注意事項補上「新增使用者可見字串後同步 quickstart」的既有規則適用於本功能的 quickstart
 - [X] T034 建立 `specs/002-open-import-external-images/verification.md`，格式比照功能 001 的 `verification.md`：自動化驗證結果（各測試數量與通過狀態）、規格對照（FR-031～FR-049、SC-009～SC-015 各自的驗證方式與結果）、需審查者手動驗證的清單（M7～M11 中本環境無法驗證者）、已知限制（舊版重新保存會把 imported 來源寫回 region；網頁圖片資料拖放不支援）
 - [X] T035 全面驗證：`swift test`（Debug）、`swift test -c release --filter PerformanceTests`、`xcodebuild … test`、`xcodebuild … build`（Debug 與 Release Universal）皆通過；`git status` 確認沒有 `build/` 以外的非預期檔案、原有 `.gitignore` 規則未被破壞
-- [ ] T036 依憲章原則 VII 交付：在功能分支 `002-open-import-external-images` 上以繁體中文提交（分段 commit，結尾加上 Co-Authored-By 歸屬行），推送分支並建立 Pull Request（標題與描述皆為 zh-TW，結尾加上 Claude Code 產生標註）；**不自行合併、不推主要分支**。若沒有可用的遠端或推送被拒，改為回報已嘗試的做法與阻礙
+- [X] T036 依憲章原則 VII 交付：在功能分支 `002-open-import-external-images` 上以繁體中文提交（分段 commit，結尾加上 Co-Authored-By 歸屬行），推送分支並建立 Pull Request（標題與描述皆為 zh-TW，結尾加上 Claude Code 產生標註）；**不自行合併、不推主要分支**。若沒有可用的遠端或推送被拒，改為回報已嘗試的做法與阻礙
 
 ---
 
