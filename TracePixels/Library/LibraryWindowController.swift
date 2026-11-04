@@ -5,9 +5,9 @@ final class LibraryWindowController: NSWindowController {
     private let environment: AppEnvironment
 
     @MainActor
-    init(environment: AppEnvironment, editors: EditorWindowRegistry) {
+    init(environment: AppEnvironment, editors: EditorWindowRegistry, importer: ImportCoordinator) {
         self.environment = environment
-        let viewModel = LibraryViewModel(library: environment.library, editors: editors)
+        let viewModel = LibraryViewModel(library: environment.library, editors: editors, importer: importer)
         let hosting = NSHostingController(rootView: LibraryView(viewModel: viewModel))
         let window = NSWindow(contentViewController: hosting)
         window.title = String(localized: "資料庫")

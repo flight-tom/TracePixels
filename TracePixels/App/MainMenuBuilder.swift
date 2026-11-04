@@ -7,6 +7,8 @@ import AppKit
     func captureRegion(_ sender: Any?)
     func captureWindow(_ sender: Any?)
     func captureFullScreen(_ sender: Any?)
+    func openImage(_ sender: Any?)
+    func importImages(_ sender: Any?)
 }
 
 /// 建立主選單。有編輯器視窗開啟時（Dock 圖示出現）才看得到；
@@ -60,7 +62,9 @@ enum MainMenuBuilder {
         menu.addItem(item(String(localized: "擷取視窗"), #selector(AppMenuActions.captureWindow(_:)), "w", modifiers: capture, target: appTarget))
         menu.addItem(item(String(localized: "擷取全螢幕"), #selector(AppMenuActions.captureFullScreen(_:)), "f", modifiers: capture, target: appTarget))
         menu.addItem(.separator())
+        menu.addItem(item(String(localized: "開啟圖片…"), #selector(AppMenuActions.openImage(_:)), "o", target: appTarget))
         menu.addItem(item(String(localized: "開啟資料庫…"), #selector(AppMenuActions.openLibrary(_:)), "l", modifiers: [.command, .shift], target: appTarget))
+        menu.addItem(item(String(localized: "匯入…"), #selector(AppMenuActions.importImages(_:)), "i", modifiers: [.command, .shift], target: appTarget))
         menu.addItem(.separator())
         menu.addItem(item(String(localized: "另存新檔…"), Selector(("saveAs:")), "s", modifiers: [.command, .shift]))
         menu.addItem(item(String(localized: "分享…"), Selector(("shareImage:"))))

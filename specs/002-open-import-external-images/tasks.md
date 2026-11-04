@@ -85,9 +85,9 @@ description: "開啟與匯入外部圖片功能的任務清單"
 ### App 共用協調器
 
 - [X] T010a 建立 `Core/Persistence/ImportReport.swift`：依 data-model.md 的 `ImportReport` 與 contracts/core-api.md 實作純函式 `make(from:openEditors:)`（`maxEditors = 5`、`maxListedFailures = 8`）。使 T005a 通過
-- [ ] T011 [P] 建立 `App/Library/ImportProgressPanel.swift`：非模態 `NSPanel`（不搶焦點、浮在其他視窗上），顯示「正在匯入 N／M」與進度條，單檔時為不定長度；提供 `show()`、`update(done:total:)`、`close()`。字串先以 `String(localized:)` 撰寫（zh-TW）
-- [ ] T012 建立 `App/Library/ImportCoordinator.swift`（`@MainActor final class`，持有 `LibraryStore`、`EditorWindowRegistry`）：實作 `process(urls: [URL], openEditors: Bool) async`——啟動 1 秒計時，仍未完成才顯示 `ImportProgressPanel`（研究 D-09）；呼叫 `LibraryImporter.importFiles`；有成功項目就 `NotificationCenter.default.post(name: .libraryDidChange, object: nil)`；`editorsToOpen` 的項目依序以 `library.load` 後 `editors.open(capture:image:)` 開啟；結束後以 `ImportReport.make(from:openEditors:)` 取得報告（T010a），**規則不在此處重寫**：依 `editorsToOpen` 開編輯器，依 `needsAlert` 以單一 `NSAlert` 顯示報告內容（`ImportFailure` 對應 data-model.md 的六種 zh-TW 原因文字）。同時避免兩批匯入同時彈出多個彙總視窗（以序列化的 Task 排隊）
-- [ ] T013 在 `App/App/AppDelegate.swift` 建立 `ImportCoordinator` 並持有；`applicationDidFinishLaunching` 在建立環境後呼叫 `environment.library.removeStaleStaging()`（背景 Task，不阻擋啟動）；`App/Library/LibraryWindowController.swift` 的 `init` 接收 `ImportCoordinator` 並傳給 `LibraryViewModel`（`LibraryViewModel.init` 新增 `importer: ImportCoordinator` 參數，既有呼叫端一併更新）。完成後 `xcodebuild … build` 確認可編譯
+- [X] T011 [P] 建立 `App/Library/ImportProgressPanel.swift`：非模態 `NSPanel`（不搶焦點、浮在其他視窗上），顯示「正在匯入 N／M」與進度條，單檔時為不定長度；提供 `show()`、`update(done:total:)`、`close()`。字串先以 `String(localized:)` 撰寫（zh-TW）
+- [X] T012 建立 `App/Library/ImportCoordinator.swift`（`@MainActor final class`，持有 `LibraryStore`、`EditorWindowRegistry`）：實作 `process(urls: [URL], openEditors: Bool) async`——啟動 1 秒計時，仍未完成才顯示 `ImportProgressPanel`（研究 D-09）；呼叫 `LibraryImporter.importFiles`；有成功項目就 `NotificationCenter.default.post(name: .libraryDidChange, object: nil)`；`editorsToOpen` 的項目依序以 `library.load` 後 `editors.open(capture:image:)` 開啟；結束後以 `ImportReport.make(from:openEditors:)` 取得報告（T010a），**規則不在此處重寫**：依 `editorsToOpen` 開編輯器，依 `needsAlert` 以單一 `NSAlert` 顯示報告內容（`ImportFailure` 對應 data-model.md 的六種 zh-TW 原因文字）。同時避免兩批匯入同時彈出多個彙總視窗（以序列化的 Task 排隊）
+- [X] T013 在 `App/App/AppDelegate.swift` 建立 `ImportCoordinator` 並持有；`applicationDidFinishLaunching` 在建立環境後呼叫 `environment.library.removeStaleStaging()`（背景 Task，不阻擋啟動）；`App/Library/LibraryWindowController.swift` 的 `init` 接收 `ImportCoordinator` 並傳給 `LibraryViewModel`（`LibraryViewModel.init` 新增 `importer: ImportCoordinator` 參數，既有呼叫端一併更新）。完成後 `xcodebuild … build` 確認可編譯
 
 **檢查點**：核心匯入管線與協調器就緒；各入口可以開始實作。
 
@@ -99,10 +99,10 @@ description: "開啟與匯入外部圖片功能的任務清單"
 
 **獨立測試**：quickstart.md M7。
 
-- [ ] T014 [P] [US1] 更新 `AppTests/MainMenuTests.swift`：測試用 `Target` 補上 `openImage(_:)`、`importImages(_:)`；`testEveryActionInThePlanHasAMenuItem` 的必要清單加入「開啟圖片…」「匯入…」；新增測試斷言「開啟圖片…」快速鍵為 `⌘O`、「匯入…」為 `⇧⌘I`，兩者在「檔案」選單，且整份主選單的快速鍵組合仍無重複。先確認測試失敗
-- [ ] T015 [US1] 在 `App/Library/ImportCoordinator.swift` 新增共用的檔案選擇輔助與兩個入口 `openImages() async`、`importImages() async`（後者供 US2 使用，選擇視窗標題「匯入圖片」、確認鈕「匯入」，確認後呼叫 `process(urls:openEditors: false)`）。`openImages()`：先 `NSApp.activate(ignoringOtherApps: true)`，顯示 `NSOpenPanel`（`allowedContentTypes = [.image]`、`allowsMultipleSelection = true`、`canChooseDirectories = false`、標題「開啟圖片」、確認鈕「開啟」）；取消直接返回、不產生副作用；確認後呼叫 `process(urls:openEditors: true)`
-- [ ] T016 [P] [US1] 在 `App/App/StatusItemController.swift`：`Actions` 新增 `openImage`，選單在「擷取全螢幕」之後、分隔線之前加入「開啟圖片…」（`keyEquivalent: "o"`），對應 `@objc` 方法呼叫 `actions.openImage()`
-- [ ] T017 [US1] 在 `App/App/MainMenuBuilder.swift` 的 `AppMenuActions` 新增 `openImage(_:)` 與 `importImages(_:)`；「檔案」選單在「擷取全螢幕」之後加入「開啟圖片…」（`⌘O`、target 為 `appTarget`），並在「開啟資料庫…」之後加入「匯入…」（`⇧⌘I`）。在 `AppDelegate.swift` 實作兩個 `@objc` 方法（`MainActor.assumeIsolated` 呼叫 coordinator 的 `openImages()`／`importImages()`），並在 `applicationDidFinishLaunching` 的 `Actions` 設定 `actions.openImage`。`importImages(_:)` 同樣呼叫 coordinator 的 `importImages()`（T015 已提供）
+- [X] T014 [P] [US1] 更新 `AppTests/MainMenuTests.swift`：測試用 `Target` 補上 `openImage(_:)`、`importImages(_:)`；`testEveryActionInThePlanHasAMenuItem` 的必要清單加入「開啟圖片…」「匯入…」；新增測試斷言「開啟圖片…」快速鍵為 `⌘O`、「匯入…」為 `⇧⌘I`，兩者在「檔案」選單，且整份主選單的快速鍵組合仍無重複。先確認測試失敗
+- [X] T015 [US1] 在 `App/Library/ImportCoordinator.swift` 新增共用的檔案選擇輔助與兩個入口 `openImages() async`、`importImages() async`（後者供 US2 使用，選擇視窗標題「匯入圖片」、確認鈕「匯入」，確認後呼叫 `process(urls:openEditors: false)`）。`openImages()`：先 `NSApp.activate(ignoringOtherApps: true)`，顯示 `NSOpenPanel`（`allowedContentTypes = [.image]`、`allowsMultipleSelection = true`、`canChooseDirectories = false`、標題「開啟圖片」、確認鈕「開啟」）；取消直接返回、不產生副作用；確認後呼叫 `process(urls:openEditors: true)`
+- [X] T016 [P] [US1] 在 `App/App/StatusItemController.swift`：`Actions` 新增 `openImage`，選單在「擷取全螢幕」之後、分隔線之前加入「開啟圖片…」（`keyEquivalent: "o"`），對應 `@objc` 方法呼叫 `actions.openImage()`
+- [X] T017 [US1] 在 `App/App/MainMenuBuilder.swift` 的 `AppMenuActions` 新增 `openImage(_:)` 與 `importImages(_:)`；「檔案」選單在「擷取全螢幕」之後加入「開啟圖片…」（`⌘O`、target 為 `appTarget`），並在「開啟資料庫…」之後加入「匯入…」（`⇧⌘I`）。在 `AppDelegate.swift` 實作兩個 `@objc` 方法（`MainActor.assumeIsolated` 呼叫 coordinator 的 `openImages()`／`importImages()`），並在 `applicationDidFinishLaunching` 的 `Actions` 設定 `actions.openImage`。`importImages(_:)` 同樣呼叫 coordinator 的 `importImages()`（T015 已提供）
 - [ ] T018 [US1] 執行 `xcodebuild … test`：`MainMenuTests` 通過（T014）；手動依 quickstart.md M7 驗證並記錄結果（無法在本環境驗證的項目標示「需審查者手動驗證」）
 
 **檢查點**：使用者故事 1 可獨立運作——可從選單列／`⌘O` 開啟外部圖片並完整編輯。
@@ -115,9 +115,9 @@ description: "開啟與匯入外部圖片功能的任務清單"
 
 **獨立測試**：quickstart.md M8。
 
-- [ ] T019 [US2] 確認 `ImportCoordinator.importImages()`（T015）在「只匯入、不開編輯器」下行為正確：成功項目出現在資料庫、不開任何編輯器、彙總訊息規則與 `openImages()` 一致；必要時補強
-- [ ] T020 [US2] 在 `App/Library/LibraryViewModel.swift` 新增 `importImages()`（呼叫 `importer.importImages()`），供視圖的按鈕使用
-- [ ] T021 [US2] 修改 `App/Library/LibraryView.swift`：(a) 底部列右側加入「匯入…」按鈕（快速鍵由主選單負責，按鈕本身不加快速鍵；提供 `accessibilityLabel`）；(b) `LibraryCell` 在日期旁對 `entry.sourceFileName != nil` 的項目顯示 `square.and.arrow.down` 小圖示，整個卡片加 `.help(fileName)`，VoiceOver 標籤附上「匯入自 \(檔名)」；(c) 空白狀態說明改為「擷取的影像會自動出現在這裡。也可以按「匯入…」或把圖片拖曳到這個視窗。」（FR-046）；(d) 底部計數文字「N 個擷取」維持（匯入項目也算入）
+- [X] T019 [US2] 確認 `ImportCoordinator.importImages()`（T015）在「只匯入、不開編輯器」下行為正確：成功項目出現在資料庫、不開任何編輯器、彙總訊息規則與 `openImages()` 一致；必要時補強
+- [X] T020 [US2] 在 `App/Library/LibraryViewModel.swift` 新增 `importImages()`（呼叫 `importer.importImages()`），供視圖的按鈕使用
+- [X] T021 [US2] 修改 `App/Library/LibraryView.swift`：(a) 底部列右側加入「匯入…」按鈕（快速鍵由主選單負責，按鈕本身不加快速鍵；提供 `accessibilityLabel`）；(b) `LibraryCell` 在日期旁對 `entry.sourceFileName != nil` 的項目顯示 `square.and.arrow.down` 小圖示，整個卡片加 `.help(fileName)`，VoiceOver 標籤附上「匯入自 \(檔名)」；(c) 空白狀態說明改為「擷取的影像會自動出現在這裡。也可以按「匯入…」或把圖片拖曳到這個視窗。」（FR-046）；(d) 底部計數文字「N 個擷取」維持（匯入項目也算入）
 - [ ] T022 [US2] 手動依 quickstart.md M8 驗證並記錄結果；確認匯入完成後資料庫視窗不需手動重新整理即出現新項目（`.libraryDidChange`）
 
 **檢查點**：使用者故事 1 與 2 皆可獨立運作。
@@ -130,8 +130,8 @@ description: "開啟與匯入外部圖片功能的任務清單"
 
 **獨立測試**：quickstart.md M9。
 
-- [ ] T023 [US3] 在 `App/Library/LibraryView.swift` 最外層加上 `.dropDestination(for: URL.self) { urls, _ in … } isTargeted: { … }`：以 `@State` 的 `isDropTargeted` 在拖曳經過時於整個視圖疊上強調色圓角邊框（空白狀態與格狀清單皆涵蓋）；放開後呼叫 `viewModel.importDropped(urls)` 並回傳 `true`
-- [ ] T024 [US3] 在 `App/Library/LibraryViewModel.swift` 新增 `importDropped(_ urls: [URL])`：不論檔案或非檔案 URL 一律交給 `importer.process(urls:openEditors: false)`（分類與彙總由核心與協調器負責，非檔案 URL 會被分類為 `notAFile` 且不下載）。為拖放區域加上 VoiceOver 提示（`accessibilityHint`：「可拖曳圖片檔到此匯入」）
+- [X] T023 [US3] 在 `App/Library/LibraryView.swift` 最外層加上 `.dropDestination(for: URL.self) { urls, _ in … } isTargeted: { … }`：以 `@State` 的 `isDropTargeted` 在拖曳經過時於整個視圖疊上強調色圓角邊框（空白狀態與格狀清單皆涵蓋）；放開後呼叫 `viewModel.importDropped(urls)` 並回傳 `true`
+- [X] T024 [US3] 在 `App/Library/LibraryViewModel.swift` 新增 `importDropped(_ urls: [URL])`：不論檔案或非檔案 URL 一律交給 `importer.process(urls:openEditors: false)`（分類與彙總由核心與協調器負責，非檔案 URL 會被分類為 `notAFile` 且不下載）。為拖放區域加上 VoiceOver 提示（`accessibilityHint`：「可拖曳圖片檔到此匯入」）
 - [ ] T025 [US3] 手動依 quickstart.md M9 驗證並記錄結果；其中第 5 項（瀏覽器網頁圖片）以網路監視確認沒有任何連線
 
 **檢查點**：使用者故事 1～3 皆可獨立運作。
@@ -144,9 +144,9 @@ description: "開啟與匯入外部圖片功能的任務清單"
 
 **獨立測試**：quickstart.md M11。
 
-- [ ] T026 [P] [US4] 建立 `Config/Info-DocumentTypes.plist`：僅含 `CFBundleDocumentTypes` 一個項目——`CFBundleTypeName` = `Image`、`CFBundleTypeRole` = `Editor`、`LSHandlerRank` = `Alternate`、`LSItemContentTypes` = [`public.image`]。檔案放在 `Config/`，不在 `TracePixels/` 同步群組內（plan.md 結構決策）
-- [ ] T027 [US4] 修改 `TracePixels.xcodeproj/project.pbxproj`：App target 的 Debug 與 Release 兩個組態都加上 `INFOPLIST_FILE = Config/Info-DocumentTypes.plist;`，維持 `GENERATE_INFOPLIST_FILE = YES`。建置後以 `plutil -p build/DerivedData/Build/Products/Debug/TracePixels.app/Contents/Info.plist` 確認同時含 `LSUIElement`、`CFBundleDocumentTypes` 與 `LSHandlerRank = Alternate`；再建置 Release（`ARCHS="arm64 x86_64" ONLY_ACTIVE_ARCH=NO`，與發行工作流程相同）確認版本號覆寫與合併後的 Info.plist 都正常
-- [ ] T028 [US4] 在 `App/App/AppDelegate.swift` 實作 `application(_ sender: NSApplication, open urls: [URL])`：環境（`importCoordinator`）尚未就緒時把 URL 存入 `pendingOpenURLs`，並在 `applicationDidFinishLaunching` 結尾處理；就緒後直接呼叫 `importCoordinator.process(urls: urls, openEditors: true)`。XCTest 宿主（`XCTestConfigurationFilePath`）下不處理
+- [X] T026 [P] [US4] 建立 `Config/Info-DocumentTypes.plist`：僅含 `CFBundleDocumentTypes` 一個項目——`CFBundleTypeName` = `Image`、`CFBundleTypeRole` = `Editor`、`LSHandlerRank` = `Alternate`、`LSItemContentTypes` = [`public.image`]。檔案放在 `Config/`，不在 `TracePixels/` 同步群組內（plan.md 結構決策）
+- [X] T027 [US4] 修改 `TracePixels.xcodeproj/project.pbxproj`：App target 的 Debug 與 Release 兩個組態都加上 `INFOPLIST_FILE = Config/Info-DocumentTypes.plist;`，維持 `GENERATE_INFOPLIST_FILE = YES`。建置後以 `plutil -p build/DerivedData/Build/Products/Debug/TracePixels.app/Contents/Info.plist` 確認同時含 `LSUIElement`、`CFBundleDocumentTypes` 與 `LSHandlerRank = Alternate`；再建置 Release（`ARCHS="arm64 x86_64" ONLY_ACTIVE_ARCH=NO`，與發行工作流程相同）確認版本號覆寫與合併後的 Info.plist 都正常
+- [X] T028 [US4] 在 `App/App/AppDelegate.swift` 實作 `application(_ sender: NSApplication, open urls: [URL])`：環境（`importCoordinator`）尚未就緒時把 URL 存入 `pendingOpenURLs`，並在 `applicationDidFinishLaunching` 結尾處理；就緒後直接呼叫 `importCoordinator.process(urls: urls, openEditors: true)`。XCTest 宿主（`XCTestConfigurationFilePath`）下不處理
 - [ ] T029 [US4] 手動依 quickstart.md M11 驗證並記錄結果（含：預設程式未被更動、冷啟動不出現多餘視窗）
 
 **檢查點**：全部四個使用者故事皆可獨立運作。

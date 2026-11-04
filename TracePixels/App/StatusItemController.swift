@@ -6,6 +6,7 @@ final class StatusItemController: NSObject {
         var captureRegion: () -> Void = {}
         var captureWindow: () -> Void = {}
         var captureFullScreen: () -> Void = {}
+        var openImage: () -> Void = {}
         var openLibrary: () -> Void = {}
         var openSettings: () -> Void = {}
     }
@@ -30,6 +31,7 @@ final class StatusItemController: NSObject {
         menu.addItem(item(String(localized: "擷取視窗"), #selector(captureWindow)))
         menu.addItem(item(String(localized: "擷取全螢幕"), #selector(captureFullScreen)))
         menu.addItem(.separator())
+        menu.addItem(item(String(localized: "開啟圖片…"), #selector(openImage), key: "o"))
         menu.addItem(item(String(localized: "開啟資料庫…"), #selector(openLibrary)))
         menu.addItem(item(String(localized: "偏好設定…"), #selector(openSettings), key: ","))
         menu.addItem(.separator())
@@ -46,6 +48,7 @@ final class StatusItemController: NSObject {
     @objc private func captureRegion() { actions.captureRegion() }
     @objc private func captureWindow() { actions.captureWindow() }
     @objc private func captureFullScreen() { actions.captureFullScreen() }
+    @objc private func openImage() { actions.openImage() }
     @objc private func openLibrary() { actions.openLibrary() }
     @objc private func openSettings() { actions.openSettings() }
 }
