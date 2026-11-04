@@ -15,11 +15,13 @@ final class LibraryViewModel: ObservableObject {
 
     private let library: LibraryStore
     private let editors: EditorWindowRegistry
+    private let importer: ImportCoordinator
     private var observer: NSObjectProtocol?
 
-    init(library: LibraryStore, editors: EditorWindowRegistry) {
+    init(library: LibraryStore, editors: EditorWindowRegistry, importer: ImportCoordinator) {
         self.library = library
         self.editors = editors
+        self.importer = importer
         observer = NotificationCenter.default.addObserver(
             forName: .libraryDidChange, object: nil, queue: .main
         ) { [weak self] _ in
@@ -49,6 +51,12 @@ final class LibraryViewModel: ObservableObject {
             }
         }
     }
+
+    /// 「匯入…」：選檔後只加入資料庫，不開編輯器（FR-043）。
+    func importImages() { importer.importImages() }
+
+    /// 拖放進資料庫視窗：非檔案 URL 與資料夾交給核心分類，彙總訊息會說明（FR-044、FR-045）。
+    func importDropped(_ urls: [URL]) { importer.process(urls: urls, openEditors: false) }
 
     /// 使用者在確認對話框按下「刪除」後才呼叫（FR-022）。
     func confirmDeletion() {

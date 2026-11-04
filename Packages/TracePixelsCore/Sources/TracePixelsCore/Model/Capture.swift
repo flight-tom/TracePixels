@@ -4,9 +4,11 @@ public enum CaptureSource: Codable, Hashable, Sendable {
     case region
     case window(title: String, appName: String)
     case display(index: Int)
+    /// 使用者從本機檔案匯入。`fileName` 只含檔名與副檔名，不含目錄路徑。
+    case imported(fileName: String)
 
     private enum CodingKeys: String, CodingKey {
-        case type, title, appName, index
+        case type, title, appName, index, fileName
     }
 
     public init(from decoder: Decoder) throws {
@@ -18,6 +20,8 @@ public enum CaptureSource: Codable, Hashable, Sendable {
                 appName: try c.decodeIfPresent(String.self, forKey: .appName) ?? "")
         case "display":
             self = .display(index: try c.decodeIfPresent(Int.self, forKey: .index) ?? 0)
+        case "imported":
+            self = .imported(fileName: try c.decodeIfPresent(String.self, forKey: .fileName) ?? "")
         default:
             self = .region
         }
@@ -35,6 +39,9 @@ public enum CaptureSource: Codable, Hashable, Sendable {
         case let .display(index):
             try c.encode("display", forKey: .type)
             try c.encode(index, forKey: .index)
+        case let .imported(fileName):
+            try c.encode("imported", forKey: .type)
+            try c.encode(fileName, forKey: .fileName)
         }
     }
 }

@@ -2,6 +2,8 @@
 
 `TracePixelsCore` 是 App 與純邏輯之間的邊界。以下是 App target 允許依賴的公開介面；此處為介面簽章層級的契約，不含實作。型別細節見 [data-model.md](../data-model.md)。
 
+> **功能 002 增補**：新增 `ImageImporter`、`LibraryImporter`、`ImportReport`、`ImportLimits`、`ImportFailure`，`CaptureSource` 新增 `imported(fileName:)`，`LibraryEntry` 新增 `sourceFileName`，`LibraryStore` 新增 `removeStaleStaging()`。詳見 [002 的 core-api.md](../../002-open-import-external-images/contracts/core-api.md)。
+
 ## 編輯文件
 
 ```swift

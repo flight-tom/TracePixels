@@ -43,6 +43,32 @@ final class ModelCodingTests: XCTestCase {
         XCTAssertEqual((object["kind"] as! [String: Any])["type"] as? String, "arrow")
     }
 
+    func testImportedSourceUsesTheContractJSON() throws {
+        let data = try JSONEncoder().encode(CaptureSource.imported(fileName: "photo.jpg"))
+        let object = try JSONSerialization.jsonObject(with: data) as! [String: Any]
+        XCTAssertEqual(object["type"] as? String, "imported")
+        XCTAssertEqual(object["fileName"] as? String, "photo.jpg")
+        XCTAssertEqual(try JSONDecoder().decode(CaptureSource.self, from: data), .imported(fileName: "photo.jpg"))
+    }
+
+    func testImportedSourceWithoutFileNameDecodesToEmptyName() throws {
+        let data = Data(#"{"type":"imported"}"#.utf8)
+        XCTAssertEqual(try JSONDecoder().decode(CaptureSource.self, from: data), .imported(fileName: ""))
+    }
+
+    func testImportedCaptureRoundTripsAndStaysSchemaVersionOne() throws {
+        var capture = makeCapture()
+        capture.source = .imported(fileName: "我的 圖片 🌅.heic")
+        let decoded = try Capture.decoder().decode(Capture.self, from: try Capture.encoder().encode(capture))
+        XCTAssertEqual(decoded, capture)
+        XCTAssertEqual(decoded.schemaVersion, 1)
+    }
+
+    func testUnknownSourceTypeStillFallsBackToRegion() throws {
+        let data = Data(#"{"type":"from-the-future"}"#.utf8)
+        XCTAssertEqual(try JSONDecoder().decode(CaptureSource.self, from: data), .region)
+    }
+
     func testCaptureSourceCoding() throws {
         for source in [CaptureSource.region, .window(title: "文件", appName: "Pages"), .display(index: 1)] {
             let data = try JSONEncoder().encode(source)

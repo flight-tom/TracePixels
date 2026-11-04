@@ -12,6 +12,8 @@ Library/
     └── thumbnail.jpg      # 最長邊 320 px 的縮圖，可由 image.png 重建
 ```
 
+> **功能 002 增補**：`source` 新增 `imported` 型別（外部匯入的圖片），建立項目改為「暫存目錄寫齊後原子改名」。詳見 [002 的 library-format.md](../../002-open-import-external-images/contracts/library-format.md)。
+
 ## 規則
 
 1. `image.png` 一旦寫入就不得被任何編輯操作修改（憲章原則 III）。
@@ -51,5 +53,6 @@ Library/
 ```
 
 - 日期使用 ISO 8601（UTC）。
+- `source.type` 取值：`region`、`window`、`display`，以及功能 002 新增的 `imported`（帶 `fileName`）。讀取時遇到未知的 `source.type` 一律當作 `region`。
 - `kind.type` 取值：`arrow`、`line`、`rectangle`、`ellipse`、`pen`、`highlighter`、`text`、`step`、`blur`、`pixelate`。欄位依類型不同，定義見 [data-model.md](../data-model.md)。
 - 讀取時遇到未知的 `kind.type`：該標註被略過並保留原始 JSON 不丟失（向前相容），其餘標註正常載入。

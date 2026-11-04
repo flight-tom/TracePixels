@@ -56,13 +56,15 @@ log stream --predicate 'subsystem == "com.tracepixels.app"' --level info
 - **模型**：`Capture`（擷取＋標註＋非破壞性的裁切／縮放／修飾，`schemaVersion` 1）、`Annotation`（`Kind` 十種，座標一律是**影像像素、左上為原點**）、`Style`。`lineWidth`、`fontSize`、遮蔽強度（≥ 8）、`outputScale` 在 setter 與解碼時都夾限。不認得的標註類型解碼時略過但原樣保存（`JSONValue`），儲存時寫回。
 - **`EditingDocument`**：編輯器的可變狀態。快照式復原（不設上限）、`beginGesture`／`endGesture` 把拖曳合併成一步、z 順序、命中測試。`Annotation+Transform`（控制點縮放、平移）與 `DraftShape`（拖曳草稿形狀、Shift 約束）是互動用的純邏輯。
 - **`Renderer`**：畫布與匯出**共用同一份**程式碼（SC-006）。`composite` = 原圖＋標註；`flatten` = composite → 裁切 → 縮放 → 邊框／陰影／圓角；`encode` 輸出 PNG／JPEG。**遮蔽直接重建像素**（`Redaction`）：輸出只取決於各磁磚的平均值，所以不可還原；遮蔽也會蓋住它下方較低層的標註。
-- **`LibraryStore`**（actor）：檔案式資料庫，每個擷取一個 `<UUID>.tracepixelscapture/`（`image.png` 建立後**永不修改**、`document.json`、`thumbnail.jpg`）。原子寫入；損毀或版本較新的項目列為不可用但絕不刪除或覆寫。格式見 `contracts/library-format.md`。
+- **`LibraryStore`**（actor）：檔案式資料庫，每個擷取一個 `<UUID>.tracepixelscapture/`（`image.png` 建立後**永不修改**、`document.json`、`thumbnail.jpg`）。原子寫入；`create` 先在 `<UUID>.importing/` 寫齊再一次改名，所以中途失敗不會留下半成品（`list()` 不認 `*.importing`，啟動時 `removeStaleStaging()` 清掉殘留）；損毀或版本較新的項目列為不可用但絕不刪除或覆寫。格式見 `contracts/library-format.md`。
+- **匯入外部圖片**（功能 002）：`ImageIO` 讀取在 `ImageImporter`（解碼前先用屬性檢查尺寸上限 16384 邊／200 百萬像素、套用 EXIF 方向、保留 alpha 與色彩空間、動態圖只取第 0 格、PNG 額外檢查 IEND），批次在 `LibraryImporter`（單檔失敗不中斷、可取消），彙總規則在 `ImportReport`（開編輯器上限 5、最多列 8 筆失敗）。來源記為 `CaptureSource.imported(fileName:)`，`schemaVersion` 仍是 1（舊版讀到未知來源會當作 `region`）。原檔唯讀，資料庫保有自己的副本。
 - 跨 actor 的 `CGImage` 用 `SendableImage` 包裝。
 
 ### App
 
 - **擷取流程**：`GlobalHotKey`（Carbon，不需輔助使用權限）／選單列 → `CaptureCoordinator`（檢查權限 → `CaptureOverlayController` 每顯示器一個覆蓋層視窗 → `CaptureService` 以 ScreenCaptureKit 擷取 → `LibraryStore.create` → 開編輯器／複製／儲存）。座標換算在核心的 `CaptureGeometry`（可測試）；選取限制在拖曳起點所在的顯示器。覆蓋層自己的視窗 ID 擷取時要排除。
 - **編輯器**：每個擷取一個視窗（`EditorWindowRegistry` 保證同一擷取只開一個）。`EditorViewModel` 持有 `EditingDocument` 與選取／工具／樣式，每次變更重新 `Renderer.composite` 並顯示；`CanvasView`（`NSView`，翻轉座標）把滑鼠事件交給 `ToolController`／`SelectionController`；屬性面板與工具列是 SwiftUI。`AutosaveController` 0.5 秒去抖動寫回資料庫，視窗關閉與結束應用程式時同步保存，所以沒有「未儲存」狀態。
+- **匯入入口**：選單列／主選單「開啟圖片…」（⌘O，匯入並開編輯器）、「匯入…」（⇧⌘I，只匯入）、資料庫視窗的按鈕與 `dropDestination`、`application(_:open:)`（Finder「打開方式」與 Dock 拖放）都呼叫 `ImportCoordinator`（顯示檔案選擇視窗、超過 1 秒才出現的 `ImportProgressPanel`、依 `ImportReport` 開編輯器與顯示單一彙總 `NSAlert`）。`Config/Info-DocumentTypes.plist` 以 `INFOPLIST_FILE` 與自動產生的 Info.plist 合併，宣告 `public.image` 的 `Alternate` 開啟方式（不搶預設程式）；它刻意放在 `TracePixels/` 同步群組之外，否則會被當成資源複製。
 - **Dock 圖示**：`LSUIElement` 為真；`ActivationPolicyManager` 只在有**編輯器或資料庫**視窗時切到 `.regular`（FR-029），全關後切回 `.accessory`；偏好設定與權限說明視窗不觸發。
 - 偏好設定存 `UserDefaults`（`Preferences`）。**不啟用 App Sandbox**，啟用 Hardened Runtime，ad-hoc 簽署。
 
@@ -75,6 +77,9 @@ log stream --predicate 'subsystem == "com.tracepixels.app"' --level info
 - **`NSTextView` 的 Esc 對應 `complete:`**，不是 `cancelOperation:`；文字就地編輯的委派兩個都要接。
 - **CoreGraphics 字形快取**：同字型與大小的第一次繪製與之後的邊緣像素有細微差異。比對渲染結果的測試要先渲染一次再比。
 - **開發時的螢幕擷取權限**：ad-hoc 簽署的 build 每次重新建置後，macOS 可能要求重新授權；擷取空白或被拒絕時，到「系統設定 › 隱私權與安全性 › 螢幕與系統音訊錄製」移除舊項目後重新授權。在沒有此權限的環境（例如本機 CI、沙箱 shell）無法驗證覆蓋層與實際擷取。
+- **匯入的效能特性**：匯入時的成本幾乎全在 `image.png` 的 PNG 編碼（ImageIO 沒有壓縮等級選項，濾波器選項只省約 30%）。可壓縮的截圖類 12 百萬像素約 0.1 秒；近乎雜訊的 12 百萬像素照片約 1.7 秒、輸出約 30 MB。SC-009 因此分兩層（截圖 1 秒、照片 3 秒），照片情境靠超過 1 秒才出現的進度面板承接。不要為此自己寫 PNG 編碼器（見 `specs/002-open-import-external-images/research.md` D-18）。
+- **ImageIO 對截斷檔很寬鬆**：被截斷的 PNG／JPEG 仍會解出（缺的部分補空白）並回報成功。目前只對 PNG 檢查 IEND 結尾；JPEG 常有合法的結尾雜訊，加同樣的檢查會誤殺好檔案。
+- **開發時別與已安裝的版本同時執行**：`/Applications/TracePixels.app` 若正在執行，`open` 開發版會與它共用 bundle id（全域快速鍵、選單列圖示都會衝突）。驗證前先結束已安裝的版本。
 - **App 圖示**由 `scripts/make-app-icon.swift`（CoreGraphics 向量繪製，每個尺寸各自渲染）產生，輸出就是 `Assets.xcassets/AppIcon.appiconset/` 的 PNG：要改圖示就改腳本再重跑 `swift scripts/make-app-icon.swift TracePixels/Resources/Assets.xcassets/AppIcon.appiconset`，不要手改 PNG。選單列圖示是 SF Symbol（`camera.viewfinder`，樣板圖），與 App 圖示無關。
 - **發行**由 `.github/workflows/release.yml` 負責：推送 `v<主>.<次>.<修>` 標籤 → 跑核心測試、建置 Universal Release、以 `scripts/make-dmg.sh` 打包、發布到 GitHub Release（0.x 標為預覽版）。版本號取自標籤（覆寫 `MARKETING_VERSION`），組建號取自 `run_number`。修改工作流程的 PR 與手動觸發只建置、上傳成品並演練下載與校驗，不建立 Release（發布步驟以 `github.ref_type == 'tag'` 把關）。簽章仍是 ad-hoc、**未公證**（下載者要在「隱私權與安全性」按「仍要打開」）；若要公證需另加 Developer ID 憑證與 secrets，不在目前範圍。要在本機驗證打包，照工作流程的指令跑 `xcodebuild`（`ARCHS="arm64 x86_64" ONLY_ACTIVE_ARCH=NO`）再執行 `scripts/make-dmg.sh`。
 - 新增或修改字串後，記得同步 `quickstart.md` 的手動驗證步驟與 `verification.md`。
