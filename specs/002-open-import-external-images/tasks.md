@@ -31,8 +31,8 @@ description: "開啟與匯入外部圖片功能的任務清單"
 
 **目的**：確認基準線與測試素材工具。
 
-- [ ] T001 在 `Packages/TracePixelsCore` 執行 `swift test`，確認既有測試在分支起點全部通過（記錄通過數量作為回歸基準）
-- [ ] T002 [P] 擴充 `CoreTests/Support/TestImages.swift`：新增把 `CGImage` 寫成檔案的輔助函式，支援 PNG／JPEG／TIFF／GIF／BMP／HEIC（以 `CGImageDestination`）、可指定 EXIF `Orientation`（1～8）、可指定色彩空間（例如 Display P3）、可建立多格 GIF，以及可在暫存目錄建立「內容是文字的假 `.png`」、截斷的 PNG、資料夾與唯讀檔；所有輔助函式回傳檔案 URL，並提供清理暫存目錄的方式。HEIC 輔助函式先偵測 `CGImageDestinationCopyTypeIdentifiers()` 是否含 HEIC，不支援時回傳 `nil`，由呼叫的測試以 `XCTSkip` 略過（其餘格式照跑）
+- [X] T001 在 `Packages/TracePixelsCore` 執行 `swift test`，確認既有測試在分支起點全部通過（記錄通過數量作為回歸基準）
+- [X] T002 [P] 擴充 `CoreTests/Support/TestImages.swift`：新增把 `CGImage` 寫成檔案的輔助函式，支援 PNG／JPEG／TIFF／GIF／BMP／HEIC（以 `CGImageDestination`）、可指定 EXIF `Orientation`（1～8）、可指定色彩空間（例如 Display P3）、可建立多格 GIF，以及可在暫存目錄建立「內容是文字的假 `.png`」、截斷的 PNG、資料夾與唯讀檔；所有輔助函式回傳檔案 URL，並提供清理暫存目錄的方式。HEIC 輔助函式先偵測 `CGImageDestinationCopyTypeIdentifiers()` 是否含 HEIC，不支援時回傳 `nil`，由呼叫的測試以 `XCTSkip` 略過（其餘格式照跑）
 
 ---
 
@@ -44,8 +44,8 @@ description: "開啟與匯入外部圖片功能的任務清單"
 
 ### 核心測試（先寫，先失敗）
 
-- [ ] T003 [P] 在 `CoreTests/ModelCodingTests.swift` 新增 `CaptureSource.imported(fileName:)` 的測試：編碼為 `{"type":"imported","fileName":"photo.jpg"}`；解碼往返相等；`fileName` 缺漏時解碼為空字串；整個 `Capture` 含 imported 來源時 JSON 往返後 `schemaVersion` 仍為 1
-- [ ] T004 [P] 建立 `CoreTests/ImageImporterTests.swift`，涵蓋 contracts/core-api.md 的全部保證：
+- [X] T003 [P] 在 `CoreTests/ModelCodingTests.swift` 新增 `CaptureSource.imported(fileName:)` 的測試：編碼為 `{"type":"imported","fileName":"photo.jpg"}`；解碼往返相等；`fileName` 缺漏時解碼為空字串；整個 `Capture` 含 imported 來源時 JSON 往返後 `schemaVersion` 仍為 1
+- [X] T004 [P] 建立 `CoreTests/ImageImporterTests.swift`，涵蓋 contracts/core-api.md 的全部保證：
   - PNG／JPEG／TIFF／GIF／BMP／HEIC 各一，`image.width/height` 與來源尺寸相同（SC-011）；GIF 多格只取第 0 格
   - 含 alpha 的 PNG 載入後仍有 alpha，且像素值逐一相同
   - EXIF Orientation 6（及 5～8）的 JPEG：寬高對調，且左上角標記色出現在轉正後的正確位置
@@ -56,7 +56,7 @@ description: "開啟與匯入外部圖片功能的任務清單"
   - 資料夾、不存在的路徑、`http://` URL → `.notAFile`；文字檔 → `.unsupportedFormat`；內容為文字的假 `.png` → `.unsupportedFormat`；簽名正確但被截斷的 PNG → `.corrupt`；無讀取權限的檔案 → `.unreadable`
   - 呼叫前後原檔的內容雜湊與修改時間相同（FR-035、SC-010）
   - `fileName` 含空白、中文、emoji 與超長檔名時原樣回傳（只含檔名，不含目錄）
-- [ ] T005 [P] 建立 `CoreTests/LibraryImporterTests.swift`：
+- [X] T005 [P] 建立 `CoreTests/LibraryImporterTests.swift`：
   - 有效檔 ×3 → `imported.count == 3`，順序與輸入一致，來源皆為 `.imported(fileName:)`、`scale == 1.0`、`pixelSize` 正確
   - 混合輸入（有效 ×2、假 `.png`、文字檔、資料夾、`http://` URL）→ `imported` 2 筆；`failures` 各自分類正確；`skippedNonFileCount` 為資料夾加 URL 的筆數；`LibraryStore.list()` 只有 2 筆可用項目、無不可用項目、目錄中無 `*.importing`（SC-013）
   - 同一檔案出現兩次 → 兩個不同 id 的項目
@@ -67,8 +67,8 @@ description: "開啟與匯入外部圖片功能的任務清單"
   - 資料庫目錄不可寫（例如權限設為唯讀）時，該檔歸入 `.storageFailed`，其餘檔案不受影響、無殘留
   - 往返：匯入 → 加一個標註並 `save` → 以新的 `LibraryStore` 實例對同一目錄 `load` → 標註仍在且可編輯（SC-014）
   - HEIC 項目在編碼器不可用時 `XCTSkip`
-- [ ] T005a [P] 建立 `CoreTests/ImportReportTests.swift`（先寫、先失敗）：對 `ImportReport.make(from:openEditors:)` 斷言——成功 7 個且 `openEditors == true` → `editorsToOpen` 為前 5 個、`onlyInLibraryCount == 2`；`openEditors == false` → `editorsToOpen` 為空、`onlyInLibraryCount == 0`；失敗 12 筆 → `listedFailures` 8 筆、`unlistedFailureCount == 4`；`notAFile` 不進 `listedFailures` 而進 `skippedNonFileCount`；全成功且 ≤ 5 個且全開啟 → `needsAlert == false`；任一失敗、略過或僅在資料庫 → `needsAlert == true`
-- [ ] T006 [P] 在 `CoreTests/LibraryStoreTests.swift` 新增：
+- [X] T005a [P] 建立 `CoreTests/ImportReportTests.swift`（先寫、先失敗）：對 `ImportReport.make(from:openEditors:)` 斷言——成功 7 個且 `openEditors == true` → `editorsToOpen` 為前 5 個、`onlyInLibraryCount == 2`；`openEditors == false` → `editorsToOpen` 為空、`onlyInLibraryCount == 0`；失敗 12 筆 → `listedFailures` 8 筆、`unlistedFailureCount == 4`；`notAFile` 不進 `listedFailures` 而進 `skippedNonFileCount`；全成功且 ≤ 5 個且全開啟 → `needsAlert == false`；任一失敗、略過或僅在資料庫 → `needsAlert == true`
+- [X] T006 [P] 在 `CoreTests/LibraryStoreTests.swift` 新增：
   - `create` 完成後資料庫目錄只有 `<UUID>.tracepixelscapture`，沒有 `*.importing`
   - 模擬暫存目錄中途失敗（例如先在目標位置放同名檔案使改名失敗，或注入失敗的寫入）→ `create` 丟錯、資料庫無任何新項目、無殘留
   - 手動放入殘留的 `abc.importing/` 目錄：`list()` 不含它；`removeStaleStaging()` 回傳 1 並移除；正式項目不受影響
@@ -77,14 +77,14 @@ description: "開啟與匯入外部圖片功能的任務清單"
 
 ### 核心實作
 
-- [ ] T007 在 `Core/Model/Capture.swift` 的 `CaptureSource` 新增 `case imported(fileName: String)`，更新 `CodingKeys` 與 `init(from:)`／`encode(to:)`：`type` 為 `"imported"`，`fileName` 缺漏時為 `""`；其餘既有行為（未知型別回落 `region`）不變。使 T003 通過
-- [ ] T008 在 `Core/Persistence/LibraryStore.swift`：(a) `LibraryEntry` 新增 `public let sourceFileName: String?`，`list()` 對可用的 imported 項目填入檔名、其餘為 nil；(b) `create` 改為在資料庫目錄建立 `<UUID>.importing/`，寫齊 `image.png`、`document.json`、`thumbnail.jpg` 後以單次 `moveItem` 改名為 `<UUID>.tracepixelscapture/`，任何步驟失敗都移除暫存目錄並重新丟出錯誤；(c) 新增 `@discardableResult public func removeStaleStaging() -> Int`，只移除副檔名為 `importing` 的目錄；`list()` 維持只認 `tracepixelscapture`。使 T006 與既有 `LibraryStoreTests`、`ReopenRoundTripTests` 通過
-- [ ] T009 建立 `Core/Persistence/ImageImporter.swift`：定義 `ImportLimits`（`maxSide = 16384`、`maxPixels = 200_000_000`）、`ImportFailure`（`notAFile`／`unreadable`／`unsupportedFormat`／`corrupt`／`tooLarge(width:height:)`／`storageFailed`，符合 `Error, Equatable, Sendable`；`storageFailed` 只由 `LibraryImporter` 使用）、`LoadedImage`、`ImageImporter.load(from:)`。流程依 research.md D-04／D-06：先確認為本機一般檔案；以 `CGImageSourceCreate(url)` 取得來源；用 `CGImageSourceCopyPropertiesAtIndex` 讀 `PixelWidth`／`PixelHeight`／`Orientation`（方向 5～8 寬高對調），**在解碼前**以 `Int` 運算比對 `ImportLimits`；方向為 1 時用 `CGImageSourceCreateImageAtIndex(index 0)`，否則用 `CGImageSourceCreateThumbnailAtIndex` 搭配 `kCGImageSourceCreateThumbnailWithTransform`、`kCGImageSourceCreateThumbnailFromImageAlways`、`kCGImageSourceThumbnailMaxPixelSize` = 套用方向後的較長邊；不做色彩轉換或去 alpha；不寫入或鎖定原檔。使 T004 通過
-- [ ] T010 建立 `Core/Persistence/LibraryImporter.swift`：定義 `ImportFailureItem`、`ImportResult`（含 `skippedNonFileCount`）、`ImportProgress`、`LibraryImporter.importFiles(_:progress:)`。依 research.md D-08：循序處理；解碼在呼叫端的執行情境進行、只有 `LibraryStore.create` 進入 actor；以 `.imported(fileName: url.lastPathComponent)`、`scale: 1.0` 建立項目；單檔失敗收集到 `failures` 而不中斷（`LibraryStore.create` 丟出的任何錯誤歸入 `.storageFailed`）；每檔之間檢查 `Task.isCancelled`；`failures[].name` 對檔案 URL 為檔名、對非檔案 URL 為 `absoluteString`。使 T005 通過。完成後在 `Packages/TracePixelsCore` 跑全部 `swift test`（Debug），確認無回歸
+- [X] T007 在 `Core/Model/Capture.swift` 的 `CaptureSource` 新增 `case imported(fileName: String)`，更新 `CodingKeys` 與 `init(from:)`／`encode(to:)`：`type` 為 `"imported"`，`fileName` 缺漏時為 `""`；其餘既有行為（未知型別回落 `region`）不變。使 T003 通過
+- [X] T008 在 `Core/Persistence/LibraryStore.swift`：(a) `LibraryEntry` 新增 `public let sourceFileName: String?`，`list()` 對可用的 imported 項目填入檔名、其餘為 nil；(b) `create` 改為在資料庫目錄建立 `<UUID>.importing/`，寫齊 `image.png`、`document.json`、`thumbnail.jpg` 後以單次 `moveItem` 改名為 `<UUID>.tracepixelscapture/`，任何步驟失敗都移除暫存目錄並重新丟出錯誤；(c) 新增 `@discardableResult public func removeStaleStaging() -> Int`，只移除副檔名為 `importing` 的目錄；`list()` 維持只認 `tracepixelscapture`。使 T006 與既有 `LibraryStoreTests`、`ReopenRoundTripTests` 通過
+- [X] T009 建立 `Core/Persistence/ImageImporter.swift`：定義 `ImportLimits`（`maxSide = 16384`、`maxPixels = 200_000_000`）、`ImportFailure`（`notAFile`／`unreadable`／`unsupportedFormat`／`corrupt`／`tooLarge(width:height:)`／`storageFailed`，符合 `Error, Equatable, Sendable`；`storageFailed` 只由 `LibraryImporter` 使用）、`LoadedImage`、`ImageImporter.load(from:)`。流程依 research.md D-04／D-06：先確認為本機一般檔案；以 `CGImageSourceCreate(url)` 取得來源；用 `CGImageSourceCopyPropertiesAtIndex` 讀 `PixelWidth`／`PixelHeight`／`Orientation`（方向 5～8 寬高對調），**在解碼前**以 `Int` 運算比對 `ImportLimits`；方向為 1 時用 `CGImageSourceCreateImageAtIndex(index 0)`，否則用 `CGImageSourceCreateThumbnailAtIndex` 搭配 `kCGImageSourceCreateThumbnailWithTransform`、`kCGImageSourceCreateThumbnailFromImageAlways`、`kCGImageSourceThumbnailMaxPixelSize` = 套用方向後的較長邊；不做色彩轉換或去 alpha；不寫入或鎖定原檔。使 T004 通過
+- [X] T010 建立 `Core/Persistence/LibraryImporter.swift`：定義 `ImportFailureItem`、`ImportResult`（含 `skippedNonFileCount`）、`ImportProgress`、`LibraryImporter.importFiles(_:progress:)`。依 research.md D-08：循序處理；解碼在呼叫端的執行情境進行、只有 `LibraryStore.create` 進入 actor；以 `.imported(fileName: url.lastPathComponent)`、`scale: 1.0` 建立項目；單檔失敗收集到 `failures` 而不中斷（`LibraryStore.create` 丟出的任何錯誤歸入 `.storageFailed`）；每檔之間檢查 `Task.isCancelled`；`failures[].name` 對檔案 URL 為檔名、對非檔案 URL 為 `absoluteString`。使 T005 通過。完成後在 `Packages/TracePixelsCore` 跑全部 `swift test`（Debug），確認無回歸
 
 ### App 共用協調器
 
-- [ ] T010a 建立 `Core/Persistence/ImportReport.swift`：依 data-model.md 的 `ImportReport` 與 contracts/core-api.md 實作純函式 `make(from:openEditors:)`（`maxEditors = 5`、`maxListedFailures = 8`）。使 T005a 通過
+- [X] T010a 建立 `Core/Persistence/ImportReport.swift`：依 data-model.md 的 `ImportReport` 與 contracts/core-api.md 實作純函式 `make(from:openEditors:)`（`maxEditors = 5`、`maxListedFailures = 8`）。使 T005a 通過
 - [ ] T011 [P] 建立 `App/Library/ImportProgressPanel.swift`：非模態 `NSPanel`（不搶焦點、浮在其他視窗上），顯示「正在匯入 N／M」與進度條，單檔時為不定長度；提供 `show()`、`update(done:total:)`、`close()`。字串先以 `String(localized:)` 撰寫（zh-TW）
 - [ ] T012 建立 `App/Library/ImportCoordinator.swift`（`@MainActor final class`，持有 `LibraryStore`、`EditorWindowRegistry`）：實作 `process(urls: [URL], openEditors: Bool) async`——啟動 1 秒計時，仍未完成才顯示 `ImportProgressPanel`（研究 D-09）；呼叫 `LibraryImporter.importFiles`；有成功項目就 `NotificationCenter.default.post(name: .libraryDidChange, object: nil)`；`editorsToOpen` 的項目依序以 `library.load` 後 `editors.open(capture:image:)` 開啟；結束後以 `ImportReport.make(from:openEditors:)` 取得報告（T010a），**規則不在此處重寫**：依 `editorsToOpen` 開編輯器，依 `needsAlert` 以單一 `NSAlert` 顯示報告內容（`ImportFailure` 對應 data-model.md 的六種 zh-TW 原因文字）。同時避免兩批匯入同時彈出多個彙總視窗（以序列化的 Task 排隊）
 - [ ] T013 在 `App/App/AppDelegate.swift` 建立 `ImportCoordinator` 並持有；`applicationDidFinishLaunching` 在建立環境後呼叫 `environment.library.removeStaleStaging()`（背景 Task，不阻擋啟動）；`App/Library/LibraryWindowController.swift` 的 `init` 接收 `ImportCoordinator` 並傳給 `LibraryViewModel`（`LibraryViewModel.init` 新增 `importer: ImportCoordinator` 參數，既有呼叫端一併更新）。完成後 `xcodebuild … build` 確認可編譯

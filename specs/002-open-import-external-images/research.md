@@ -27,6 +27,7 @@
   2. 通過後以 `CGImageSourceCreateThumbnailAtIndex` 搭配 `kCGImageSourceCreateThumbnailWithTransform`、`kCGImageSourceCreateThumbnailFromImageAlways`、`kCGImageSourceThumbnailMaxPixelSize = 較長邊`，取得「已套用方向、未縮小」的影像；方向為「正」時直接用 `CGImageSourceCreateImageAtIndex`。
   3. 只取 index 0（動態 GIF 取第一格）。
 - **理由**：先查屬性可避免為了拒絕一張 5 億像素的圖而先配置數 GB 記憶體；縮圖 API 是 ImageIO 內建套用 EXIF 方向的標準路徑。PNG 存檔本身無損，所以像素內容與解碼結果一致（SC-011）。
+- **實測發現**：(1) 只有標頭的 PNG，ImageIO 不給屬性（會是 `corrupt`），所以尺寸上限測試改用真正的 14200×14200 灰階 PNG（壓縮後很小）。(2) ImageIO 對被截斷的檔案很寬鬆，缺的部分補空白仍回報成功；因此對 PNG 額外檢查檔尾 IEND 區塊，缺了視為 `corrupt`。JPEG 等格式不做同樣檢查（常有合法的結尾雜訊，檢查會誤殺好檔案），截斷的 JPEG 會被當成可匯入、缺的部分為空白。
 - **風險與驗證**：`MaxPixelSize` 等於原尺寸時不應重新取樣；以測試比對「方向為正的圖」兩條路徑的像素完全一致，並以含 EXIF 方向 6 的測試檔驗證寬高對調與內容旋轉。
 - **替代方案**：自己用 `CGContext` 依方向旋轉——要自行處理 8 種方向矩陣與色彩空間，易錯，否決。
 

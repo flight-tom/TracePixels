@@ -132,4 +132,74 @@ final class LibraryStoreTests: XCTestCase {
         let img = CGImageSourceCreateImageAtIndex(src, 0, nil)!
         XCTAssertEqual(max(img.width, img.height), 320)
     }
+
+    // MARK: 暫存目錄建立與殘留清理（匯入功能）
+
+    func testCreateLeavesOnlyTheFinishedPackage() async throws {
+        let store = LibraryStore(directory: directory)
+        let capture = try await store.create(image: image(), source: .region, scale: 1)
+        let names = try FileManager.default.contentsOfDirectory(atPath: directory.path)
+        XCTAssertEqual(names, ["\(capture.id.uuidString).tracepixelscapture"])
+    }
+
+    func testFailedCreateLeavesNoItemAndNoStagingDirectory() async throws {
+        try XCTSkipIf(getuid() == 0, "root 不受檔案權限限制")
+        let store = LibraryStore(directory: directory)
+        try FileManager.default.setAttributes([.posixPermissions: 0o500], ofItemAtPath: directory.path)
+        defer { try? FileManager.default.setAttributes([.posixPermissions: 0o755], ofItemAtPath: directory.path) }
+        do {
+            _ = try await store.create(image: image(), source: .region, scale: 1)
+            XCTFail("目錄唯讀時應該失敗")
+        } catch {}
+        try FileManager.default.setAttributes([.posixPermissions: 0o755], ofItemAtPath: directory.path)
+        XCTAssertEqual(try FileManager.default.contentsOfDirectory(atPath: directory.path), [])
+        let list = await store.list()
+        XCTAssertTrue(list.isEmpty)
+    }
+
+    func testStaleStagingDirectoriesAreIgnoredThenRemoved() async throws {
+        let store = LibraryStore(directory: directory)
+        let kept = try await store.create(image: image(), source: .region, scale: 1)
+        let stale = directory.appendingPathComponent("\(UUID().uuidString).importing", isDirectory: true)
+        try FileManager.default.createDirectory(at: stale, withIntermediateDirectories: true)
+        try Data("半成品".utf8).write(to: stale.appendingPathComponent("image.png"))
+
+        let listed = await store.list()
+        XCTAssertEqual(listed.map(\.id), [kept.id], "暫存目錄不可被當成項目列出")
+
+        let removed = await store.removeStaleStaging()
+        XCTAssertEqual(removed, 1)
+        XCTAssertFalse(FileManager.default.fileExists(atPath: stale.path))
+        let after = await store.list()
+        XCTAssertEqual(after.map(\.id), [kept.id], "正式項目不受影響")
+        let again = await store.removeStaleStaging()
+        XCTAssertEqual(again, 0)
+    }
+
+    func testTotalSizeCountsStagingDirectories() async throws {
+        let store = LibraryStore(directory: directory)
+        let before = await store.totalSize()
+        let stale = directory.appendingPathComponent("\(UUID().uuidString).importing", isDirectory: true)
+        try FileManager.default.createDirectory(at: stale, withIntermediateDirectories: true)
+        try Data(count: 4096).write(to: stale.appendingPathComponent("image.png"))
+        let after = await store.totalSize()
+        XCTAssertEqual(after - before, 4096)
+    }
+
+    func testListExposesSourceFileNameOnlyForImportedItems() async throws {
+        let store = LibraryStore(directory: directory)
+        let imported = try await store.create(image: image(), source: .imported(fileName: "IMG_0042.HEIC"), scale: 1)
+        let region = try await store.create(image: image(), source: .region, scale: 1)
+        let broken = UUID()
+        let brokenURL = directory.appendingPathComponent("\(broken.uuidString).tracepixelscapture", isDirectory: true)
+        try FileManager.default.createDirectory(at: brokenURL, withIntermediateDirectories: true)
+
+        let entries = await store.list()
+        XCTAssertEqual(entries.first { $0.id == imported.id }?.sourceFileName, "IMG_0042.HEIC")
+        XCTAssertNil(entries.first { $0.id == region.id }?.sourceFileName)
+        let brokenEntry = entries.first { $0.id == broken }
+        XCTAssertNotNil(brokenEntry)
+        XCTAssertNil(brokenEntry?.sourceFileName)
+        XCTAssertEqual(brokenEntry?.isUsable, false)
+    }
 }

@@ -13,6 +13,8 @@ public struct LibraryEntry: Sendable, Identifiable {
     public let createdAt: Date
     public let thumbnailURL: URL?
     public let isUsable: Bool
+    /// 匯入項目的原始檔名；螢幕擷取與不可用的項目為 nil。
+    public let sourceFileName: String?
 }
 
 /// 檔案式資料庫。每個擷取是一個 `<UUID>.tracepixelscapture/` 目錄：
@@ -22,6 +24,8 @@ public actor LibraryStore {
     private static let imageName = "image.png"
     private static let documentName = "document.json"
     private static let thumbnailName = "thumbnail.jpg"
+    /// 建立中的暫存目錄副檔名。永遠不會被 `list()` 當成項目。
+    static let stagingExtension = "importing"
 
     private let directory: URL
     private let fileManager = FileManager.default
@@ -54,15 +58,37 @@ public actor LibraryStore {
         let capture = Capture(
             createdAt: Self.wholeSeconds(now), source: source,
             pixelSize: PixelSize(width: cg.width, height: cg.height), scale: scale)
-        let package = packageURL(capture.id)
-        try fileManager.createDirectory(at: package, withIntermediateDirectories: true)
-        try png.write(to: package.appendingPathComponent(Self.imageName), options: .atomic)
-        try Capture.encoder().encode(capture).write(
-            to: package.appendingPathComponent(Self.documentName), options: .atomic)
-        if let jpeg = Thumbnailer.jpegData(from: cg) {
-            try jpeg.write(to: package.appendingPathComponent(Self.thumbnailName), options: .atomic)
+        let document = try Capture.encoder().encode(capture)
+
+        // 先在暫存目錄寫齊所有檔案，最後一次改名成正式項目：中途失敗或被終止都不會留下半成品。
+        let staging = directory.appendingPathComponent(
+            "\(capture.id.uuidString).\(Self.stagingExtension)", isDirectory: true)
+        do {
+            try fileManager.createDirectory(at: staging, withIntermediateDirectories: true)
+            try png.write(to: staging.appendingPathComponent(Self.imageName), options: .atomic)
+            try document.write(to: staging.appendingPathComponent(Self.documentName), options: .atomic)
+            if let jpeg = Thumbnailer.jpegData(from: cg) {
+                try jpeg.write(to: staging.appendingPathComponent(Self.thumbnailName), options: .atomic)
+            }
+            try fileManager.moveItem(at: staging, to: packageURL(capture.id))
+        } catch {
+            try? fileManager.removeItem(at: staging)
+            throw error
         }
         return capture
+    }
+
+    /// 移除上次異常結束殘留的暫存目錄（從未成為項目的半成品），回傳移除數量。
+    @discardableResult
+    public func removeStaleStaging() -> Int {
+        guard let items = try? fileManager.contentsOfDirectory(
+            at: directory, includingPropertiesForKeys: nil, options: [.skipsHiddenFiles])
+        else { return 0 }
+        var removed = 0
+        for url in items where url.pathExtension == Self.stagingExtension {
+            if (try? fileManager.removeItem(at: url)) != nil { removed += 1 }
+        }
+        return removed
     }
 
     /// 寫入 `document.json`（原子取代）並更新 `modifiedAt`。絕不修改 `image.png`；
@@ -123,15 +149,17 @@ public actor LibraryStore {
             let thumbnail = url.appendingPathComponent(Self.thumbnailName)
             if let capture = try? readDocument(at: url),
                fileManager.fileExists(atPath: url.appendingPathComponent(Self.imageName).path) {
+                var fileName: String?
+                if case let .imported(name) = capture.source { fileName = name }
                 entries.append(LibraryEntry(
                     id: id, createdAt: capture.createdAt,
-                    thumbnailURL: ensureThumbnail(in: url), isUsable: true))
+                    thumbnailURL: ensureThumbnail(in: url), isUsable: true, sourceFileName: fileName))
             } else {
                 let created = (try? url.resourceValues(forKeys: [.creationDateKey]))?.creationDate ?? .distantPast
                 entries.append(LibraryEntry(
                     id: id, createdAt: created,
                     thumbnailURL: fileManager.fileExists(atPath: thumbnail.path) ? thumbnail : nil,
-                    isUsable: false))
+                    isUsable: false, sourceFileName: nil))
             }
         }
         return entries.sorted { ($0.createdAt, $0.id.uuidString) > ($1.createdAt, $1.id.uuidString) }
