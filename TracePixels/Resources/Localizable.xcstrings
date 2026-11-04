@@ -98,6 +98,63 @@
         }
       }
     },
+    "%@，匯入自 %@" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@, imported from %@"
+          }
+        }
+      }
+    },
+    "%lld 個項目不是圖片檔（資料夾或網頁圖片），已略過。" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld item is not an image file (a folder or a web image) and was skipped."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld items are not image files (folders or web images) and were skipped."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "…還有 %lld 個檔案無法匯入。" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "…and %lld more file could not be imported."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "…and %lld more files could not be imported."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "一般" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -127,6 +184,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Send Backward"
+          }
+        }
+      }
+    },
+    "不支援的檔案格式" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unsupported file format"
+          }
+        }
+      }
+    },
+    "不是圖片檔（資料夾或網頁圖片）" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Not an image file (a folder or a web image)"
           }
         }
       }
@@ -226,6 +305,129 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Full Screen"
+          }
+        }
+      }
+    },
+    "其餘 %lld 張已在資料庫中，沒有自動開啟編輯器。" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "The other %lld image is in the library; its editor was not opened automatically."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "The other %lld images are in the library; their editors were not opened automatically."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "匯入" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Import"
+          }
+        }
+      }
+    },
+    "匯入…" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Import…"
+          }
+        }
+      }
+    },
+    "匯入圖片" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Import Images"
+          }
+        }
+      }
+    },
+    "圖片過大（%lld × %lld 像素）" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Image too large (%lld × %lld pixels)"
+          }
+        }
+      }
+    },
+    "已匯入 %lld 張圖片。" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Imported %lld image."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Imported %lld images."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "已匯入圖片" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Images Imported"
+          }
+        }
+      }
+    },
+    "把電腦上的圖片加入資料庫（⇧⌘I）" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add images from your Mac to the library (⇧⌘I)"
+          }
+        }
+      }
+    },
+    "擷取的影像會自動出現在這裡，之後可以隨時重新開啟並繼續編輯。也可以按「匯入…」或把圖片拖曳到這個視窗。" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Captures appear here automatically, and you can reopen them any time to keep editing. You can also click “Import…” or drag images into this window."
           }
         }
       }
@@ -748,17 +950,6 @@
         }
       }
     },
-    "擷取的影像會自動出現在這裡，之後可以隨時重新開啟並繼續編輯。" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Captured images appear here automatically. You can reopen them at any time and keep editing."
-          }
-        }
-      }
-    },
     "擷取視窗" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -880,6 +1071,17 @@
         }
       }
     },
+    "檔案已損毀" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The file is damaged"
+          }
+        }
+      }
+    },
     "檢視" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -887,6 +1089,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "View"
+          }
+        }
+      }
+    },
+    "正在匯入 %lld／%lld" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Importing %lld of %lld"
+          }
+        }
+      }
+    },
+    "正在匯入圖片…" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Importing images…"
           }
         }
       }
@@ -980,6 +1204,17 @@
         }
       }
     },
+    "無法儲存到資料庫（磁碟空間不足或位置無法寫入）" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Could not save to the library (the disk is full or the location is not writable)"
+          }
+        }
+      }
+    },
     "無法儲存檔案" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -987,6 +1222,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Could not save the file"
+          }
+        }
+      }
+    },
+    "無法匯入" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Could Not Import"
           }
         }
       }
@@ -1009,6 +1255,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Unreadable"
+          }
+        }
+      }
+    },
+    "無法讀取檔案" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The file could not be read"
           }
         }
       }
@@ -1509,6 +1766,17 @@
         }
       }
     },
+    "部分項目未能匯入" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Some Items Could Not Be Imported"
+          }
+        }
+      }
+    },
     "重做" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1538,6 +1806,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Open"
+          }
+        }
+      }
+    },
+    "開啟圖片" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open Image"
+          }
+        }
+      }
+    },
+    "開啟圖片…" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open Image…"
           }
         }
       }
